@@ -1,0 +1,88 @@
+﻿@model Arma3Event.Models.SubscriptionInitialViewModel
+
+@{
+    ViewData["Title"] = Model.Match.Name;
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Evénements</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Inscription à l'événement</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<h2>Inscription à l'événement</h2>
+<hr />
+<dl class="row">
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Match)
+    </dt>
+    <dd class="col-sm-10">
+        <a asp-action="Details" asp-route-id="@Model.Match.MatchID">
+            @Html.DisplayFor(model => model.Match.Name)
+        </a>
+    </dd>
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Match.Date)
+    </dt>
+    <dd class="col-sm-10">
+        <i class="far fa-clock"></i> @Html.DisplayFor(model => model.Match.Date) à @Html.DisplayFor(model => model.Match.StartTime)
+    </dd>
+</dl>
+<form asp-action="SubscriptionInitial" asp-route-id="@Model.Match.MatchID">
+    <div class="row">
+        <div class="col-md-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MatchSideID" />
+            <input type="hidden" asp-for="RoundSquadID" />
+
+            @if (Model.User.UserID == 0)
+            {
+                <div class="form-group">
+                    <label asp-for="User.NamePrefix" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="User.NamePrefix" class="form-control" />
+                        <div class="input-group-append">
+                            <span class="input-group-text">@Html.DisplayFor(model => model.User.SteamName)</span>
+                        </div>
+                    </div>
+                    <span asp-validation-for="User.NamePrefix" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" asp-for="User.UserID" />
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="AcceptSubscription" /> @Html.DisplayNameFor(model => model.AcceptSubscription)
+                </label>
+            </div>
+            <div class="form-group"><span asp-validation-for="AcceptSubscription" class="text-danger"></span></div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="AcceptMatchRules" /> @Html.DisplayNameFor(model => model.AcceptMatchRules)
+                </label>
+            </div>
+            <div class="form-group"><span asp-validation-for="AcceptMatchRules" class="text-danger"></span></div>
+            <div class="form-group">
+                <input type="submit" value="S'inscrire à l'événement" class="btn btn-primary" />
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@Model.Match.MatchID">Retour</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

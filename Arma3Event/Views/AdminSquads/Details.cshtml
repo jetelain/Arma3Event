@@ -1,0 +1,111 @@
+﻿@model Arma3Event.Entities.RoundSquad
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Administration</a></li>
+            <li class="breadcrumb-item"><a asp-controller="@ControllersName.AdminMatchs" asp-action="Details" asp-route-id="@Model.Side.MatchSide.Match.MatchID">@Model.Side.MatchSide.Match.Name</a></li>
+            <li class="breadcrumb-item">@Model.Side.MatchSide.Name</li>
+            <li class="breadcrumb-item">Carte @Model.Side.Round.Number : @Model.Side.MatchSide.Match.GameMap.Name</li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<div>
+    <h4>Information générales</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Number)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Number)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Side.MatchSide)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Side.MatchSide.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Side)
+        </dt>
+        <dd class="col-sm-10">
+            <img src="@ViewHelper.Icon(Model.Side.Faction)" alt="" width="32" />
+            @Html.DisplayFor(model => model.Side.Faction)
+        </dd>
+        @if (Model.RestrictTeamComposition || Model.InviteOnly)
+        {
+            <dt class="col-sm-2">
+                Restrictions
+            </dt>
+            <dd class="col-sm-10">
+                @if (Model.RestrictTeamComposition)
+                {
+                    @Html.DisplayNameFor(model => model.RestrictTeamComposition)
+                }
+                @if (Model.InviteOnly)
+                {
+                    @if (Model.RestrictTeamComposition)
+                    {
+                        <br />
+                    }
+                    @Html.DisplayNameFor(model => model.InviteOnly)
+                }
+            </dd>
+        }
+    </dl>
+
+    <table class="table">
+        <colgroup>
+            <col width="100" />
+            <col width="40" />
+            <col width="200" />
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Rôle</th>
+                <th>Libellé</th>
+                <th>Inscrit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var slot in Model.Slots)
+            {
+            <tr>
+                <td><span class="badge badge-secondary @slot.Role">@Html.DisplayFor(m => slot.Role)</span></td>
+                <td>@Html.DisplayFor(m => slot.Label)</td>
+                <td>
+                    @if (slot.AssignedUser != null)
+                    {
+                        <a asp-controller="@ControllersName.AdminMatchUsers" asp-action="Details" asp-route-id="@slot.AssignedUser.MatchUserID">
+                            @Html.DisplayFor(m => slot.AssignedUser.User.Name)
+                        </a>
+                    }
+                </td>
+            </tr>
+            }
+        </tbody>
+
+    </table>
+
+
+</div>
+
+<p>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.RoundSquadID">Modifier</a>
+    <a class="btn btn-outline-primary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Side.MatchSide.Match.MatchID" asp-route-roundSquadID="@Model.RoundSquadID">Lien d'invitation</a>
+</p>

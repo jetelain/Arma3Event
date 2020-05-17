@@ -1,0 +1,129 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Roboto&display=swap');
+
+body {
+    font-family: 'roboto';
+}
+h1, h2, h3, h4, h5 {
+    font-family: 'Black Ops One', cursive;
+}
+
+.accordion h5 {
+    font-family: 'roboto';
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+img.factionflag {
+    margin-right: 0.5em;
+    margin-top: auto;
+    margin-bottom: auto;
+    height:1.5em;
+}
+
+
+select option {
+    font-family: Arial;
+}
+
+select option:disabled {
+    color: #c0c0c0;
+}
+
+div.title {
+    background-image: url(http://game.pmad.net/img/banner/opex2.jpg);
+    background-position: 50% 50%;
+    background-size: cover;
+    margin-top: -1em;
+    margin-bottom: 1em;
+    padding-top: 6rem;
+}
+
+main div.title {
+    background-image: url(http://game.pmad.net/img/banner/opex.jpg);
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: -1em;
+    margin-right: -1em;
+    padding-top: 0;
+}
+
+    main div.title.players {
+        background-image: url(http://game.pmad.net/img/banner/vab.jpg);
+    }
+
+div.title h1, div.title h2, div.title h3 {
+    padding: 2em 1em;
+    margin: 0;
+    text-align: center;
+    font-weight:normal;
+}
+
+div.title h1 span, div.title h2 span, div.title h3 span {
+    color: white;
+    text-shadow: 3px 3px 8px black;
+    font-weight: bold;
+}
+
+div.title p {
+    margin-bottom: -4.3em;
+    padding-top: 4em;
+    text-align: center;
+    font-size: 120%;
+}
+
+div.title p span {
+    color: white;
+    text-shadow: 3px 3px 8px black;
+}
+
+main div.title p {
+    margin-bottom: -4.2em;
+    font-size: 100%;
+    text-align: center;
+}
+
+main.home {
+    background-color: #e2e2dc;
+}
+
+/*
+.SquadLeader, .Alpha {
+    background-color: #3FFF00;
+}
+*/
+.BravoLeader, .Bravo {
+    background-color: #C376DB;
+}
+.CharlieLeader, .Charlie {
+    background-color: #5BE9B6;
+}

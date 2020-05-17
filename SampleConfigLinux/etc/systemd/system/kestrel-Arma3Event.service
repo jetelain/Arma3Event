@@ -1,0 +1,16 @@
+[Unit]
+Description=Arma3Event
+
+[Service]
+WorkingDirectory=/var/www/Arma3Event
+ExecStart=/var/www/Arma3Event/Arma3Event --urls http://localhost:5010/
+Restart=always
+# Restart service after 10 seconds if the dotnet service crashes:
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=SquadEvent
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production 
+
+[Install]
+WantedBy=multi-user.target
