@@ -48,13 +48,13 @@
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {
                             <span class="mr-sm-2" style="font-size:80%">@User.Identity.Name</span>
-                            <a asp-controller="@ControllersName.Authentication" asp-action="SignOut" class="btn btn-sm btn-outline-secondary" title="@User.Identity.Name">
+                            <a asp-controller="@ControllersName.Authentication" asp-action="SignOut" class="btn btn-sm btn-secondary" title="@User.Identity.Name">
                                 Se déconnecter
                             </a>
                         }
                         else
                         {
-                            <a asp-controller="@ControllersName.Authentication" asp-action="SignIn" class="btn btn-sm btn-outline-secondary">Se connecter</a>
+                            <a asp-controller="@ControllersName.Authentication" asp-action="SignIn" class="btn btn-sm btn-secondary">Se connecter</a>
                         }
                     </form>
                 </div>

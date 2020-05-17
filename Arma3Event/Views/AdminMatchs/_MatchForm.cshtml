@@ -26,11 +26,17 @@
             <span asp-validation-for="Match.ShortDescription" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="Match.GameMapID" class="control-label">Carte</label>
+            <label asp-for="Match.GameMapID" class="control-label"></label>
             <select asp-for="Match.GameMapID" asp-items="Model.MapsDropdownList" class="form-control">
                 <option value="">(Autre ou Non précisé)</option>
             </select>
             <span asp-validation-for="Match.GameMapID" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Match.Template" class="control-label"></label>
+            <select asp-for="Match.Template" asp-items="Html.GetEnumSelectList<Arma3Event.Entities.MatchTemplate>()" class="form-control"></select>
+            <button class="btn btn-secondary" name="applyTemplate" value="applyTemplate">Appliquer</button>
+            <span asp-validation-for="Match.Template" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Match.Description" class="control-label"></label>
@@ -97,16 +103,16 @@
         {
 
         <div class="form-group col-md-4">
-            <label asp-for="Match.Rounds[r].Sides[s].Faction" class="control-label">Tour @(r + 1) - Camp Equipe @ViewHelper.SideName(s)</label>
+            <label asp-for="Match.Rounds[r].Sides[s].FactionID" class="control-label">Tour @(r + 1) - Camp Equipe @ViewHelper.SideName(s)</label>
             <div class="input-group">
                 <div class="input-group-prepend"><img class="factionflag" /></div>
                 <select asp-for="Match.Rounds[r].Sides[s].GameSide" asp-items="Html.GetEnumSelectList<ArmaEvent.Arma3GameInfos.GameSide>()" class="form-control">
                 </select>
-                <select asp-for="Match.Rounds[r].Sides[s].Faction" asp-items="Model.FactionsDropdownList" class="form-control faction">
+                <select asp-for="Match.Rounds[r].Sides[s].FactionID" asp-items="Model.FactionsDropdownList" class="form-control faction">
                     <option value="">(Non précisé)</option>
                 </select>
             </div>
-            <span asp-validation-for="Match.Rounds[r].Sides[s].Faction" class="text-danger"></span>
+            <span asp-validation-for="Match.Rounds[r].Sides[s].FactionID" class="text-danger"></span>
         </div>
 
         }

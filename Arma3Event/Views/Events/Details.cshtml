@@ -45,21 +45,21 @@
             <div class="row mb-4">
                 @foreach (var side in Model.Match.Sides)
                 {
-                    <div class="col-md-6">
+                    <div class="@ViewHelper.SideColClass(Model.Match.Sides)">
                         <h3 class="text-center">@side.Name</h3>
                         <p class="text-center text-muted">@Html.DisplayFor(model => side.SquadsPolicy)</p>
 
                         @if ((side.Users?.Count() ?? 0) >= side.MaxUsersCount)
                         {
                             <p class="text-center">
-                                <button class="btn btn-outline-secondary disabled" disabled>Rejoindre @side.Name</button>
+                                <button class="btn btn-secondary disabled" disabled>Rejoindre @side.Name</button>
                             </p>
                             <p class="text-center text-muted">Nombre maximum d'inscrits atteint</p>
                         }
                         else
                         {
                             <p class="text-center">
-                                <button class="btn btn-outline-success" name="matchSideID" value="@side.MatchSideID">Rejoindre @side.Name</button>
+                                <button class="btn btn-success" name="matchSideID" value="@side.MatchSideID">Rejoindre @side.Name</button>
                             </p>
                         }
                     </div>
@@ -74,7 +74,7 @@ else
         <div class="row mb-4">
             @foreach (var side in Model.Match.Sides)
             {
-                <div class="col-md-6">
+                <div class="@ViewHelper.SideColClass(Model.Match.Sides)">
                     <h3 class="text-center">@side.Name</h3>
                     <p class="text-center text-muted">@Html.DisplayFor(model => side.SquadsPolicy)</p>
                     <p class="text-center">
@@ -91,12 +91,12 @@ else
                         }
                         else if ((side.Users?.Count() ?? 0) >= side.MaxUsersCount)
                         {
-                            <a class="btn btn-outline-secondary" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">S'inscrire et rejoindre @side.Name</a>
+                            <a class="btn btn-secondary" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">S'inscrire et rejoindre @side.Name</a>
                         <p class="text-center text-muted">Nombre maximum d'inscrits atteint, vous pouvez tout de même vous inscrire en liste d'attente.</p>
                     }
                     else
                     {
-                        <a class="btn btn-outline-success" asp-action="Subscription" asp-route-id="@Model.Match.MatchID" asp-route-matchSideID="@side.MatchSideID">S'inscrire et rejoindre @side.Name</a>
+                        <a class="btn btn-success" asp-action="Subscription" asp-route-id="@Model.Match.MatchID" asp-route-matchSideID="@side.MatchSideID">S'inscrire et rejoindre @side.Name</a>
                     }
                         </p>
                     </div>
@@ -127,8 +127,15 @@ else
         <div class="row">
             @foreach (var side in round.Sides)
             {
-                <div class="col-md-6">
-                    <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction)<br />@side.MatchSide.Name</h4>
+                <div class="@ViewHelper.SideColClass(round.Sides)">
+                    <h4 class="text-center">
+                        <img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)
+                        @if (round.Sides.Count > 1)
+                        {
+                            <br />@side.MatchSide.Name
+                        }
+                    </h4>
+
                     @if (Model.MatchUser?.Side == side.MatchSide)
                     {
                         <div class="accordion mb-4" id="squads-@side.RoundSideID">
@@ -224,8 +231,13 @@ else
     <div class="row mb-4">
         @foreach (var side in Model.Match.Sides)
         {
-            <div class="col-md-6">
-                <h3 class="text-center">@side.Name</h3>
+            <div class="@ViewHelper.SideColClass(Model.Match.Sides)">
+
+                @if (Model.Match.Sides.Count > 1)
+                {
+                    <h3 class="text-center">@side.Name</h3>
+                }
+
                 <p>@(side.Users?.Count() ?? 0) inscrits</p>
                 <ul class="list-group">
                     @foreach (var user in side.Users ?? new List<Arma3Event.Entities.MatchUser>())

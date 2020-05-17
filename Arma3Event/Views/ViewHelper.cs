@@ -1,4 +1,6 @@
-﻿using Arma3Event.Entities;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Arma3Event.Entities;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Arma3Event
@@ -14,6 +16,10 @@ namespace Arma3Event
         public static string SideName(int sideIndex)
         {
             return SideNames[sideIndex];
+        }
+        public static string SideColClass(IList list)
+        {
+            return $"col-md-{12 / list.Count}";
         }
 
         public static string Icon(Role role)

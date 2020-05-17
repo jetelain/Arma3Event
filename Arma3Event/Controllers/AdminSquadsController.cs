@@ -31,6 +31,7 @@ namespace Arma3Event.Controllers
             var roundSquad = await _context.RoundSquads
                 .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match).ThenInclude(r => r.GameMap)
                 .Include(r => r.Side).ThenInclude(r => r.Round).ThenInclude(r => r.Match)
+                .Include(r => r.Side).ThenInclude(r => r.Faction)
                 .Include(r => r.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
                 .FirstOrDefaultAsync(m => m.RoundSquadID == id);
             if (roundSquad == null)
@@ -328,6 +329,7 @@ namespace Arma3Event.Controllers
             var roundSquad = await _context.RoundSquads
                 .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match).ThenInclude(r => r.GameMap)
                 .Include(r => r.Side).ThenInclude(r => r.Round).ThenInclude(r => r.Match)
+                .Include(r => r.Side).ThenInclude(r => r.Faction)
                 .FirstOrDefaultAsync(m => m.RoundSquadID == id);
             if (roundSquad == null)
             {

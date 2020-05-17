@@ -121,7 +121,7 @@ else
     } @Model.Match.GameMap.Name
 </h3>
         <hr />
-        <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction)</h4>
+        <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)</h4>
 
         <div class="row mb-4 justify-content-md-center">
             <form class="col-lg-6" asp-action="SubscriptionSlot" asp-route-id="@Model.Match.MatchID">
@@ -218,15 +218,15 @@ else
             <h2><span>@(Model.Match.GameMap?.Name ?? "Destination inconnue")</span></h2>
         </div>
 
-        <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction)</h4>
+        <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)</h4>
 
         <div class="row mb-4 justify-content-md-center">
             <div class="col-lg-6">
 
                 <form class="float-right" asp-action="LeaveSlot" asp-route-id="@Model.Match.MatchID">
                     <p>
-                        <button class="btn btn-sm btn-outline-danger" name="roundSlotID" value="@userslot.RoundSlotID">Changer de squad</button>
-                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@Model.Match.MatchID" asp-fragment="round-@side.RoundID">Voir les autres squads</a>
+                        <button class="btn btn-sm btn-danger" name="roundSlotID" value="@userslot.RoundSlotID">Changer de squad</button>
+                        <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@Model.Match.MatchID" asp-fragment="round-@side.RoundID">Voir les autres squads</a>
                     </p>
                 </form>
 
@@ -269,7 +269,7 @@ else
                                                     }
                                                     else
                                                     {
-                                                        <button class="btn btn-sm btn-outline-success" name="roundSlotID" value="@slot.RoundSlotID">Changer de place</button>
+                                                        <button class="btn btn-sm btn-success" name="roundSlotID" value="@slot.RoundSlotID">Changer de place</button>
                                                     }
                                                 </td>
                                             </tr>
@@ -291,8 +291,8 @@ else
     <p>
         @if (Model.MatchUser.Side != null)
         {
-            <button class="btn btn-outline-danger">Changer de coté</button>
+            <button class="btn btn-danger">Changer de coté</button>
         }
-        <a asp-action="CancelSubscription" asp-route-id="@Model.Match.MatchID" class="btn btn-outline-danger">Annuler l'inscription</a>
+        <a asp-action="CancelSubscription" asp-route-id="@Model.Match.MatchID" class="btn btn-danger">Annuler l'inscription</a>
     </p>
 </form>

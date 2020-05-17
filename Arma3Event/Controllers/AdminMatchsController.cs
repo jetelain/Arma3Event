@@ -37,8 +37,8 @@ namespace Arma3Event.Controllers
             var match = await _context.Matchs
                 .Include(r => r.GameMap)
                 .Include(m => m.Sides)
-                .Include(m => m.Rounds)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads)
+                .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Users).ThenInclude(u => u.Slots)
                 .FirstOrDefaultAsync(m => m.MatchID == id);
@@ -87,14 +87,14 @@ namespace Arma3Event.Controllers
         {
             _context.RemoveRange(target.Squads);
 
-            target.Squads = source.Squads.Select(s => CuplicateSquadAndSlots(target, s)).ToList();
+            target.Squads = source.Squads.Select(s => DuplicateSquadAndSlots(target, s)).ToList();
 
             _context.AddRange(target.Squads);
 
             await _context.SaveChangesAsync();
         }
 
-        private static RoundSquad CuplicateSquadAndSlots(RoundSide target, RoundSquad s)
+        private static RoundSquad DuplicateSquadAndSlots(RoundSide target, RoundSquad s)
         {
             var copy = new RoundSquad()
             {
@@ -127,23 +127,12 @@ namespace Arma3Event.Controllers
             {
                 Date = DateTime.Today,
                 StartTime = new DateTime(1,1,1,21,0,0),
-                Sides = new List<MatchSide>()
-                {
-                    new MatchSide() { Name = "Equipe A", Number = 1 },
-                },
+                Sides = new List<MatchSide>(),
                 Template = MatchTemplate.SingleSideCooperative,
                 Rounds = new List<Round>()
-                {
-                    new Round()
-                    {
-                        Number = 1,
-                        Sides = new List<RoundSide>()
-                        {
-                            new RoundSide()
-                        }
-                    }
-                }
             };
+
+            ApplyTemplate(vm);
 
             await PrepareDrowdownLists(vm);
 
@@ -190,30 +179,12 @@ namespace Arma3Event.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(MatchFormViewModel vm, string addmap, string removemap)
+        public async Task<IActionResult> Create(MatchFormViewModel vm, string applyTemplate)
         {
-            if (!string.IsNullOrEmpty(addmap))
-            {
-                vm.Match.Rounds.Add(
-                    new Round()
-                    {
-                        Number = vm.Match.Rounds.Count() + 1,
-                        Sides = new List<RoundSide>()
-                        {
-                            new RoundSide(),
-                            new RoundSide()
-                        }
-                    }
-                );
-            }
-            else if (!string.IsNullOrEmpty(removemap))
-            {
-                vm.Match.Rounds.RemoveAt(vm.Match.Rounds.Count - 1);
-            }
-            else if (ModelState.IsValid)
-            {
-                ConsolidateMatchForm(vm);
+            ApplyTemplate(vm);
 
+            if (ModelState.IsValid && string.IsNullOrEmpty(applyTemplate))
+            {
                 _context.Add(vm.Match);
                 foreach (var side in vm.Match.Sides)
                 {
@@ -234,10 +205,60 @@ namespace Arma3Event.Controllers
 
             return View(vm);
         }
+        private void ApplyTemplate(MatchFormViewModel vm)
+        {
+            int wantedRounds;
+            int wantedSides;
+
+            switch (vm.Match.Template)
+            {
+                default:
+                case MatchTemplate.SingleSideCooperative:
+                    wantedRounds = 1;
+                    wantedSides = 1;
+                    break;
+                case MatchTemplate.TwoRoundsTwoSidesCompetitive:
+                    wantedRounds = 2;
+                    wantedSides = 2;
+                    break;
+                case MatchTemplate.TwoRoundsThreeSidesCompetitive:
+                    wantedRounds = 2;
+                    wantedSides = 3;
+                    break;
+            }
+
+            if (vm.Match.Rounds.Count > wantedRounds)
+            {
+                vm.Match.Rounds.RemoveRange(wantedRounds, vm.Match.Rounds.Count - wantedRounds);
+            }
+            else if (vm.Match.Rounds.Count < wantedRounds)
+            {
+                vm.Match.Rounds.AddRange(Enumerable.Range(vm.Match.Rounds.Count, wantedRounds - vm.Match.Rounds.Count).Select(i => new Round() { Number = i + 1, Sides = new List<RoundSide>() }));
+            }
+
+            if (vm.Match.Sides.Count > wantedSides)
+            {
+                vm.Match.Sides.RemoveRange(wantedSides, vm.Match.Sides.Count - wantedSides);
+                foreach(var round in vm.Match.Rounds)
+                {
+                    round.Sides.RemoveRange(wantedSides, round.Sides.Count - wantedSides);
+                }
+            }
+            else if (vm.Match.Sides.Count < wantedSides)
+            {
+                vm.Match.Sides.AddRange(Enumerable.Range(vm.Match.Sides.Count, wantedSides - vm.Match.Sides.Count).Select(i => new MatchSide() { Name = "Equipe " + ViewHelper.SideName(i), Number = i + 1 }));
+                foreach (var round in vm.Match.Rounds)
+                {
+                    round.Sides.AddRange(Enumerable.Range(round.Sides.Count, wantedSides - round.Sides.Count).Select(i => new RoundSide()));
+                }
+            }
+
+            ConsolidateMatchForm(vm);
+        }
 
         private void ConsolidateMatchForm(MatchFormViewModel vm)
         {
-            for (var s = 0; s < 2; ++s)
+            for (var s = 0; s < vm.Match.Sides.Count; ++s)
             {
                 var side = vm.Match.Sides[s];
                 side.Match = vm.Match;
@@ -318,31 +339,16 @@ namespace Arma3Event.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, MatchFormViewModel vm, string addmap, string removemap)
+        public async Task<IActionResult> Edit(int id, MatchFormViewModel vm, string applyTemplate)
         {
             if (id != vm.Match.MatchID)
             {
                 return NotFound();
             }
-            if (!string.IsNullOrEmpty(addmap))
-            {
-                vm.Match.Rounds.Add(
-                    new Round()
-                    {
-                        Number = vm.Match.Rounds.Count() + 1,
-                        Sides = new List<RoundSide>()
-                        {
-                            new RoundSide(),
-                            new RoundSide()
-                        }
-                    }
-                );
-            }
-            else if (!string.IsNullOrEmpty(removemap))
-            {
-                vm.Match.Rounds.RemoveAt(vm.Match.Rounds.Count - 1);
-            }
-            else if (ModelState.IsValid)
+
+            ApplyTemplate(vm);
+
+            if (ModelState.IsValid && string.IsNullOrEmpty(applyTemplate))
             {
                 ConsolidateMatchForm(vm);
 
@@ -402,6 +408,8 @@ namespace Arma3Event.Controllers
 
             return View(vm);
         }
+
+
 
         // GET: Matches/Delete/5
         public async Task<IActionResult> Delete(int? id)

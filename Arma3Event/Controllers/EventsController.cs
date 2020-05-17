@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
 using Arma3Event.Models;
@@ -36,6 +37,7 @@ namespace Arma3Event.Controllers
                 .Include(m => m.GameMap)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
+                .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
                 .FirstOrDefaultAsync(m => m.MatchID == id);
             if (match == null)
             {
@@ -165,6 +167,13 @@ namespace Arma3Event.Controllers
                         // Vérifie que MatchSideID appartient bien à MatchID
                         vm.MatchSideID = await _context.MatchSides.Where(s => s.MatchSideID == vm.MatchSideID && s.MatchID == id).Select(s => s.MatchSideID).FirstOrDefaultAsync();
                     }
+                    else
+                    {
+                        if (await _context.MatchSides.CountAsync(s => s.MatchID == id) == 1)
+                        {
+                            vm.MatchSideID = (await _context.MatchSides.FirstAsync(s => s.MatchID == id)).MatchSideID;
+                        }
+                    }
                     matchUser = new MatchUser() { MatchID = id, UserID = vm.User.UserID, MatchSideID = vm.MatchSideID };
                     if (matchUser.MatchSideID == null || await CanJoin(matchUser))
                     {
@@ -250,11 +259,35 @@ namespace Arma3Event.Controllers
                     {
                         return RedirectToAction(nameof(Subscription), new { id });
                     }
+                    roundSquad.SlotsCount++;
                     roundSlot = new RoundSlot() { Squad = roundSquad, SlotNumber = roundSquad.SlotsCount };
                     roundSlot.SetTimestamp();
-                    roundSquad.SlotsCount++;
                     _context.Add(roundSlot);
                     _context.Update(roundSquad);
+                    await _context.SaveChangesAsync();
+                }
+                else if (!string.IsNullOrEmpty(squadName) && roundSideID != null)
+                {
+                    var others = await _context.RoundSquads.Where(rs => rs.RoundSideID == roundSideID).ToListAsync();
+                    var roundSquad = new RoundSquad()
+                    {
+                        Name = squadName,
+                        Number = Enumerable.Range(1, 40).First(num => !others.Any(t => t.Number == num)),
+                        RoundSideID = roundSideID.Value,
+                        SlotsCount = 1,
+                        Slots = new List<RoundSlot>(),
+                        Side = await _context.RoundSides.FindAsync(roundSideID.Value),
+                        RestrictTeamComposition = false,
+                        InviteOnly = false
+                    };
+                    roundSlot = new RoundSlot()
+                    {
+                        Squad = roundSquad,
+                        SlotNumber = 1
+                    };
+                    roundSlot.SetTimestamp();
+                    _context.Add(roundSlot);
+                    _context.Add(roundSquad);
                     await _context.SaveChangesAsync();
                 }
 
@@ -326,6 +359,7 @@ namespace Arma3Event.Controllers
                 .Include(m => m.GameMap)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
+                .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
                 .FirstOrDefaultAsync(m => m.MatchID == id);
             if (match == null)
             {

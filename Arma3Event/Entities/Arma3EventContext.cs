@@ -68,7 +68,7 @@ namespace Arma3Event.Entities
                 Maps.Add(new GameMap() { Name = "Stratis", Image = "/img/maps/stratis.jpg" });
                 Maps.Add(new GameMap() { Name = "Tanoa", Image = "/img/maps/tanoa.jpg" });
                 Maps.Add(new GameMap() { Name = "Linovia", Image = "/img/maps/linovia.jpg" });
-                Maps.Add(new GameMap() { Name = "Taunus", Image = "/img/maps/x-cam-tanus.jpg", WebMap = "taunus", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=836147398" });
+                Maps.Add(new GameMap() { Name = "Taunus", Image = "/img/maps/x-cam-taunus.jpg", WebMap = "taunus", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=836147398" });
                 Maps.Add(new GameMap() { Name = "Lythium", Image = "/img/maps/lythium.jpg", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=909547724" });
                 SaveChanges();
             }
