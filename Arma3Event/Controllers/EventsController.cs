@@ -52,7 +52,7 @@ namespace Arma3Event.Controllers
                     Match = match,
                     MatchSideID = matchSideID,
                     RoundSquadID = roundSquadID,
-                    User = new User() { SteamName = User.Identity.Name }
+                    User = new User() { SteamName = User.Identity.Name, Name = User.Identity.Name }
                 });
             }
             var matchUser = match.Users.FirstOrDefault(u => u.UserID == user.UserID);
@@ -145,7 +145,6 @@ namespace Arma3Event.Controllers
                 {
                     vm.User.SteamId = SteamHelper.GetSteamId(User);
                     vm.User.SteamName = User.Identity.Name;
-                    vm.User.Name = vm.User.NamePrefix + User.Identity.Name;
                     vm.User.UserID = 0;
                     _context.Add(vm.User);
                     await _context.SaveChangesAsync();
@@ -233,7 +232,7 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
 
-            var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.MatchID == id && u.UserID == user.UserID);
+            var matchUser = await _context.MatchUsers.Include(u => u.Side).FirstOrDefaultAsync(u => u.MatchID == id && u.UserID == user.UserID);
             if (matchUser == null || matchUser.MatchSideID == null)
             {
                 return NotFound();
@@ -255,12 +254,17 @@ namespace Arma3Event.Controllers
                 else if (roundSquadID != null)
                 {
                     var roundSquad = await _context.RoundSquads.Include(s => s.Side).FirstOrDefaultAsync(s => s.Side.Round.MatchID == id && s.Side.MatchSideID == matchUser.MatchSideID && s.RoundSquadID == roundSquadID);
-                    if (roundSquad == null || roundSquad.SlotsCount >= 9 || roundSquad.RestrictTeamComposition)
+                    if (roundSquad == null || roundSquad.RestrictTeamComposition)
                     {
                         return RedirectToAction(nameof(Subscription), new { id });
                     }
                     roundSquad.SlotsCount++;
-                    roundSlot = new RoundSlot() { Squad = roundSquad, SlotNumber = roundSquad.SlotsCount };
+                    roundSlot = new RoundSlot() 
+                    { 
+                        Squad = roundSquad, 
+                        SlotNumber = roundSquad.SlotsCount, 
+                        Role = Role.Member 
+                    };
                     roundSlot.SetTimestamp();
                     _context.Add(roundSlot);
                     _context.Update(roundSquad);
@@ -268,6 +272,10 @@ namespace Arma3Event.Controllers
                 }
                 else if (!string.IsNullOrEmpty(squadName) && roundSideID != null)
                 {
+                    if (matchUser.Side.SquadsPolicy != SquadsPolicy.Unrestricted)
+                    {
+                        return RedirectToAction(nameof(Subscription), new { id });
+                    }
                     var others = await _context.RoundSquads.Where(rs => rs.RoundSideID == roundSideID).ToListAsync();
                     var roundSquad = new RoundSquad()
                     {
@@ -283,12 +291,17 @@ namespace Arma3Event.Controllers
                     roundSlot = new RoundSlot()
                     {
                         Squad = roundSquad,
-                        SlotNumber = 1
+                        SlotNumber = 1,
+                        Role = Role.SquadLeader
                     };
                     roundSlot.SetTimestamp();
                     _context.Add(roundSlot);
                     _context.Add(roundSquad);
                     await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    return BadRequest();
                 }
 
                 await AssignSlot(matchUser, roundSlot);
@@ -310,6 +323,10 @@ namespace Arma3Event.Controllers
             }
 
             roundSlot.MatchUserID = matchUser.MatchUserID;
+            if (roundSlot.Role == null)
+            {
+                roundSlot.Role = Role.Member;
+            }
             _context.Update(roundSlot);
             await _context.SaveChangesAsync();
         }

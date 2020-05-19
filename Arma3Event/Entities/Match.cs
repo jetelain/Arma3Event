@@ -14,6 +14,9 @@ namespace Arma3Event.Entities
         [Display(Name = "Titre")]
         public string Name { get; set; }
 
+        [Display(Name = "Image")]
+        public string Image { get; set; }
+
         [DataType(DataType.Date)]
         [Required]
         [Display(Name = "Date")]
@@ -47,13 +50,17 @@ namespace Arma3Event.Entities
         [Display(Name = "Accès sur invitation uniquement")]
         public bool InviteOnly { get; set; }
 
-        [Display(Name = "Type de mission")]
+        [Display(Name = "Type d'événement")]
         public MatchTemplate Template { get; set; }
 
         public List<Round> Rounds { get; set; }
         public List<MatchSide> Sides { get; set; }
         public List<MatchUser> Users { get; set; }
+
+        [Display(Name = "Carte")]
         public int? GameMapID { get; set; }
+
+        [Display(Name = "Carte")]
         public GameMap GameMap { get; set; }
     }
 }

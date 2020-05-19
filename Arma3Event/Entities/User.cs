@@ -7,7 +7,7 @@ namespace Arma3Event.Entities
         public int UserID { get; set; }
 
         [StringLength(100)]
-        [Display(Name = "Pseudonyme")]
+        [Display(Name = "Nom dans Arma 3")]
         public string Name { get; set; }
 
         [StringLength(50)]
@@ -17,9 +17,5 @@ namespace Arma3Event.Entities
         [StringLength(100)]
         [Display(Name = "Nom dans steam")]
         public string SteamName { get; set; }
-
-        [StringLength(10)]
-        [Display(Name = "Préfixe en jeu")]
-        public string NamePrefix { get; set; }
     }
 }

@@ -20,6 +20,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\img\flags\" />
     <Folder Include="wwwroot\img\maps\" />
+    <Folder Include="wwwroot\img\roles\" />
   </ItemGroup>
 
 

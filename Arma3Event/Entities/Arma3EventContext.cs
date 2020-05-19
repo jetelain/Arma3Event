@@ -14,7 +14,6 @@ namespace Arma3Event.Entities
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<Faction> Factions { get; set; }
         public DbSet<MatchUser> MatchUsers { get; set; }
         public DbSet<MatchSide> MatchSides { get; set; }
@@ -28,7 +27,6 @@ namespace Arma3Event.Entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("User");
-            modelBuilder.Entity<Role>().ToTable("Role");
             modelBuilder.Entity<Faction>().ToTable("Faction");
 
             modelBuilder.Entity<Match>().ToTable("Match");

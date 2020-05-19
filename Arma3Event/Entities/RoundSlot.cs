@@ -22,8 +22,7 @@ namespace Arma3Event.Entities
 
         public long? Timestamp { get; set; }
 
-        public int? RoleID { get; set; }
-        public Role Role { get; set; }
+        public Role? Role { get; set; }
 
         public void SetTimestamp()
         {

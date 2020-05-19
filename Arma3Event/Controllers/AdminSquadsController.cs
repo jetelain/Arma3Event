@@ -51,8 +51,9 @@ namespace Arma3Event.Controllers
             vm.Squad = new RoundSquad()
             {
                 RoundSideID = roundSideID,
-                Slots = Enumerable.Range(1, 9).Select(num => new RoundSlot() { SlotNumber = num }).ToList()
+                Slots = Enumerable.Range(1, Constants.BaselineSquadMembers).Select(num => new RoundSlot() { SlotNumber = num }).ToList()
             };
+            vm.Squad.Slots[0].Role = Role.SquadLeader;
 
             await PrepareViewModel(vm);
             await PrepareDrowndownList(vm);
@@ -103,7 +104,7 @@ namespace Arma3Event.Controllers
 
                     await ComputeSquadNumber(vm.Squad);
 
-                    vm.Squad.Slots = vm.Squad.Slots.Where(s => s.RoleID != null).ToList();
+                    vm.Squad.Slots = vm.Squad.Slots.Where(s => s.Role != null).ToList();
                     vm.Squad.SlotsCount = vm.Squad.Slots.Count();
 
                     NormalizeSlotsNumber(vm);
@@ -161,7 +162,7 @@ namespace Arma3Event.Controllers
             {
                 Squad = roundSquad
             };
-            vm.Squad.Slots = vm.Squad.Slots.Concat(Enumerable.Range(vm.Squad.Slots.Count, 9 - vm.Squad.Slots.Count).Select(num => new RoundSlot() { SlotNumber = num })).ToList();
+            vm.Squad.Slots = vm.Squad.Slots.Concat(Enumerable.Range(vm.Squad.Slots.Count, Constants.BaselineSquadMembers - vm.Squad.Slots.Count).Select(num => new RoundSlot() { SlotNumber = num })).ToList();
             EnsurePolicy(vm.Squad);
 
             await PrepareDrowndownList(vm);
@@ -181,10 +182,6 @@ namespace Arma3Event.Controllers
             vm.MatchUserDropdownList = sideUsers
                 .Where(u => !u.Slots.Any(s => s.Squad != null && s.Squad.RoundSideID == vm.Squad.RoundSideID && s.RoundSquadID != vm.Squad.RoundSquadID))
                 .Select(u => new SelectListItem(u.User.Name, u.MatchUserID.ToString()))
-                .ToList();
-
-            vm.RoleDropdownList = _context.Roles
-                .Select(r => new SelectListItem(r.Name, r.RoleID.ToString()))
                 .ToList();
         }
 
@@ -208,7 +205,7 @@ namespace Arma3Event.Controllers
                     {
                         await PrepareViewModel(vm);
 
-                        var removed = vm.Squad.Slots.Where(s => s.RoleID == null && s.RoundSlotID != 0).ToList();
+                        var removed = vm.Squad.Slots.Where(s => s.Role == null && s.RoundSlotID != 0).ToList();
 
                         // Il y a un risque de concurrence d'accès, on s'assure que si un utilisateur s'est affecté entre temps que ce n'est pas perdu
                         if (await DetectConcurrentUpdates(vm) || await CheckUserAvailibilty(vm))
@@ -217,7 +214,7 @@ namespace Arma3Event.Controllers
                             return View(vm);
                         }
 
-                        vm.Squad.Slots = vm.Squad.Slots.Where(s => s.RoleID != null).ToList();
+                        vm.Squad.Slots = vm.Squad.Slots.Where(s => s.Role != null).ToList();
                         vm.Squad.SlotsCount = vm.Squad.Slots.Count();
                         _context.Update(vm.Squad);
 
@@ -270,6 +267,10 @@ namespace Arma3Event.Controllers
             foreach (var slot in vm.Squad.Slots)
             {
                 slot.SlotNumber = slotNumber;
+                if (slotNumber == 1)
+                {
+                    slot.Role = Role.SquadLeader;
+                }
                 slotNumber++;
             }
         }
@@ -280,7 +281,7 @@ namespace Arma3Event.Controllers
             var badusers = 0;
             var slotsIds = vm.Squad.Slots.Where(s => s.RoundSlotID != 0).Select(s => s.RoundSlotID).ToList();
 
-            foreach (var slot in vm.Squad.Slots.Where(s => s.RoleID != null && s.MatchUserID != null))
+            foreach (var slot in vm.Squad.Slots.Where(s => s.Role != null && s.MatchUserID != null))
             {
                 var conflicts = await _context.RoundSlots.Where(s => !slotsIds.Contains(s.RoundSlotID) 
                     && s.MatchUserID == slot.MatchUserID 
@@ -299,7 +300,7 @@ namespace Arma3Event.Controllers
         {
             ModelState.Clear();
             var concurrent = 0;
-            foreach (var slot in vm.Squad.Slots.Where(s => s.RoleID != null && s.RoundSlotID != 0))
+            foreach (var slot in vm.Squad.Slots.Where(s => s.Role != null && s.RoundSlotID != 0))
             {
                 var existing = await _context.RoundSlots.AsNoTracking().FirstOrDefaultAsync(s => s.RoundSlotID == slot.RoundSlotID);
                 if (slot.Timestamp < existing.Timestamp && existing.MatchUserID != slot.MatchUserID)

@@ -40,18 +40,14 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="MatchSideID" />
             <input type="hidden" asp-for="RoundSquadID" />
-
             @if (Model.User.UserID == 0)
             {
                 <div class="form-group">
-                    <label asp-for="User.NamePrefix" class="control-label"></label>
+                    <label asp-for="User.Name" class="control-label"></label>
                     <div class="input-group">
-                        <input asp-for="User.NamePrefix" class="form-control" />
-                        <div class="input-group-append">
-                            <span class="input-group-text">@Html.DisplayFor(model => model.User.SteamName)</span>
-                        </div>
+                        <input asp-for="User.Name" class="form-control" />
                     </div>
-                    <span asp-validation-for="User.NamePrefix" class="text-danger"></span>
+                    <span asp-validation-for="User.Name" class="text-danger"></span>
                 </div>
             }
             else

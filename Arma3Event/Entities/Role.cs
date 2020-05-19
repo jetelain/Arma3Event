@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Arma3Event.Entities
 {
-    public class Role
+    public enum Role
     {
-        public int RoleID { get; set; }
+        [Display(Name = "Chef de groupe")]
+        SquadLeader,
 
-        public string Icon { get; set; }
-        public string Name { get; set; }
+        [Display(Name = "Chef d'équipe")]
+        TeamLeader,
+
+        [Display(Name = "Soldat")]
+        Member
     }
 }

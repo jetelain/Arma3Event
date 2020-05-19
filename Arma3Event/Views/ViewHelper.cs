@@ -22,11 +22,11 @@ namespace Arma3Event
             return $"col-md-{12 / list.Count}";
         }
 
-        public static string Icon(Role role)
+        public static string Icon(Role? role)
         {
-            if (role != null && !string.IsNullOrEmpty(role.Icon))
+            if (role != null)
             {
-                return role.Icon;
+                return $"/img/roles/{role}.png";
             }
             return "";
         }

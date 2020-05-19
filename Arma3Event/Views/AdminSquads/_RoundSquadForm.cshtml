@@ -43,8 +43,8 @@
     <input type="hidden" asp-for="Squad.Slots[i].SlotNumber" />
     <input type="hidden" asp-for="Squad.Slots[i].Timestamp" />
     <div class="form-group col-md-2">
-        <label asp-for="Squad.Slots[i].Role" class="control-label sr-only"></label>
-        <select asp-for="Squad.Slots[i].Role" asp-items="Model.RoleDropdownList" class="form-control role">
+        <label asp-for="Squad.Slots[i].Role" class="control-label @(i>0?"sr-only":"")"></label>
+        <select asp-for="Squad.Slots[i].Role" asp-items="Html.GetEnumSelectList<Arma3Event.Entities.Role>()" class="form-control role" disabled="@(i == 0 ? "disabled":null)">
             <option value="">(Fermé)</option>
         </select>
         <span asp-validation-for="Squad.Slots[i].Role" class="text-danger"></span>

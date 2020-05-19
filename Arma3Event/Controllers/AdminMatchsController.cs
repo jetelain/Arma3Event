@@ -109,7 +109,7 @@ namespace Arma3Event.Controllers
             {
                 Label = p.Label,
                 MatchUserID = p.MatchUserID,
-                RoleID = p.RoleID,
+                Role = p.Role,
                 SlotNumber = p.SlotNumber,
                 Squad = copy,
                 Timestamp = p.Timestamp

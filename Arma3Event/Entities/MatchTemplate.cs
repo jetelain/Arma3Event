@@ -9,13 +9,13 @@ namespace Arma3Event.Entities
 {
     public enum MatchTemplate
     {
-        [Display(Name = "Mission coopérative avec un seul camp/une seule armée")]
+        [Display(Name = "Mission coopérative avec un seul camp/une seule armée (PVE)")]
         SingleSideCooperative,
 
-        [Display(Name = "Mission compétitive en deux manches, avec deux camps")]
+        [Display(Name = "Mission compétitive en deux manches, avec deux camps (PVP)")]
         TwoRoundsTwoSidesCompetitive,
 
-        [Display(Name = "Mission compétitive en deux manches, avec trois camps")]
+        [Display(Name = "Mission compétitive en deux manches, avec trois camps (PVP)")]
         TwoRoundsThreeSidesCompetitive
     }
 }
