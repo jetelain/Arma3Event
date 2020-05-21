@@ -114,14 +114,19 @@ else
     foreach (var side in Model.MatchUser.Side.Rounds.Where(r => !r.Squads.Any(s => s.Slots.Any(s => s.AssignedUser == Model.MatchUser))))
     {
 <h3>
-    Choisissez votre squad pour
+    Choisissez votre groupe 
     @if (Model.Match.Rounds.Count > 1)
     {
-        @:# @side.Round.Number
-    } @Model.Match.GameMap.Name
+    <span>pour la manche #@side.Round.Number</span>
+    }
 </h3>
         <hr />
         <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)</h4>
+
+        @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap))
+        {
+            <p><a asp-action="Map" asp-route-id="@side.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
+        }
 
         <div class="row mb-4 justify-content-md-center">
             <form class="col-lg-6" asp-action="SubscriptionSlot" asp-route-id="@Model.Match.MatchID">
@@ -192,7 +197,7 @@ else
                         <div class="form-group mr-2">
                             <input type="text" name="squadName" class="form-control" />
                         </div>
-                        <button class="btn btn-success" name="roundSideID" value="@side.RoundSideID">Créer une squad</button>
+                        <button class="btn btn-success" name="roundSideID" value="@side.RoundSideID">Créer un groupe</button>
                     </div>
                 }
             </form>
@@ -220,6 +225,11 @@ else
 
         <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)</h4>
 
+        @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap))
+        {
+            <p><a asp-action="Map" asp-route-id="@side.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
+        }
+
         <div class="row mb-4 justify-content-md-center">
             <div class="col-lg-6">
 
@@ -230,7 +240,7 @@ else
                     </p>
                 </form>
 
-                <h5>Votre squad</h5>
+                <h5>Votre groupe</h5>
 
                 <form asp-action="SubscriptionSlot" asp-route-id="@Model.Match.MatchID">
 

@@ -1,0 +1,186 @@
+﻿@model Arma3Event.Models.MapViewModel
+
+@{
+    ViewData["Title"] = Model.GameMap.Name;
+    ViewData["TitleStyle"] = $"background-image: url({Model.GameMap.Image});";
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Evénements</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Carte partagée</li>
+        </ol>
+    </nav>
+}
+@section Title {
+
+    <p><span>@Model.Match.Name</span></p>
+    <h1><span>@ViewData["Title"]</span></h1>
+
+}
+
+
+<div class="map" id="map" style="width:100%; height:80vh; margin:0;padding:0;border:0;">
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="milsymbol">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <span id="milsymbol-grid"></span>
+                    : Symbole OTAN APP-6 (D)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="bg-light text-center mb-1 p-1">
+                    <div id="symbolNumber" class="text-dark">
+                    </div>
+                    <div id="symbolPreview">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="id1" class="control-label">Identité 1</label>
+                            <select id="id1" class="form-control">
+                                <option value="0" selected="selected">Réel</option>
+                                <option value="1">Exercice (X)</option>
+                                <option value="2">Simulation (S)</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="id2" class="control-label">Identité 2</label>
+                            <select id="id2" class="form-control">
+                                <option value="0">En attente (jaune)</option>
+                                <option value="1">Inconnu (jaune)</option>
+                                <option value="2">Présumé ami (bleu)</option>
+                                <option value="3" selected="selected">Ami (bleu)</option>
+                                <option value="4">Neutre (vert)</option>
+                                <option value="5">Suspect (rouge)</option>
+                                <option value="6">Hostile (rouge)</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="set" class="control-label">Jeu de symboles</label>
+                            <select id="set" class="form-control">
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="status" class="control-label">Statut</label>
+                            <select id="status" class="form-control">
+                                <option value="0" selected="selected">Présent</option>
+                                <option value="1">Prévu, anticipé, supecté</option>
+                                <option value="2">Présent/Capacité complète</option>
+                                <option value="3">Présent/Endomagé</option>
+                                <option value="4">Présent/Détruit</option>
+                                <option value="5">Présent/Complet</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="hq" class="control-label">HQ, TF</label>
+                            <select id="hq" class="form-control">
+                                <option value="0" selected="selected">n/a</option>
+                                <option value="1">Feint/Dummy</option>
+                                <option value="2">Headquarters</option>
+                                <option value="3">Feint/Dummy Headquarters</option>
+                                <option value="4">Task Force</option>
+                                <option value="5">Feint/Dummy Task Force</option>
+                                <option value="6">Task Force Headquarters</option>
+                                <option value="7">Feint/Dummy Task Force Headquarters</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="size" class="control-label">Echelon</label>
+                            <select id="size" class="form-control">
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="icon" class="control-label">Symbole</label>
+                            <select id="icon" class="form-control">
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="mod1" class="control-label">Modificateur 1</label>
+                            <select id="mod1" class="form-control">
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="mod2" class="control-label">Modificateur 2</label>
+                            <select id="mod2" class="form-control">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="uniqueDesignation" class="control-label">Identifiant unique</label>
+                            <input type="text" maxlength="21" id="uniqueDesignation" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="direction" class="control-label">Direction (mil)</label>
+                            <input type="number" max="6400" min="0" id="direction" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="location" class="control-label">Emplacement</label>
+                            <input type="text" id="location" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="quantity" class="control-label">Quantité</label>
+                            <input type="text" id="quantity" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="staffComments" class="control-label">Commentaire</label>
+                            <input type="text" id="staffComments" class="form-control" />
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger mr-5" id="milsymbol-delete">Supprimer</button>
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" id="milsymbol-insert">Insérer</button>
+                <button type="button" class="btn btn-success" id="milsymbol-update">Modifier</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton@2.4.0/src/easy-button.css" />
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin="">
+    </script>
+    <script src="https://unpkg.com/leaflet-easybutton@2.4.0/src/easy-button.js">
+    </script>
+    <script src="https://unpkg.com/milsymbol@2.0.0/dist/milsymbol.js">
+    </script>
+    <script src="https://unpkg.com/milstd@0.1.6/milstd.js">
+    </script>
+    <script src="~/js/mapGridRulers.js" asp-append-version="true">
+    </script>
+    <script src="~/js/milstdExtra.js" asp-append-version="true">
+    </script>
+    <script src="~/js/map.js" asp-append-version="true">
+    </script>
+    <script src="~/maps/@(Model.GameMap.WebMap).js" asp-append-version="true">
+    </script>
+}

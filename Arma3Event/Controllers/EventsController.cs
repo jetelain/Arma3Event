@@ -365,6 +365,40 @@ namespace Arma3Event.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Map(int? id)
+        {
+            if (id == null)
+            {
+                return View(new MapViewModel()
+                {
+                    Match = new Match() { GameMap = new GameMap() { WebMap = "taunus", Name = "Taunus", Image="/img/maps/x-cam-taunus.jpg" }, Name = "Démonstration" }
+                });
+            }
+
+            var round = await _context.Rounds
+                .Include(m => m.Match).ThenInclude(m => m.GameMap)
+                .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
+                .FirstOrDefaultAsync(m => m.RoundID == id);
+            if (round == null || string.IsNullOrEmpty(round.Match.GameMap.WebMap))
+            {
+                return NotFound();
+            }
+
+            var user = await GetUser(); 
+            var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == round.MatchID);
+            if (matchUser == null)
+            {
+                return Forbid();
+            }
+
+            var vm = new MapViewModel();
+            vm.Match = round.Match;
+            vm.Round = round;
+            vm.RoundSide = round.Sides.FirstOrDefault(s => s.MatchSideID == matchUser.MatchSideID);
+            return View(vm);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
