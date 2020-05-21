@@ -365,7 +365,7 @@ namespace Arma3Event.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Map(int? id)
+        public async Task<IActionResult> Map(int? id, int? roundId)
         {
             if (id == null)
             {
@@ -378,7 +378,7 @@ namespace Arma3Event.Controllers
             var round = await _context.Rounds
                 .Include(m => m.Match).ThenInclude(m => m.GameMap)
                 .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
-                .FirstOrDefaultAsync(m => m.RoundID == id);
+                .FirstOrDefaultAsync(m => m.RoundID == roundId && m.MatchID == id);
             if (round == null || string.IsNullOrEmpty(round.Match.GameMap.WebMap))
             {
                 return NotFound();

@@ -23,11 +23,13 @@ namespace Arma3Event.Entities
         public DbSet<RoundSide> RoundSides { get; set; }
         public DbSet<RoundSquad> RoundSquads { get; set; }
         public DbSet<RoundSlot> RoundSlots { get; set; }
+        public DbSet<MapMarker> MapMarkers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Faction>().ToTable("Faction");
+            modelBuilder.Entity<MapMarker>().ToTable("MapMarkers");
 
             modelBuilder.Entity<Match>().ToTable("Match");
             modelBuilder.Entity<MatchSide>().ToTable("MatchSide");

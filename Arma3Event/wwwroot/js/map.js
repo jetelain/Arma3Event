@@ -156,12 +156,28 @@ function applySymbol() {
     return symbol;
 }
 
-function milsymbolMarkerTool(map) {
+var modalMarkerId;
+var modalMarkerData;
+
+function updateMakerHandler(e) {
+    var marker = e.sourceTarget;
+    modalMarkerId = marker.options.markerId;
+    modalMarkerData = marker.options.markerData;
+
+    if (modalMarkerData.type == 'mil') {
+        setSymbol(modalMarkerData.symbol, modalMarkerData.config);
+        $('#milsymbol').modal('show');
+        $('#milsymbol-delete').show();
+        $('#milsymbol-update').show();
+        $('#milsymbol-insert').hide();
+        $('#milsymbol-grid').text(toGrid(e.latlng));
+    }
+};
+
+function milsymbolMarkerTool(map, connection) {
 
     var clickPosition = null;
-    var clickMarker = null;
     var insertSymbolBtn;
-
     function insertSymbolHandler(e) {
         insertSymbolBtn.state('default');
         map.off('click', insertSymbolHandler);
@@ -172,15 +188,7 @@ function milsymbolMarkerTool(map) {
         $('#milsymbol-insert').show();
         $('#milsymbol-grid').text(toGrid(e.latlng));
     };
-    function updateMakerHandler(e) {
-        clickMarker = e.sourceTarget;
-        setSymbol(clickMarker.options._symbol, clickMarker.options._symbolConfig);
-        $('#milsymbol').modal('show');
-        $('#milsymbol-delete').show();
-        $('#milsymbol-update').show();
-        $('#milsymbol-insert').hide();
-        $('#milsymbol-grid').text(toGrid(e.latlng));
-    };
+
 
     var sym = new ms.Symbol('10031000001211000000', { size: 8 });
     var btnImg = '<img src="' + sym.asCanvas(window.devicePixelRatio).toDataURL() + '" width="' + sym.getSize().width + '" height="' + sym.getSize().height + '">';
@@ -207,36 +215,27 @@ function milsymbolMarkerTool(map) {
     $('#milsymbol-insert').on('click', function () {
         var symbol = getSymbol();
         var symbolConfig = getSymbolConfig();
-        symbolConfig.size = 32;
-        var sym = new ms.Symbol(symbol, symbolConfig);
-        var myIcon = L.icon({
-            iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
-            iconSize: [sym.getSize().width, sym.getSize().height],
-            iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
+
+        connection.invoke('AddMarker', mapHubInfos.matchID, mapHubInfos.roundSideID, {
+            type: 'mil',
+            symbol: symbol,
+            config: symbolConfig,
+            pos: [clickPosition.lat, clickPosition.lng]
         });
-        L.marker(clickPosition, { icon: myIcon, draggable: true, _symbol: symbol, _symbolConfig: symbolConfig }).addTo(map).on('click', updateMakerHandler);
+
         $('#milsymbol').modal('hide');
     });
 
     $('#milsymbol-delete').on('click', function () {
-        clickMarker.remove();
+        connection.invoke('RemoveMarker', modalMarkerId);
         $('#milsymbol').modal('hide');
     });
 
     $('#milsymbol-update').on('click', function () {
-        var symbol = getSymbol();
-        var symbolConfig = getSymbolConfig();
-        symbolConfig.size = 32;
-        var sym = new ms.Symbol(symbol, symbolConfig);
-
-        var myIcon = L.icon({
-            iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
-            iconSize: [sym.getSize().width, sym.getSize().height],
-            iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
-        });
-        clickMarker.options._symbol = symbol;
-        clickMarker.options._symbolConfig = symbolConfig;
-        clickMarker.setIcon(myIcon);
+        modalMarkerData.symbol = getSymbol();
+        modalMarkerData.config = getSymbolConfig();
+        console.log(['UpdateMarker', modalMarkerId, modalMarkerData]);
+        connection.invoke('UpdateMarker', modalMarkerId, modalMarkerData);
         $('#milsymbol').modal('hide');
     });
 
@@ -304,7 +303,61 @@ function InitMap(mapInfos) {
 
     L.control.scale({ maxWidth: 200, imperial: false }).addTo(map);
 
-    milsymbolMarkerTool(map);
+    var markers = {};
+
+    var connection = new signalR.HubConnectionBuilder().withUrl("/MapHub").build();
+
+
+    function markerMoveEnd(e) {
+        var marker = e.target;
+        var markerId = marker.options.markerId;
+        var markerData = marker.options.markerData;
+        markerData.pos = [marker.getLatLng().lat, marker.getLatLng().lng];
+        console.log(['UpdateMarker', markerId, markerData]);
+        connection.invoke('UpdateMarker', markerId, markerData).catch(function (err) {
+            return console.error(err.toString());
+        });
+    }
+
+    connection.on("AddOrUpdateMarker", function (markerId, markerData) {
+
+        var existing = markers[markerId];
+
+        if (markerData.type == 'mil') {
+            var symbolConfig = $.extend({size:32},markerData.config);
+            var sym = new ms.Symbol(markerData.symbol, symbolConfig);
+            var myIcon = L.icon({
+                iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
+                iconSize: [sym.getSize().width, sym.getSize().height],
+                iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
+            });
+            if (existing) {
+                existing.setIcon(myIcon);
+                existing.setLatLng(markerData.pos);
+                existing.options.markerData = markerData;
+            }
+            else {
+                var marker = L.marker(markerData.pos, { icon: myIcon, draggable: true, markerId: markerId, markerData: markerData })
+                    .addTo(map)
+                    .on('click', updateMakerHandler)
+                    .on('dragend', markerMoveEnd);
+                markers[markerId] = marker;
+            }
+        }
+    });
+
+    connection.on("RemoveMarker", function (markerId) {
+        var existing = markers[markerId];
+        if (existing) {
+            existing.remove();
+        }
+    });
+    connection.start().then(function () {
+        connection.invoke("Hello", mapHubInfos.matchID, mapHubInfos.roundSideID);
+    });
+
+    milsymbolMarkerTool(map, connection);
+
     basicSymbolMarkerTool(map);
 }
 

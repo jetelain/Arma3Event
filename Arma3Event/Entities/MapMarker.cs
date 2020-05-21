@@ -13,7 +13,7 @@ namespace Arma3Event.Entities
         public int MatchID { get; set; }
         public Match Match { get; set; }
 
-        public int RoundSideID { get; set; }
+        public int? RoundSideID { get; set; }
         public RoundSide RoundSide { get; set; }
 
         public int? MatchUserID { get; set; }

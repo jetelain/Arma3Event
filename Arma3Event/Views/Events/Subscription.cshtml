@@ -125,7 +125,7 @@ else
 
         @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap))
         {
-            <p><a asp-action="Map" asp-route-id="@side.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
+            <p><a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@side.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
         }
 
         <div class="row mb-4 justify-content-md-center">
@@ -227,7 +227,7 @@ else
 
         @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap))
         {
-            <p><a asp-action="Map" asp-route-id="@side.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
+            <p><a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@side.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
         }
 
         <div class="row mb-4 justify-content-md-center">

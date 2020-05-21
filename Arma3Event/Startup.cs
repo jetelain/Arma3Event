@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Arma3Event.Entities;
+using Arma3Event.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -28,6 +29,7 @@ namespace Arma3Event
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddSignalR();
 
             services.AddDbContext<Arma3EventContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("Arma3EventContext")));
@@ -100,6 +102,8 @@ namespace Arma3Event
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapHub<MapHub>("/MapHub");
             });
         }
     }
