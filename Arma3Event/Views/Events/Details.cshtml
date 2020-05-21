@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = Model.Match.Name;
+
+    if (!string.IsNullOrEmpty(Model.Match.Image))
+    {
+        ViewData["TitleStyle"] = $"background-image: url({Model.Match.Image});";
+    }
 }
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
@@ -39,6 +44,22 @@
     <dd class="col-sm-10">
         @Html.DisplayFor(model => model.Match.Template)
     </dd>
+    @if (!string.IsNullOrEmpty(Model.Match.DiscordLink) || !string.IsNullOrEmpty(Model.Match.RulesLink))
+    {
+        <dt class="col-sm-2">
+            Liens
+        </dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.Match.DiscordLink)) 
+            { 
+                <a href="@Model.Match.DiscordLink" target="_blank" class="mr-4"><i class="fab fa-discord"></i> Discord</a>
+            }
+            @if (!string.IsNullOrEmpty(Model.Match.RulesLink))
+            {
+                <a href="@Model.Match.RulesLink" target="_blank" class="mr-4"><i class="fas fa-balance-scale"></i> Réglement</a>
+            }
+        </dd>
+    }
 </dl>
 
 
@@ -50,7 +71,7 @@
         <div>
             <div class="row mb-4">
                 @foreach (var side in Model.Match.Sides)
-                {
+                    {
                     <div class="@ViewHelper.SideColClass(Model.Match.Sides)">
                         <h3 class="text-center">@side.Name</h3>
                         <p class="text-center text-muted">@Html.DisplayFor(model => side.SquadsPolicy)</p>
@@ -85,8 +106,8 @@ else
                     <p class="text-center text-muted">@Html.DisplayFor(model => side.SquadsPolicy)</p>
                     <p class="text-center">
                         @if (Model.MatchUser != null)
-                        {
-                            @if (Model.MatchUser.Side == side)
+            {
+                @if (Model.MatchUser.Side == side)
                             {
                                 <a class="btn btn-success" asp-action="Subscription" asp-route-id="@Model.Match.MatchID" asp-route-matchSideID="@side.MatchSideID">Inscrit coté @side.Name</a>
                             }
@@ -113,14 +134,14 @@ else
 
 <div>
     @foreach (var round in Model.Match.Rounds)
-    {
+            {
         <div class="title" style="@ViewHelper.Style(Model.Match.GameMap)">
             <a name="round-@round.RoundID"></a>
             <p>
                 <span>
                     Carte
                     @if (Model.Match.Rounds.Count > 1)
-                    {
+            {
                         @:# @round.Number
                     }
                 </span>

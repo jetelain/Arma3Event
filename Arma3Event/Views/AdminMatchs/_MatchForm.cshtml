@@ -26,22 +26,41 @@
             <span asp-validation-for="Match.ShortDescription" class="text-danger"></span>
         </div>
         <div class="form-group">
+            <label asp-for="Match.Image" class="control-label"></label>
+            <input asp-for="Match.Image" class="form-control" />
+            <span asp-validation-for="Match.Image" class="text-danger"></span>
+        </div>
+        <div class="form-group">
             <label asp-for="Match.GameMapID" class="control-label"></label>
             <select asp-for="Match.GameMapID" asp-items="Model.MapsDropdownList" class="form-control">
-                <option value="">(Autre ou Non précisé)</option>
+                <option value="">(Autre)</option>
             </select>
             <span asp-validation-for="Match.GameMapID" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Match.Template" class="control-label"></label>
-            <select asp-for="Match.Template" asp-items="Html.GetEnumSelectList<Arma3Event.Entities.MatchTemplate>()" class="form-control"></select>
-            <button class="btn btn-secondary" name="applyTemplate" value="applyTemplate">Appliquer</button>
+            <span class="input-group">
+                <select asp-for="Match.Template" asp-items="Html.GetEnumSelectList<Arma3Event.Entities.MatchTemplate>()" class="form-control"></select>
+                <span class="input-group-append">
+                    <button class="btn btn-secondary" name="applyTemplate" value="applyTemplate">Appliquer</button>
+                </span>
+            </span>
             <span asp-validation-for="Match.Template" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Match.Description" class="control-label"></label>
             <textarea asp-for="Match.Description" class="form-control"></textarea>
             <span asp-validation-for="Match.Description" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Match.RulesLink" class="control-label"></label>
+            <input asp-for="Match.RulesLink" class="form-control" />
+            <span asp-validation-for="Match.RulesLink" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Match.DiscordLink" class="control-label"></label>
+            <input asp-for="Match.DiscordLink" class="form-control" />
+            <span asp-validation-for="Match.DiscordLink" class="text-danger"></span>
         </div>
     </div>
 </div>

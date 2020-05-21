@@ -62,5 +62,11 @@ namespace Arma3Event.Entities
 
         [Display(Name = "Carte")]
         public GameMap GameMap { get; set; }
+
+        [Display(Name = "Lien Discord")]
+        public string DiscordLink { get; set; }
+
+        [Display(Name = "Lien vers le réglement")]
+        public string RulesLink { get; set; }
     }
 }
