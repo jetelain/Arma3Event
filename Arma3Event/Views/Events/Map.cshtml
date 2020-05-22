@@ -10,6 +10,14 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Evénements</a></li>
             <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
+            @if (Model.Round != null && Model.Match.Template != Arma3Event.Entities.MatchTemplate.SingleSideCooperative)
+            {
+                <li class="breadcrumb-item" aria-current="page">Manche #@Model.Round.Number</li>
+            }
+            @if (Model.RoundSide != null)
+            {
+                <li class="breadcrumb-item" aria-current="page">@Model.RoundSide.MatchSide.Name</li>
+            }
             <li class="breadcrumb-item active" aria-current="page">Carte partagée</li>
         </ol>
     </nav>
@@ -49,7 +57,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-2">
                             <label for="id1" class="control-label">Identité 1</label>
-                            <select id="id1" class="form-control">
+                            <select id="id1" class="form-control form-control-sm">
                                 <option value="0" selected="selected">Réel</option>
                                 <option value="1">Exercice (X)</option>
                                 <option value="2">Simulation (S)</option>
@@ -57,7 +65,7 @@
                         </div>
                         <div class="form-group col-md-2">
                             <label for="id2" class="control-label">Identité 2</label>
-                            <select id="id2" class="form-control">
+                            <select id="id2" class="form-control  form-control-sm">
                                 <option value="0">En attente (jaune)</option>
                                 <option value="1">Inconnu (jaune)</option>
                                 <option value="2">Présumé ami (bleu)</option>
@@ -69,12 +77,12 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label for="set" class="control-label">Jeu de symboles</label>
-                            <select id="set" class="form-control">
+                            <select id="set" class="form-control  form-control-sm">
                             </select>
                         </div>
                         <div class="form-group col-md-2">
                             <label for="status" class="control-label">Statut</label>
-                            <select id="status" class="form-control">
+                            <select id="status" class="form-control  form-control-sm">
                                 <option value="0" selected="selected">Présent</option>
                                 <option value="1">Prévu, anticipé, supecté</option>
                                 <option value="2">Présent/Capacité complète</option>
@@ -85,7 +93,7 @@
                         </div>
                         <div class="form-group col-md-2">
                             <label for="hq" class="control-label">HQ, TF</label>
-                            <select id="hq" class="form-control">
+                            <select id="hq" class="form-control  form-control-sm">
                                 <option value="0" selected="selected">n/a</option>
                                 <option value="1">Feint/Dummy</option>
                                 <option value="2">Headquarters</option>
@@ -101,22 +109,22 @@
                     <div class="form-row">
                         <div class="form-group col-md-2">
                             <label for="size" class="control-label">Echelon</label>
-                            <select id="size" class="form-control">
+                            <select id="size" class="form-control  form-control-sm">
                             </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="icon" class="control-label">Symbole</label>
-                            <select id="icon" class="form-control">
+                            <select id="icon" class="form-control  form-control-sm">
                             </select>
                         </div>
                         <div class="form-group col-md-2">
                             <label for="mod1" class="control-label">Modificateur 1</label>
-                            <select id="mod1" class="form-control">
+                            <select id="mod1" class="form-control  form-control-sm">
                             </select>
                         </div>
                         <div class="form-group col-md-2">
                             <label for="mod2" class="control-label">Modificateur 2</label>
-                            <select id="mod2" class="form-control">
+                            <select id="mod2" class="form-control  form-control-sm">
                             </select>
                         </div>
                     </div>
@@ -124,23 +132,23 @@
                     <div class="form-row">
                         <div class="form-group col-md-2">
                             <label for="uniqueDesignation" class="control-label">Identifiant unique</label>
-                            <input type="text" maxlength="21" id="uniqueDesignation" class="form-control" />
+                            <input type="text" maxlength="21" id="uniqueDesignation" class="form-control  form-control-sm" />
                         </div>
                         <div class="form-group col-md-2">
                             <label for="direction" class="control-label">Direction (mil)</label>
-                            <input type="number" max="6400" min="0" id="direction" class="form-control" />
+                            <input type="number" max="6400" min="0" id="direction" class="form-control  form-control-sm" />
                         </div>
                         <div class="form-group col-md-2">
                             <label for="location" class="control-label">Emplacement</label>
-                            <input type="text" id="location" class="form-control" />
+                            <input type="text" id="location" class="form-control  form-control-sm" />
                         </div>
                         <div class="form-group col-md-2">
                             <label for="quantity" class="control-label">Quantité</label>
-                            <input type="text" id="quantity" class="form-control" />
+                            <input type="text" id="quantity" class="form-control  form-control-sm" />
                         </div>
                         <div class="form-group col-md-4">
                             <label for="staffComments" class="control-label">Commentaire</label>
-                            <input type="text" id="staffComments" class="form-control" />
+                            <input type="text" id="staffComments" class="form-control  form-control-sm" />
                         </div>
 
                     </div>
@@ -164,6 +172,7 @@
 @section Styles {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton@2.4.0/src/easy-button.css" />
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css" />
 }
 
 @section Scripts {
@@ -177,6 +186,7 @@
     </script>
     <script src="https://unpkg.com/milstd@0.1.6/milstd.js">
     </script>
+    <script src="https://unpkg.com/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
     <script src="~/js/mapGridRulers.js" asp-append-version="true">
     </script>
     <script src="~/js/milstdExtra.js" asp-append-version="true">

@@ -1,0 +1,36 @@
+﻿@model Arma3Event.Entities.MatchTechnicalInfos
+
+
+@{
+    ViewData["Title"] = "Modifier les informations techniques";
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Administration</a></li>
+            <li class="breadcrumb-item"><a asp-controller="@ControllersName.AdminMatchs" asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MatchTechnicalInfosID" />
+            @{await Html.RenderPartialAsync("_TechnicalInfosForm");}
+            <div class="form-group">
+                <input type="submit" value="Enregistrer" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

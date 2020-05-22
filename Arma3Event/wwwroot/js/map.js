@@ -31,11 +31,14 @@ function toGrid(latlng) {
 }
 
 function applySymbolSet() {
+    var id = '0003'; //+ $('#id1').val() + $('#id2').val();
     var symbolset = $('#set').val();
 
     $('#size').empty();
     $.each(echelonMobilityTowedarray(symbolset), function (name, value) {
-        $('#size').append($('<option></option>').attr({ value: value.code }).text(value.name));
+        var sym = new ms.Symbol(id + symbolset + '00' + value.code+'0000000000', { size: 16 });
+        var labelHtml = '<img class="mil-icon" src="' + sym.asCanvas(window.devicePixelRatio).toDataURL() + '" width="' + sym.getSize().width + '" height="' + sym.getSize().height + '"> ' + value.name;
+        $('#size').append($('<option></option>').attr({ value: value.code, 'data-content': labelHtml }).text(value.name));
     });
 
     var data = milstd.app6d[symbolset];
@@ -43,32 +46,45 @@ function applySymbolSet() {
     var grps = {};
     $('#icon').empty();
     $.each(data['main icon'], function (name, value) {
+
+        var sym = new ms.Symbol(id + symbolset + '0000' + value.code + '0000', { size: 16 });
+        var labelHtml = '<img class="mil-icon" src="' + sym.asCanvas(window.devicePixelRatio).toDataURL() + '" width="' + sym.getSize().width + '" height="' + sym.getSize().height + '"> ';
+        var labelText = '';
+
         if (value['entity type']) {
-            var grp = grps[value.entity];
-            if (!grp) {
-                grp = grps[value.entity] = $('<optgroup></optgroup>').attr({ label: value.entity });
-                $('#icon').append(grp);
-            }
             if (value['entity subtype']) {
-                $(grp).append($('<option></option>').attr({ value: value.code }).text(value['entity type'] + " - " + value['entity subtype']));
+                labelHtml += '<span class="font-weight-light text-muted">' + value.entity + ' - ' + value['entity type'] + '</span> - <strong>' + value['entity subtype'] + '</strong>';
+                labelText = value.entity + ' - ' + value['entity type'] + ' - ' + value['entity subtype'];
             } else {
-                $(grp).append($('<option></option>').attr({ value: value.code }).text(value['entity type']));
+                labelHtml += '<span class="font-weight-light text-muted">' + value.entity + '</span> - <strong>' + value['entity type'] + '</strong>';
+                labelText = value.entity + ' - ' + value['entity subtype'];
             }
         }
         else {
-            $('#icon').append($('<option></option>').attr({ value: value.code }).text(value.entity));
+            labelHtml += '<strong>' + value.entity + '</strong>';
+            labelText = value.entity;
         }
+        $('#icon').append($('<option></option>').attr({ value: value.code, 'data-content': labelHtml }).text(labelText));
     });
 
     $('#mod1').empty();
     $.each(data['modifier 1'], function (name, value) {
-        $('#mod1').append($('<option></option>').attr({ value: value.code }).text(value.modifier));
+        var sym = new ms.Symbol(id + symbolset + '0000000000' + value.code + '00', { size: 16 });
+        var labelHtml = '<img class="mil-icon" src="' + sym.asCanvas(window.devicePixelRatio).toDataURL() + '" width="' + sym.getSize().width + '" height="' + sym.getSize().height + '"> ' + value.modifier;
+        $('#mod1').append($('<option></option>').attr({ value: value.code, 'data-content': labelHtml  }).text(value.modifier));
     });
 
     $('#mod2').empty();
     $.each(data['modifier 2'], function (name, value) {
-        $('#mod2').append($('<option></option>').attr({ value: value.code }).text(value.modifier));
+        var sym = new ms.Symbol(id + symbolset + '000000000000' + value.code, { size: 16 });
+        var labelHtml = '<img class="mil-icon" src="' + sym.asCanvas(window.devicePixelRatio).toDataURL() + '" width="' + sym.getSize().width + '" height="' + sym.getSize().height + '"> ' + value.modifier;
+        $('#mod2').append($('<option></option>').attr({ value: value.code, 'data-content': labelHtml }).text(value.modifier));
     });
+
+    $('#size').selectpicker('refresh');
+    $('#icon').selectpicker('refresh');
+    $('#mod1').selectpicker('refresh');
+    $('#mod2').selectpicker('refresh');
 }
 function getSymbol() {
     var symbol = '10';
@@ -127,8 +143,10 @@ function setSymbol(symbol, config) {
     $('#quantity').val(config.quantity || '');
     $('#staffComments').val(config.staffComments || '');
     $('#direction').val(config.direction !== undefined ? (Number(config.direction) * 6400 / 360) : '');
-
+    
     applySymbol();
+
+    $('select').selectpicker('render');
 }
 
 function applySymbol() {
@@ -285,79 +303,82 @@ function basicSymbolMarkerTool(map) {
 }
 
 function InitMap(mapInfos) {
-
-    var map = L.map('map', {
-        minZoom: mapInfos.minZoom,
-        maxZoom: mapInfos.maxZoom,
-        crs: mapInfos.CRS
-    });
-
-    L.tileLayer(mapInfos.tilePattern, {
-        attribution: mapInfos.attribution,
-        tileSize: mapInfos.tileSize
-    }).addTo(map);
-
-    map.setView(mapInfos.center, mapInfos.defaultZoom);
-
-    L.latlngGraticule().addTo(map);
-
-    L.control.scale({ maxWidth: 200, imperial: false }).addTo(map);
-
-    var markers = {};
-
-    var connection = new signalR.HubConnectionBuilder().withUrl("/MapHub").build();
-
-
-    function markerMoveEnd(e) {
-        var marker = e.target;
-        var markerId = marker.options.markerId;
-        var markerData = marker.options.markerData;
-        markerData.pos = [marker.getLatLng().lat, marker.getLatLng().lng];
-        console.log(['UpdateMarker', markerId, markerData]);
-        connection.invoke('UpdateMarker', markerId, markerData).catch(function (err) {
-            return console.error(err.toString());
+    $(function () {
+        var map = L.map('map', {
+            minZoom: mapInfos.minZoom,
+            maxZoom: mapInfos.maxZoom,
+            crs: mapInfos.CRS
         });
-    }
 
-    connection.on("AddOrUpdateMarker", function (markerId, markerData) {
+        L.tileLayer(mapInfos.tilePattern, {
+            attribution: mapInfos.attribution,
+            tileSize: mapInfos.tileSize
+        }).addTo(map);
 
-        var existing = markers[markerId];
+        map.setView(mapInfos.center, mapInfos.defaultZoom);
 
-        if (markerData.type == 'mil') {
-            var symbolConfig = $.extend({size:32},markerData.config);
-            var sym = new ms.Symbol(markerData.symbol, symbolConfig);
-            var myIcon = L.icon({
-                iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
-                iconSize: [sym.getSize().width, sym.getSize().height],
-                iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
+        L.latlngGraticule().addTo(map);
+
+        L.control.scale({ maxWidth: 200, imperial: false }).addTo(map);
+
+        var markers = {};
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/MapHub").build();
+
+
+        function markerMoveEnd(e) {
+            var marker = e.target;
+            var markerId = marker.options.markerId;
+            var markerData = marker.options.markerData;
+            markerData.pos = [marker.getLatLng().lat, marker.getLatLng().lng];
+            console.log(['MoveMarker', markerId, markerData]);
+            connection.invoke('MoveMarker', markerId, markerData).catch(function (err) {
+                return console.error(err.toString());
             });
+        }
+
+        connection.on("AddOrUpdateMarker", function (markerId, markerData) {
+
+            var existing = markers[markerId];
+
+            if (markerData.type == 'mil') {
+                var symbolConfig = $.extend({ size: 32 }, markerData.config);
+                var sym = new ms.Symbol(markerData.symbol, symbolConfig);
+                var myIcon = L.icon({
+                    iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
+                    iconSize: [sym.getSize().width, sym.getSize().height],
+                    iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
+                });
+                if (existing) {
+                    existing.setIcon(myIcon);
+                    existing.setLatLng(markerData.pos);
+                    existing.options.markerData = markerData;
+                }
+                else {
+                    var marker = L.marker(markerData.pos, { icon: myIcon, draggable: true, markerId: markerId, markerData: markerData })
+                        .addTo(map)
+                        .on('click', updateMakerHandler)
+                        .on('dragend', markerMoveEnd);
+                    markers[markerId] = marker;
+                }
+            }
+        });
+
+        connection.on("RemoveMarker", function (markerId) {
+            var existing = markers[markerId];
             if (existing) {
-                existing.setIcon(myIcon);
-                existing.setLatLng(markerData.pos);
-                existing.options.markerData = markerData;
+                existing.remove();
             }
-            else {
-                var marker = L.marker(markerData.pos, { icon: myIcon, draggable: true, markerId: markerId, markerData: markerData })
-                    .addTo(map)
-                    .on('click', updateMakerHandler)
-                    .on('dragend', markerMoveEnd);
-                markers[markerId] = marker;
-            }
-        }
-    });
+        });
+        connection.start().then(function () {
+            connection.invoke("Hello", mapHubInfos.matchID, mapHubInfos.roundSideID);
+        });
 
-    connection.on("RemoveMarker", function (markerId) {
-        var existing = markers[markerId];
-        if (existing) {
-            existing.remove();
-        }
-    });
-    connection.start().then(function () {
-        connection.invoke("Hello", mapHubInfos.matchID, mapHubInfos.roundSideID);
-    });
+        milsymbolMarkerTool(map, connection);
 
-    milsymbolMarkerTool(map, connection);
+        basicSymbolMarkerTool(map);
 
-    basicSymbolMarkerTool(map);
+        $('select').selectpicker();
+    });
 }
 

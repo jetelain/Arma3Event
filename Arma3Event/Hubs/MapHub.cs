@@ -76,8 +76,16 @@ namespace Arma3Event.Hubs
             return 0;
         }
 
-
         public async Task UpdateMarker(int mapMarkerID, MarkerData markerData)
+        {
+            await DoUpdateMarker(mapMarkerID, markerData, true);
+        }
+        public async Task MoveMarker(int mapMarkerID, MarkerData markerData)
+        {
+            await DoUpdateMarker(mapMarkerID, markerData, false);
+        }
+
+        private async Task DoUpdateMarker(int mapMarkerID, MarkerData markerData, bool notifyCaller)
         {
             var marker = _context.MapMarkers.FirstOrDefault(m => m.MapMarkerID == mapMarkerID);
             var user = await GetUser(marker.MatchID);
@@ -86,7 +94,7 @@ namespace Arma3Event.Hubs
                 marker.MarkerData = JsonConvert.SerializeObject(markerData);
                 _context.Update(marker);
                 await _context.SaveChangesAsync();
-                await Notify("AddOrUpdateMarker", marker);
+                await Notify("AddOrUpdateMarker", marker, notifyCaller);
             }
         }
 
@@ -102,15 +110,17 @@ namespace Arma3Event.Hubs
             }
         }
 
-        private async Task Notify(string method, MapMarker marker)
+        private async Task Notify(string method, MapMarker marker, bool notifyCaller = true)
         {
-            if (marker.RoundSideID == null)
+            string groupName = marker.RoundSideID == null ? $"Match:{marker.MatchID}" : $"MatchRound:{marker.RoundSideID}";
+
+            if (notifyCaller)
             {
-                await Clients.Group($"Match:{marker.MatchID}").SendAsync(method, marker.MapMarkerID, JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData));
+                await Clients.Group(groupName).SendAsync(method, marker.MapMarkerID, JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData));
             }
             else
             {
-                await Clients.Group($"MatchRound:{marker.RoundSideID}").SendAsync(method, marker.MapMarkerID, JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData));
+                await Clients.OthersInGroup(groupName).SendAsync(method, marker.MapMarkerID, JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData));
             }
         }
     }

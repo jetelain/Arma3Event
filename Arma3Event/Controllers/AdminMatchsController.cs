@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
 using Arma3Event.Models;
@@ -41,6 +42,7 @@ namespace Arma3Event.Controllers
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Users).ThenInclude(u => u.Slots)
+                .Include(m => m.MatchTechnicalInfos)
                 .FirstOrDefaultAsync(m => m.MatchID == id);
             if (match == null)
             {
@@ -443,6 +445,17 @@ namespace Arma3Event.Controllers
         private bool MatchExists(int id)
         {
             return _context.Matchs.Any(e => e.MatchID == id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PreviewModPack(int id)
+        {
+            var match = await _context.Matchs.Include(m => m.MatchTechnicalInfos).FirstOrDefaultAsync(m => m.MatchID == id);
+            if (string.IsNullOrEmpty(match?.MatchTechnicalInfos?.ModsDefinition))
+            {
+                return NotFound();
+            }
+            return File(Encoding.UTF8.GetBytes(match.MatchTechnicalInfos.ModsDefinition), "text/html; charset=utf-8");
         }
     }
 }

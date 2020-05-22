@@ -37,6 +37,12 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.StartTime)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.GameMap)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.GameMap.Name)
+        </dd>
         <dt class="col-sm-12">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
@@ -48,6 +54,67 @@
 <p>
     <a asp-action="Edit" asp-route-id="@Model.MatchID" class="btn btn-sm btn-secondary">Modifier</a>
 </p>
+
+<div>
+    <h3>Informations techniques</h3>
+    <hr />
+
+    @if (Model.MatchTechnicalInfos == null)
+    {
+        <p>Les informations techniques ne sont pas encore définies.</p>
+        <p>
+            <a asp-controller="AdminMatchTechnicalInfos" asp-action="Create" asp-route-matchID="@Model.MatchID" class="btn btn-sm btn-secondary">Définir les informations techniques</a>
+        </p>
+    }
+    else
+    {
+<dl class="row">
+    <dt class="col-sm-2">
+        Serveur de jeu
+    </dt>
+    <dd class="col-sm-10">
+        @Model.MatchTechnicalInfos.GameServerAddress:@Model.MatchTechnicalInfos.GameServerPort
+    </dd>
+    <dt class="col-sm-2">
+        Communication vocale
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.MatchTechnicalInfos.VoipSystem)
+    </dd>
+    <dt class="col-sm-2">
+        Serveur TeamSpeak
+    </dt>
+    <dd class="col-sm-10">
+        @Model.MatchTechnicalInfos.VoipServerAddress:@Model.MatchTechnicalInfos.VoipServerPort
+    </dd>
+    <dt class="col-sm-2">
+        Mods
+    </dt>
+    <dd class="col-sm-10">
+        <a class="btn btn-secondary btn-sm" asp-action="PreviewModPack" asp-route-id="@Model.MatchID">
+            Aperçu du modpack
+            <span class="badge badge-primary">
+                @Html.DisplayFor(model => model.MatchTechnicalInfos.ModsCount)
+            </span>
+        </a>
+    </dd>
+    @if (Model.MatchTechnicalInfos.HoursBeforeRevealPasswords != null)
+    {
+    <dt class="col-sm-2">
+        Accès
+    </dt>
+    <dd class="col-sm-10">
+        Les mots de passe sont révélés aux participants <strong>@Model.MatchTechnicalInfos.HoursBeforeRevealPasswords</strong> heures avant le début
+    </dd>
+    }
+</dl>
+        <p>
+            <a asp-controller="AdminMatchTechnicalInfos" asp-action="Edit" asp-route-id="@Model.MatchTechnicalInfos.MatchTechnicalInfosID" class="btn btn-sm btn-secondary">Modifier les informations techniques</a>
+        </p>
+    }
+</div>
+
+
 @*<div>
         <div class="row">
             @foreach (var side in Model.Sides)
@@ -61,7 +128,7 @@
 <div>
     @foreach (var round in Model.Rounds)
     {
-        <h3><a name="round-@round.RoundID"></a>@(Model.GameMap?.Name ?? "Destination inconnue")</h3>
+    <h3><a name="round-@round.RoundID"></a>Manche #@round.Number</h3>
         <hr />
 
         <div class="row" style="margin-bottom:2em;">

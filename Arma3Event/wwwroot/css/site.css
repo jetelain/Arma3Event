@@ -116,3 +116,9 @@ main div.title p {
 main.home {
     background-color: #e2e2dc;
 }
+
+
+img.mil-icon {
+    background: rgb(233, 236, 239);
+    padding: 2px 4px;
+}

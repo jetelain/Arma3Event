@@ -1,0 +1,10 @@
+﻿@model Arma3Event.Models.VoipSystemViewModel
+
+@{
+    ViewData["Title"] = @Html.DisplayFor(m => m.VoipSystem);
+}
+
+@section Title { <h1><span>@Html.DisplayFor(m => m.VoipSystem)</span></h1> }
+
+
+@Html.Raw(Model.HelpContent)

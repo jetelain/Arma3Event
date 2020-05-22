@@ -68,5 +68,7 @@ namespace Arma3Event.Entities
 
         [Display(Name = "Lien vers le réglement")]
         public string RulesLink { get; set; }
+
+        public MatchTechnicalInfos MatchTechnicalInfos { get; set; }
     }
 }

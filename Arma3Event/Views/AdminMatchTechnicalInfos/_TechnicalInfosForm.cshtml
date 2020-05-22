@@ -1,0 +1,51 @@
+﻿@model Arma3Event.Entities.MatchTechnicalInfos
+
+<input type="hidden" asp-for="MatchID" />
+<div class="form-row">
+    <div class="form-group col-md-7">
+        <label asp-for="GameServerAddress" class="control-label"></label>
+        <input asp-for="GameServerAddress" class="form-control" />
+        <span asp-validation-for="GameServerAddress" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-5">
+        <label asp-for="GameServerPort" class="control-label"></label>
+        <input asp-for="GameServerPort" class="form-control" />
+        <span asp-validation-for="GameServerPort" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="GameServerPassword" class="control-label"></label>
+    <input asp-for="GameServerPassword" class="form-control" />
+    <span asp-validation-for="GameServerPassword" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="VoipSystem" class="control-label"></label>
+    <select asp-for="VoipSystem" class="form-control" asp-items="Html.GetEnumSelectList<Arma3Event.Entities.VoipSystem>()"></select>
+    <span asp-validation-for="VoipSystem" class="text-danger"></span>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-7">
+        <label asp-for="VoipServerAddress" class="control-label"></label>
+        <input asp-for="VoipServerAddress" class="form-control" />
+        <span asp-validation-for="VoipServerAddress" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-5">
+        <label asp-for="VoipServerPort" class="control-label"></label>
+        <input asp-for="VoipServerPort" class="form-control" />
+        <span asp-validation-for="VoipServerPort" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="VoipServerPassword" class="control-label"></label>
+    <input asp-for="VoipServerPassword" class="form-control" />
+    <span asp-validation-for="VoipServerPassword" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="HoursBeforeRevealPasswords" class="control-label"></label>
+    <input asp-for="HoursBeforeRevealPasswords" class="form-control" />
+    <span asp-validation-for="HoursBeforeRevealPasswords" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label for="modpack" class="control-label">Fichier ModPack (HTML exporté par le Launcher Arma 3)</label>
+    <input name="modpack" id="modpack" type="file" class="form-control" />
+</div>

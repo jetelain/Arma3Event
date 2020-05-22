@@ -1,0 +1,110 @@
+﻿@model Arma3Event.Models.EventDetailsViewModel
+
+<dt class="col-sm-2">
+    @Html.DisplayNameFor(model => model.Match.Date)
+</dt>
+<dd class="col-sm-10">
+    <i class="far fa-clock"></i> @Html.DisplayFor(model => model.Match.Date) à @Html.DisplayFor(model => model.Match.StartTime)
+</dd>
+@if (!string.IsNullOrEmpty(Model.Match.DiscordLink) || !string.IsNullOrEmpty(Model.Match.RulesLink))
+{
+    <dt class="col-sm-2">
+        Liens
+    </dt>
+    <dd class="col-sm-10 mb-2">
+        @if (!string.IsNullOrEmpty(Model.Match.DiscordLink))
+        {
+            <a href="@Model.Match.DiscordLink" target="_blank" class="mr-4"><i class="fab fa-discord"></i> Discord</a>
+        }
+        @if (!string.IsNullOrEmpty(Model.Match.RulesLink))
+        {
+            <a href="@Model.Match.RulesLink" target="_blank" class="mr-4"><i class="fas fa-balance-scale"></i> Réglement</a>
+        }
+    </dd>
+}
+<dt class="col-sm-2">
+    @Html.DisplayNameFor(model => model.Match.Template)
+</dt>
+<dd class="col-sm-10">
+    @Html.DisplayFor(model => model.Match.Template)
+</dd>
+
+
+
+@if (Model.Match.MatchTechnicalInfos != null && Model.MatchUser != null)
+{
+    var reveal = Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords == null || Model.Match.StartDate.Subtract(DateTime.Now).TotalHours < Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords;
+    
+    <dt class="col-sm-2">
+        Communication vocale
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.VoipSystem)
+        <a asp-action="VoipSystem" asp-route-id="@Model.Match.MatchTechnicalInfos.VoipSystem"><i class="fas fa-question-circle"></i></a>
+    </dd>
+
+    <dt class="col-sm-2">
+        Serveur de jeu
+    </dt>
+    <dd class="@(reveal?"col-sm-4":"col-sm-10")">
+        <code>@Model.Match.MatchTechnicalInfos.GameServerAddress</code> port <code>@Model.Match.MatchTechnicalInfos.GameServerPort</code>
+    </dd>
+    @if (reveal)
+    {
+        <dt class="col-sm-2">
+            Mot de passe
+        </dt>
+        <dd class="col-sm-4">
+            <code>@Model.Match.MatchTechnicalInfos.GameServerPassword</code>
+        </dd>
+    }
+
+    <dt class="col-sm-2">
+        Serveur TeamSpeak
+    </dt>
+    <dd class="@(reveal?"col-sm-4":"col-sm-10")">
+        <code>@Model.Match.MatchTechnicalInfos.VoipServerAddress:@Model.Match.MatchTechnicalInfos.VoipServerPort</code>
+    </dd>
+    @if (reveal)
+    {
+        <dt class="col-sm-2">
+            Mot de passe
+        </dt>
+        <dd class="col-sm-4">
+            <code>@Model.Match.MatchTechnicalInfos.VoipServerPassword</code>
+        </dd>
+    }
+
+    @if (!reveal && Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords != null)
+    {
+        <dt class="col-sm-2">
+            Accès
+        </dt>
+        <dd class="col-sm-10">
+            Les mots de passe seront fournis @Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords heures avant le début de l'événement.
+        </dd>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos.ModsDefinition))
+    {
+        <dt class="col-sm-2">
+            Mods
+        </dt>
+        <dd class="col-sm-10">
+            <a class="btn btn-secondary btn-sm" asp-action="DownloadModPack" asp-route-id="@Model.Match.MatchID">
+                Télécharger le modpack
+                <span class="badge badge-primary">
+                    @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsCount)
+                </span>
+            </a>
+            @if (Model.Match.MatchTechnicalInfos.ModsLastChange != null)
+            {
+                <span class="text-muted font-italic">Mis à jour la dernière fois le @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsLastChange)</span>
+            }
+        </dd>
+    }
+
+}
+
+
+

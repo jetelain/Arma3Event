@@ -32,14 +32,14 @@ else if (Model.MatchUser.Side.Rounds.Any(r => !r.Squads.Any(s => s.Slots.Any(s =
     {
         <div class="alert alert-secondary" role="alert">
             <h4 class="alert-heading">Inscrit</h4>
-            <p>Vous pouvez optionnellement rejoindre une squad. Vous pourrez également décider de cela au dernier moment.</p>
+            <p>Vous pouvez optionnellement rejoindre un groupe. Vous pourrez également décider de cela au dernier moment.</p>
         </div>
     }
     else
     {
         <div class="alert alert-secondary" role="alert">
             <h4 class="alert-heading">Inscription non finalisée</h4>
-            <p>Vous devez choisir une squad.</p>
+            <p>Vous devez choisir un groupe.</p>
         </div>
     }
 }
@@ -113,20 +113,20 @@ else
 
     foreach (var side in Model.MatchUser.Side.Rounds.Where(r => !r.Squads.Any(s => s.Slots.Any(s => s.AssignedUser == Model.MatchUser))))
     {
-<h3>
-    Choisissez votre groupe 
-    @if (Model.Match.Rounds.Count > 1)
-    {
-    <span>pour la manche #@side.Round.Number</span>
-    }
-</h3>
+        <h3>
+            Choisissez votre groupe
+            @if (Model.Match.Rounds.Count > 1)
+            {
+                <span>pour la manche #@side.Round.Number</span>
+            }
+        </h3>
         <hr />
         <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)</h4>
 
-        @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap))
-        {
-            <p><a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@side.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
-        }
+        @*@if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap))
+            {
+                <p><a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@side.RoundID" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
+            }*@
 
         <div class="row mb-4 justify-content-md-center">
             <form class="col-lg-6" asp-action="SubscriptionSlot" asp-route-id="@Model.Match.MatchID">
@@ -204,6 +204,10 @@ else
         </div>
     }
 
+    <p>
+        <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID">Voir le briefing et les informations techniques</a>
+    </p>
+
     foreach (var side in Model.MatchUser.Side.Rounds.Where(r => r.Squads.Any(s => s.Slots.Any(s => s.AssignedUser == Model.MatchUser))))
     {
         var squad = side.Squads.First(s => s.Slots.Any(s => s.AssignedUser == Model.MatchUser));
@@ -211,15 +215,10 @@ else
         var hasLabels = squad.Slots.Any(s => !string.IsNullOrEmpty(s.Label));
 
         <div class="title" style="@ViewHelper.Style(Model.Match.GameMap)">
-            <p>
-                <span>
-                    Carte
-                    @if (Model.Match.Rounds.Count > 1)
-                    {
-                        @:# @side.Round.Number
-                    }
-                </span>
-            </p>
+            @if (Model.Match.Rounds.Count > 1)
+            {
+                <p><span>Manche #@side.Round.Number</span></p>
+            }
             <h2><span>@(Model.Match.GameMap?.Name ?? "Destination inconnue")</span></h2>
         </div>
 
@@ -235,8 +234,8 @@ else
 
                 <form class="float-right" asp-action="LeaveSlot" asp-route-id="@Model.Match.MatchID">
                     <p>
-                        <button class="btn btn-sm btn-danger" name="roundSlotID" value="@userslot.RoundSlotID">Changer de squad</button>
-                        <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@Model.Match.MatchID" asp-fragment="round-@side.RoundID">Voir les autres squads</a>
+                        <button class="btn btn-sm btn-danger" name="roundSlotID" value="@userslot.RoundSlotID">Changer de groupe</button>
+                        <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@Model.Match.MatchID" asp-fragment="round-@side.RoundID">Voir les autres groupes</a>
                     </p>
                 </form>
 
@@ -299,7 +298,7 @@ else
 <hr />
 <form asp-action="ResetSide" asp-route-id="@Model.Match.MatchID">
     <p>
-        @if (Model.MatchUser.Side != null)
+        @if (Model.MatchUser.Side != null && Model.Match.Sides.Count > 1)
         {
             <button class="btn btn-danger">Changer de coté</button>
         }

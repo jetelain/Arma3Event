@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
 using Arma3Event.Models;
@@ -35,6 +38,7 @@ namespace Arma3Event.Controllers
             var match = await _context.Matchs
                 .Include(m => m.Sides)
                 .Include(m => m.GameMap)
+                .Include(m => m.MatchTechnicalInfos)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
@@ -93,7 +97,7 @@ namespace Arma3Event.Controllers
             }
 
             var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.MatchID == id && u.UserID == user.UserID);
-            if (matchUser == null || matchUser.MatchSideID != null )
+            if (matchUser == null || matchUser.MatchSideID != null)
             {
                 return NotFound();
             }
@@ -259,11 +263,11 @@ namespace Arma3Event.Controllers
                         return RedirectToAction(nameof(Subscription), new { id });
                     }
                     roundSquad.SlotsCount++;
-                    roundSlot = new RoundSlot() 
-                    { 
-                        Squad = roundSquad, 
-                        SlotNumber = roundSquad.SlotsCount, 
-                        Role = Role.Member 
+                    roundSlot = new RoundSlot()
+                    {
+                        Squad = roundSquad,
+                        SlotNumber = roundSquad.SlotsCount,
+                        Role = Role.Member
                     };
                     roundSlot.SetTimestamp();
                     _context.Add(roundSlot);
@@ -308,7 +312,7 @@ namespace Arma3Event.Controllers
 
                 await transaction.CommitAsync();
             }
-            
+
 
             return RedirectToAction(nameof(Subscription), new { id });
         }
@@ -365,16 +369,8 @@ namespace Arma3Event.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Map(int? id, int? roundId)
+        public async Task<IActionResult> Map(int id, int? roundId)
         {
-            if (id == null)
-            {
-                return View(new MapViewModel()
-                {
-                    Match = new Match() { GameMap = new GameMap() { WebMap = "taunus", Name = "Taunus", Image="/img/maps/x-cam-taunus.jpg" }, Name = "Démonstration" }
-                });
-            }
-
             var round = await _context.Rounds
                 .Include(m => m.Match).ThenInclude(m => m.GameMap)
                 .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
@@ -384,7 +380,12 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
 
-            var user = await GetUser(); 
+            var user = await GetUser();
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Subscription), new[] { id });
+            }
+
             var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == round.MatchID);
             if (matchUser == null)
             {
@@ -408,6 +409,7 @@ namespace Arma3Event.Controllers
             var match = await _context.Matchs
                 .Include(m => m.Sides)
                 .Include(m => m.GameMap)
+                .Include(m => m.MatchTechnicalInfos)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
@@ -418,7 +420,7 @@ namespace Arma3Event.Controllers
             }
             var vm = new EventDetailsViewModel();
             vm.Match = match;
-            vm.User = await GetUser(); 
+            vm.User = await GetUser();
             if (vm.User != null)
             {
                 vm.MatchUser = match.Users.FirstOrDefault(u => u.UserID == vm.User.UserID);
@@ -427,5 +429,28 @@ namespace Arma3Event.Controllers
             return View(vm);
         }
 
+        [Authorize(Policy = "SteamID")]
+        [HttpGet]
+        public async Task<IActionResult> DownloadModPack(int id)
+        {
+            var match = await _context.Matchs.Include(m => m.MatchTechnicalInfos).FirstOrDefaultAsync(m => m.MatchID == id);
+            if (string.IsNullOrEmpty(match?.MatchTechnicalInfos?.ModsDefinition))
+            {
+                return NotFound();
+            }
+            // XXX: Vérifier l'inscription ?
+            return File(Encoding.UTF8.GetBytes(match.MatchTechnicalInfos.ModsDefinition), "application/octet-steam", $"modpack{match.MatchID}.html");
+        }
+
+        [HttpGet]
+        public IActionResult VoipSystem(VoipSystem id)
+        {
+            var name = Path.GetFileName(id.ToString());
+            return View(new VoipSystemViewModel()
+            {
+                VoipSystem = id,
+                HelpContent = System.IO.File.ReadAllText($"wwwroot/help/{name}.html")
+            });
+        }
     }
 }

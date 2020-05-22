@@ -23,7 +23,22 @@
         {
             <p>Vous êtes bien inscrit.</p>
         }
-        <p><a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Voir l'inscription</a></p>
+    <p>
+        <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Voir l'inscription</a>
+        @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos?.ModsDefinition))
+        {
+        <a class="btn btn-secondary" asp-action="DownloadModPack" asp-route-id="@Model.Match.MatchID">
+            Télécharger le modpack
+            <span class="badge badge-primary">
+                @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsCount)
+            </span>
+        </a>
+        }
+        @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap) && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
+        {
+            <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
+        }
+    </p>
     </div>
 }
 
@@ -32,34 +47,7 @@
 </div>
 
 <dl class="row">
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Match.Date)
-    </dt>
-    <dd class="col-sm-10">
-        <i class="far fa-clock"></i> @Html.DisplayFor(model => model.Match.Date) à @Html.DisplayFor(model => model.Match.StartTime)
-    </dd>
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Match.Template)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Match.Template)
-    </dd>
-    @if (!string.IsNullOrEmpty(Model.Match.DiscordLink) || !string.IsNullOrEmpty(Model.Match.RulesLink))
-    {
-        <dt class="col-sm-2">
-            Liens
-        </dt>
-        <dd class="col-sm-10">
-            @if (!string.IsNullOrEmpty(Model.Match.DiscordLink)) 
-            { 
-                <a href="@Model.Match.DiscordLink" target="_blank" class="mr-4"><i class="fab fa-discord"></i> Discord</a>
-            }
-            @if (!string.IsNullOrEmpty(Model.Match.RulesLink))
-            {
-                <a href="@Model.Match.RulesLink" target="_blank" class="mr-4"><i class="fas fa-balance-scale"></i> Réglement</a>
-            }
-        </dd>
-    }
+    @{await Html.RenderPartialAsync("_MatchEssentialInfos");}
 </dl>
 
 

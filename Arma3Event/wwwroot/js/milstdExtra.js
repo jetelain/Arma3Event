@@ -2,20 +2,20 @@
     if (symbolset == "10") {
         return [
             { code: "00", name: "Unspecified", sidc: "10031000000000000000" },
-            { code: "11", name: "Team/Crew (ø)", sidc: "10031000110000000000" },
-            { code: "12", name: "Squad (●)", sidc: "10031000120000000000" },
-            { code: "13", name: "Section (●●)", sidc: "10031000130000000000" },
-            { code: "14", name: "Platoon/Detachment (●●●)", sidc: "10031000140000000000" },
-            { code: "15", name: "Company/Battery/Troop (┃)", sidc: "10031000150000000000" },
-            { code: "16", name: "Battalion/Squadron (┃┃)", sidc: "10031000160000000000" },
-            { code: "17", name: "Regiment/Group (┃┃┃)", sidc: "10031000170000000000" },
-            { code: "18", name: "Brigade (✕)", sidc: "10031000180000000000" },
-            { code: "21", name: "Division (✕✕)", sidc: "10031000210000000000" },
-            { code: "22", name: "Corps/MEF (✕✕✕)", sidc: "10031000220000000000" },
-            { code: "23", name: "Army (✕✕✕✕)", sidc: "10031000230000000000" },
-            { code: "24", name: "Army Group/Front (✕✕✕✕✕)", sidc: "10031000240000000000" },
-            { code: "25", name: "Region/Theater (✕✕✕✕✕✕)", sidc: "10031000250000000000" },
-            { code: "26", name: "Command (++)", sidc: "10031000260000000000" }
+            { code: "11", name: "Team/Crew", sidc: "10031000110000000000" },
+            { code: "12", name: "Squad ", sidc: "10031000120000000000" },
+            { code: "13", name: "Section", sidc: "10031000130000000000" },
+            { code: "14", name: "Platoon/Detachment", sidc: "10031000140000000000" },
+            { code: "15", name: "Company/Battery/Troop", sidc: "10031000150000000000" },
+            { code: "16", name: "Battalion/Squadron", sidc: "10031000160000000000" },
+            { code: "17", name: "Regiment/Group", sidc: "10031000170000000000" },
+            { code: "18", name: "Brigade", sidc: "10031000180000000000" },
+            { code: "21", name: "Division", sidc: "10031000210000000000" },
+            { code: "22", name: "Corps/MEF", sidc: "10031000220000000000" },
+            { code: "23", name: "Army", sidc: "10031000230000000000" },
+            { code: "24", name: "Army Group/Front", sidc: "10031000240000000000" },
+            { code: "25", name: "Region/Theater", sidc: "10031000250000000000" },
+            { code: "26", name: "Command", sidc: "10031000260000000000" }
         ];
     }
     // add signals intelligence
