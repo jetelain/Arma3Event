@@ -17,8 +17,12 @@
             @if (Model.RoundSide != null)
             {
                 <li class="breadcrumb-item" aria-current="page">@Model.RoundSide.MatchSide.Name</li>
+                <li class="breadcrumb-item active" aria-current="page">Carte partagée</li>
             }
-            <li class="breadcrumb-item active" aria-current="page">Carte partagée</li>
+            else
+            {
+                <li class="breadcrumb-item active" aria-current="page">Carte de situation</li>
+            }
         </ol>
     </nav>
 }
@@ -29,6 +33,25 @@
 
 }
 
+<div class="btn-toolbar mb-2 justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-secondary" style="width:48px;" title="Déplacer la carte">
+            <input class="maptool" type="radio" name="tool" id="tool-hand"><i class="far fa-hand-paper"></i>
+        </label>
+        <label class="btn btn-secondary" style="width:48px;" title="Insérer un symbole OTAN APP-6 (D)">
+            <input class="maptool" type="radio" name="tool" id="tool-mil"><img height="16" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAAAzCAYAAADfP/VGAAACTElEQVRoge3ZsUsCcRTA8TdZaurZmJG2RtASURBI0BRELVG0BBFYi0tDkQSOQf0BTTW1FU01tQhBtNSWi8NFFNSc82soT9PTu/N+7/d+d+fwQLg70C8f7n73EwAg0hvbAxEAwN5Yjt4Sqz+WQC2VDvwkhkYwFI2ZxwrHk8aB1MQUbl7eY1HHQM7q6RVqw5lfPHGtNZaWSmPu5glHZ+aMaNn8IfsXlzkHL984uZ4zfv/44hrmSxXzWLWL5veOAqesUVM4kcSl4zMs6oiFcrVzrKKOgVFmpmn38d04bitWEJS109Q4jmL5UZmVJlex/KTMjiYhsbyszIkmYbG8qKxZ0/LJue1rhcTygrJuNZHEUlmZG02ksVRSJkITeSwVlInSJC0WhzLRmqTGkqmMQhNLLEpllJrYYlEoo9bEHkuEMlmalIjlRplMTUrFcqKMQ5Nysewo49KkbCwzZbM7+6yalI5lpgwAsC8aY9GkfKzmexP3O6aysczuTarsZCgTy+pJp8JOhhKxnDzpOJWxxup23cSljC2WiHWTbGXSY4lehctUJjUW5SpchjIpsWS901ErI4/F8U5HpYwsFvcOAYUyklgq7BBQKBMai1sTtTJhsf5p0gbZdwgolLmOpaomCmWuYnlBk0hlXcXymiZRyhzH8rImt8psx/KLJjfKbMXyo6ZulHWM5XdN7Wb79tlUWdtYQdJkV9nGxV1rrFB0wDhpbGEF86UKFsrVQM7W9QNmprPN/zTVY/XGcl5rsXQA+AKAt7/PvanPBwB8AoD+A4WfYoYlQx+dAAAAAElFTkSuQmCC" />
+        </label>
+        <label class="btn btn-secondary" style="width:48px;" title="Insérer un symbole générique">
+            <input class="maptool" type="radio" name="tool" id="tool-basic" data-toggle="collapse">●
+        </label>
+    </div>
+    <div class="input-group align-self-center">
+        <input type="text" class="form-control form-control-sm" id="coordinates" readonly="readonly" />
+    </div>
+    <div>
+        Carte partagée
+    </div>
+</div>
 
 <div class="map" id="map" style="width:100%; height:80vh; margin:0;padding:0;border:0;">
 </div>
@@ -169,9 +192,64 @@
 </div>
 
 
+
+
+<div class="modal" tabindex="-1" role="dialog" id="basicsymbol">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <span id="basicsymbol-grid"></span>
+                    : Symbole basique
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="basic-type" class="control-label">Forme</label>
+                            <select id="basic-type" class="form-control">
+                                @foreach (var type in Arma3Event.Arma3GameInfos.GameMarkerTypeHelper.GetAll())
+                                {
+                                <option data-content="<img src='/img/markers/@(type).png' height='24' /> @Html.DisplayFor(m => type)" value="@type">@Html.DisplayFor(m => type)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="basic-color" class="control-label">Couleur</label>
+                            <select id="basic-color" class="form-control">
+                                @foreach (var color in Arma3Event.Arma3GameInfos.GameMarkerColorHelper.GetAll())
+                                {
+                                    <option style="background: #@Arma3Event.Arma3GameInfos.GameMarkerColorHelper.ToHexa(color);" value="@color">@Html.DisplayFor(m => color)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="basic-label" class="control-label">Libellé</label>
+                            <input type="text" id="basic-label" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger mr-5" id="basicsymbol-delete">Supprimer</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" id="basicsymbol-insert">Insérer</button>
+                <button type="button" class="btn btn-success" id="basicsymbol-update">Modifier</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @section Styles {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton@2.4.0/src/easy-button.css" />
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css" />
 }
 
@@ -179,8 +257,6 @@
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin="">
     </script>
     <script src="https://unpkg.com/@@microsoft/signalr@3.1.4/dist/browser/signalr.min.js">
-    </script>
-    <script src="https://unpkg.com/leaflet-easybutton@2.4.0/src/easy-button.js">
     </script>
     <script src="https://unpkg.com/milsymbol@2.0.0/dist/milsymbol.js">
     </script>
@@ -192,10 +268,12 @@
     <script src="~/js/milstdExtra.js" asp-append-version="true">
     </script>
     <script>
-        var mapHubInfos = {
-            matchID: @Model.Match?.MatchID,
-            roundSideID: @Model.RoundSide?.RoundSideID
-        };
+
+        var mapHubInfos = @Json.Serialize(new {
+                         matchID = Model.Match?.MatchID,
+                         roundSideID = Model.RoundSide?.RoundSideID
+                     });
+        var colors = @Json.Serialize(Arma3Event.Arma3GameInfos.GameMarkerColorHelper.GetAll().ToDictionary(k => k.ToString(), k => Arma3Event.Arma3GameInfos.GameMarkerColorHelper.ToHexa(k)));
     </script>
     <script src="~/js/map.js" asp-append-version="true">
     </script>

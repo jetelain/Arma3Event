@@ -24,7 +24,7 @@
 }
 function toCoord(num) {
     var numText = "00000" + num.toFixed(0);
-    return numText.substr(numText.length - 5, 5);
+    return numText.substr(numText.length - 5, 4);
 }
 function toGrid(latlng) {
     return toCoord(latlng.lng) + " - " + toCoord(latlng.lat);
@@ -176,8 +176,9 @@ function applySymbol() {
 
 var modalMarkerId;
 var modalMarkerData;
+var clickPosition = null;
 
-function updateMakerHandler(e) {
+function updateMarkerHandler(e) {
     var marker = e.sourceTarget;
     modalMarkerId = marker.options.markerId;
     modalMarkerData = marker.options.markerData;
@@ -189,46 +190,38 @@ function updateMakerHandler(e) {
         $('#milsymbol-update').show();
         $('#milsymbol-insert').hide();
         $('#milsymbol-grid').text(toGrid(e.latlng));
+
+    } else if (modalMarkerData.type == 'basic') {
+        $('#basic-type').val(modalMarkerData.symbol);
+        $('#basic-color').val(modalMarkerData.config.color);
+        $('#basic-label').val(modalMarkerData.config.label);
+        $('select').selectpicker('render');
+
+        $('#basicsymbol').modal('show');
+        $('#basicsymbol-delete').show();
+        $('#basicsymbol-update').show();
+        $('#basicsymbol-insert').hide();
+        $('#basicsymbol-grid').text(toGrid(e.latlng));
     }
 };
+function insertMilSymbol(latlng) {
+    clickPosition = latlng;
+    $('#milsymbol').modal('show');
+    $('#milsymbol-delete').hide();
+    $('#milsymbol-update').hide();
+    $('#milsymbol-insert').show();
+    $('#milsymbol-grid').text(toGrid(latlng));
+};
+function insertBasicSymbol(latlng) {
+    clickPosition = latlng;
+    $('#basicsymbol').modal('show');
+    $('#basicsymbol-delete').hide();
+    $('#basicsymbol-update').hide();
+    $('#basicsymbol-insert').show();
+    $('#basicsymbol-grid').text(toGrid(latlng));
+};
 
-function milsymbolMarkerTool(map, connection) {
-
-    var clickPosition = null;
-    var insertSymbolBtn;
-    function insertSymbolHandler(e) {
-        insertSymbolBtn.state('default');
-        map.off('click', insertSymbolHandler);
-        clickPosition = e.latlng;
-        $('#milsymbol').modal('show');
-        $('#milsymbol-delete').hide();
-        $('#milsymbol-update').hide();
-        $('#milsymbol-insert').show();
-        $('#milsymbol-grid').text(toGrid(e.latlng));
-    };
-
-
-    var sym = new ms.Symbol('10031000001211000000', { size: 8 });
-    var btnImg = '<img src="' + sym.asCanvas(window.devicePixelRatio).toDataURL() + '" width="' + sym.getSize().width + '" height="' + sym.getSize().height + '">';
-    insertSymbolBtn = L.easyButton({
-        states: [{
-            stateName: 'default',
-            icon: btnImg,
-            title: 'Insérer un symbole OTAN APP-6 D',
-            onClick: function (btn, map) {
-                btn.state('edit');
-                map.on('click', insertSymbolHandler);
-            }
-        }, {
-            stateName: 'edit',
-            icon: 'fa-window-close',
-            title: 'Annuler',
-            onClick: function (btn, map) {
-                btn.state('default');
-                map.off('click', insertSymbolHandler);
-            }
-        }]
-    }).addTo(map);
+function milsymbolMarkerTool(connection) {
 
     $('#milsymbol-insert').on('click', function () {
         var symbol = getSymbol();
@@ -252,7 +245,6 @@ function milsymbolMarkerTool(map, connection) {
     $('#milsymbol-update').on('click', function () {
         modalMarkerData.symbol = getSymbol();
         modalMarkerData.config = getSymbolConfig();
-        console.log(['UpdateMarker', modalMarkerId, modalMarkerData]);
         connection.invoke('UpdateMarker', modalMarkerId, modalMarkerData);
         $('#milsymbol').modal('hide');
     });
@@ -271,39 +263,47 @@ function milsymbolMarkerTool(map, connection) {
     $('input').change(applySymbol);
 }
 
-function basicSymbolMarkerTool(map) {
+function basicsymbolMarkerTool(connection) {
 
+    $('#basicsymbol-insert').on('click', function () {
+        connection.invoke('AddMarker', mapHubInfos.matchID, mapHubInfos.roundSideID, {
+            type: 'basic',
+            symbol: $('#basic-type').val(),
+            config: { color: $('#basic-color').val(), label: $('#basic-label').val() },
+            pos: [clickPosition.lat, clickPosition.lng]
+        });
+        $('#basicsymbol').modal('hide');
+    });
 
-    var insertSymbolBtn;
+    $('#basicsymbol-delete').on('click', function () {
+        connection.invoke('RemoveMarker', modalMarkerId);
+        $('#basicsymbol').modal('hide');
+    });
 
-    function insertSymbolHandler(e) {
-        insertSymbolBtn.state('default');
-        map.off('click', insertSymbolHandler);
-    };
-
-    insertSymbolBtn = L.easyButton({
-        states: [{
-            stateName: 'default',
-            icon: 'fa-map-marker-alt',
-            title: 'Insérer un symbole générique',
-            onClick: function (btn, map) {
-                btn.state('edit');
-                map.on('click', insertSymbolHandler);
-            }
-        }, {
-            stateName: 'edit',
-            icon: 'fa-window-close',
-            title: 'Annuler',
-            onClick: function (btn, map) {
-                btn.state('default');
-                map.off('click', insertSymbolHandler);
-            }
-        }]
-    }).addTo(map);
+    $('#basicsymbol-update').on('click', function () {
+        modalMarkerData.symbol = $('#basic-type').val();
+        modalMarkerData.config = { color: $('#basic-color').val(), label: $('#basic-label').val() };
+        connection.invoke('UpdateMarker', modalMarkerId, modalMarkerData);
+        $('#basicsymbol').modal('hide');
+    });
 }
+
+var basicColors = { "ColorBlack": "000000", "ColorGrey": "7F7F7F", "ColorRed": "E50000", "ColorBrown": "7F3F00", "ColorOrange": "D86600", "ColorYellow": "D8D800", "ColorKhaki": "7F9966", "ColorGreen": "00CC00", "ColorBlue": "0000FF", "ColorPink": "FF4C66", "ColorWhite": "FFFFFF", "ColorUNKNOWN": "B29900", "colorBLUFOR": "004C99", "colorOPFOR": "7F0000", "colorIndependent": "007F00", "colorCivilian": "66007F" };
 
 function InitMap(mapInfos) {
     $(function () {
+
+        $('.maptool').on('click', function () {
+            if ($('#tool-hand').prop('checked')) {
+                $('.leaflet-container').css('cursor', '');
+            } else {
+                $('.leaflet-container').css('cursor', 'crosshair');
+            }
+        });
+
+
+
+
         var map = L.map('map', {
             minZoom: mapInfos.minZoom,
             maxZoom: mapInfos.maxZoom,
@@ -321,6 +321,22 @@ function InitMap(mapInfos) {
 
         L.control.scale({ maxWidth: 200, imperial: false }).addTo(map);
 
+
+        map.on('click', function (e) {
+
+            clickPosition = e.latlng;
+            if ($('#tool-mil').prop('checked')) {
+                insertMilSymbol(e.latlng);
+            }
+            else if ($('#tool-basic').prop('checked')) {
+                insertBasicSymbol(e.latlng);
+            }
+        });
+
+        map.on('mousemove', function (e) {
+            $('#coordinates').val(toGrid(e.latlng));
+        });
+
         var markers = {};
 
         var connection = new signalR.HubConnectionBuilder().withUrl("/MapHub").build();
@@ -331,7 +347,6 @@ function InitMap(mapInfos) {
             var markerId = marker.options.markerId;
             var markerData = marker.options.markerData;
             markerData.pos = [marker.getLatLng().lat, marker.getLatLng().lng];
-            console.log(['MoveMarker', markerId, markerData]);
             connection.invoke('MoveMarker', markerId, markerData).catch(function (err) {
                 return console.error(err.toString());
             });
@@ -341,27 +356,54 @@ function InitMap(mapInfos) {
 
             var existing = markers[markerId];
 
+            var icon = undefined;
+
             if (markerData.type == 'mil') {
                 var symbolConfig = $.extend({ size: 32 }, markerData.config);
                 var sym = new ms.Symbol(markerData.symbol, symbolConfig);
-                var myIcon = L.icon({
+                icon = L.icon({
                     iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
                     iconSize: [sym.getSize().width, sym.getSize().height],
                     iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
                 });
-                if (existing) {
-                    existing.setIcon(myIcon);
-                    existing.setLatLng(markerData.pos);
-                    existing.options.markerData = markerData;
+            }
+            else if (markerData.type == 'basic') {
+                var url = '/img/markers/' + markerData.config.color + '/' + markerData.symbol + '.png';
+
+                if (markerData.config.label && markerData.config.label.length > 0) {
+                    var iconHtml = $('<div></div>').append(
+                            $('<div></div>')
+                            .addClass('text-marker-content')
+                            .css('color', '#' + basicColors[markerData.config.color])
+                            .text(markerData.config.label)
+                            .prepend('<img src="' + url + '" width="32" height="32" />'))
+                        .html();
+
+                    icon = new L.DivIcon({
+                        className: 'text-marker',
+                        html: iconHtml,
+                        iconAnchor: [16, 16]
+                    });
                 }
                 else {
-                    var marker = L.marker(markerData.pos, { icon: myIcon, draggable: true, markerId: markerId, markerData: markerData })
-                        .addTo(map)
-                        .on('click', updateMakerHandler)
-                        .on('dragend', markerMoveEnd);
-                    markers[markerId] = marker;
+                    icon = L.icon({iconUrl: url,iconSize: [32, 32],iconAnchor: [16, 16]});
                 }
             }
+            if (existing) {
+                existing.setIcon(icon);
+                existing.setLatLng(markerData.pos);
+                existing.options.markerData = markerData;
+            }
+            else {
+                var marker = L.marker(markerData.pos, { icon: icon, draggable: true, markerId: markerId, markerData: markerData })
+                    .addTo(map)
+                    .on('click', updateMarkerHandler)
+                    .on('dragend', markerMoveEnd);
+                markers[markerId] = marker;
+            }
+
+           
+
         });
 
         connection.on("RemoveMarker", function (markerId) {
@@ -374,11 +416,11 @@ function InitMap(mapInfos) {
             connection.invoke("Hello", mapHubInfos.matchID, mapHubInfos.roundSideID);
         });
 
-        milsymbolMarkerTool(map, connection);
-
-        basicSymbolMarkerTool(map);
+        milsymbolMarkerTool(connection);
+        basicsymbolMarkerTool(connection);
 
         $('select').selectpicker();
+
     });
 }
 

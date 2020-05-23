@@ -4,21 +4,28 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AngleSharp.Html;
+using Arma3Event.Arma3GameInfos;
 using Arma3Event.Entities;
 using Arma3Event.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Arma3Event.Controllers
 {
     public class EventsController : Controller
     {
         private readonly Arma3EventContext _context;
+        private readonly IAuthorizationService _auth;
 
-        public EventsController(Arma3EventContext context)
+        public EventsController(Arma3EventContext context, IAuthorizationService auth)
         {
             _context = context;
+            _auth = auth;
         }
 
         [HttpGet]
@@ -371,31 +378,56 @@ namespace Arma3Event.Controllers
         [HttpGet]
         public async Task<IActionResult> Map(int id, int? roundId)
         {
-            var round = await _context.Rounds
-                .Include(m => m.Match).ThenInclude(m => m.GameMap)
-                .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
-                .FirstOrDefaultAsync(m => m.RoundID == roundId && m.MatchID == id);
-            if (round == null || string.IsNullOrEmpty(round.Match.GameMap.WebMap))
-            {
-                return NotFound();
-            }
-
             var user = await GetUser();
             if (user == null)
             {
                 return RedirectToAction(nameof(Subscription), new[] { id });
             }
-
-            var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == round.MatchID);
-            if (matchUser == null)
-            {
-                return Forbid();
-            }
+            var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
 
             var vm = new MapViewModel();
-            vm.Match = round.Match;
-            vm.Round = round;
-            vm.RoundSide = round.Sides.FirstOrDefault(s => s.MatchSideID == matchUser.MatchSideID);
+            if (roundId == null)
+            {
+                var isAdmin = (await _auth.AuthorizeAsync(User, "Admin")).Succeeded;
+
+                if (matchUser == null && !isAdmin)
+                {
+                    return Forbid();
+                }
+
+                // Carte de situation
+                vm.Match = await _context.Matchs.Include(m => m.GameMap).FirstOrDefaultAsync(m => m.MatchID == id);
+
+                if (vm.Match == null)
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                if (matchUser == null)
+                {
+                    return Forbid();
+                }
+
+                // Carte partagée
+                vm.Round = await _context.Rounds
+                    .Include(m => m.Match).ThenInclude(m => m.GameMap)
+                    .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
+                    .FirstOrDefaultAsync(m => m.RoundID == roundId && m.MatchID == id);
+                if (vm.Round == null)
+                {
+                    return NotFound();
+                }
+                vm.Match = vm.Round.Match;
+                vm.RoundSide = vm.Round.Sides.FirstOrDefault(s => s.MatchSideID == matchUser.MatchSideID);
+            }
+
+            // Vérifie qu'il y a un fond de carte
+            if (string.IsNullOrEmpty(vm.Match.GameMap.WebMap))
+            {
+                return NotFound();
+            }
             return View(vm);
         }
 
@@ -451,6 +483,33 @@ namespace Arma3Event.Controllers
                 VoipSystem = id,
                 HelpContent = System.IO.File.ReadAllText($"wwwroot/help/{name}.html")
             });
+        }
+
+        [HttpGet("/img/markers/{color}/{marker}.png")]
+        //[ResponseCache(Duration = 1440)]
+        public IActionResult Icon(GameMarkerColor color, GameMarkerType marker)
+        {
+            if (color == GameMarkerColor.ColorWhite || marker >= GameMarkerType.flag_aaf)
+            {
+                return File($"/img/markers/{marker}.png", "image/png");
+            }
+            var targetColor = color.ToColor();
+            using (var img = Image.Load<Rgba32>($"wwwroot/img/markers/{marker}.png"))
+            {
+                for(int x = 0; x < img.Width; ++x)
+                {
+                    for (int y = 0; y < img.Height; ++y)
+                    {
+                        var pixel = img[x, y];
+                        img[x, y] = new Rgba32((byte)(pixel.R * targetColor[0]), (byte)(pixel.G * targetColor[1]), (byte)(pixel.B * targetColor[2]), pixel.A);
+                    }
+                }
+                using (var stream = new MemoryStream())
+                {
+                    img.SaveAsPng(stream);
+                    return File(stream.ToArray(), "image/png");
+                }
+            }
         }
     }
 }

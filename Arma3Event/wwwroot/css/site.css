@@ -122,3 +122,12 @@ img.mil-icon {
     background: rgb(233, 236, 239);
     padding: 2px 4px;
 }
+
+.text-marker-content {
+    height: 32px;
+    width: max-content;
+    font-size: 14px;
+    font-weight: bold;
+    vertical-align: middle;
+    /*text-shadow: 1px 1px 2px white;*/
+}

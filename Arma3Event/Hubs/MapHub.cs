@@ -29,19 +29,34 @@ namespace Arma3Event.Hubs
             return user;
         }
 
-        private async Task<bool> IsValidUser(MatchUser user, int? roundSideID)
+        private async Task<bool> CanEdit(MatchUser user, int? roundSideID)
         {
             if (roundSideID == null)
             {
+                // Seuls les organisateurs peuvent modifier la carte de situation
                 return (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded;
             }
             return await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == roundSideID && rs.MatchSideID == user.MatchSideID);
         }
 
+        private async Task<bool> CanRead(MatchUser user, int? roundSideID)
+        {
+            if (await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == roundSideID && rs.MatchSideID == user.MatchSideID))
+            {
+                return true;
+            }
+            if (roundSideID == null && (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded)
+            {
+                // Les organisateurs n'ont le droit de voir que la carte de situation
+                return true;
+            }
+            return false;
+        }
+
         public async Task Hello(int matchID, int? roundSideID)
         {
             var user = await GetUser(matchID);
-            if (await IsValidUser(user, roundSideID))
+            if (await CanRead(user, roundSideID))
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, $"Match:{matchID}");
                 if (roundSideID != null)
@@ -59,7 +74,7 @@ namespace Arma3Event.Hubs
         public async Task<int> AddMarker(int matchID, int? roundSideID, MarkerData markerData)
         {
             var user = await GetUser(matchID);
-            if (await IsValidUser(user, roundSideID))
+            if (await CanEdit(user, roundSideID))
             {
                 var marker = new MapMarker()
                 {
@@ -89,7 +104,7 @@ namespace Arma3Event.Hubs
         {
             var marker = _context.MapMarkers.FirstOrDefault(m => m.MapMarkerID == mapMarkerID);
             var user = await GetUser(marker.MatchID);
-            if (await IsValidUser(user, marker.RoundSideID))
+            if (await CanEdit(user, marker.RoundSideID))
             {
                 marker.MarkerData = JsonConvert.SerializeObject(markerData);
                 _context.Update(marker);
@@ -102,7 +117,7 @@ namespace Arma3Event.Hubs
         {
             var marker = _context.MapMarkers.FirstOrDefault(m => m.MapMarkerID == mapMarkerID);
             var user = await GetUser(marker.MatchID);
-            if (await IsValidUser(user, marker.RoundSideID))
+            if (await CanEdit(user, marker.RoundSideID))
             {
                 _context.Remove(marker);
                 await _context.SaveChangesAsync();
