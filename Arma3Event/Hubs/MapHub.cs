@@ -66,7 +66,7 @@ namespace Arma3Event.Hubs
                 var markers = _context.MapMarkers.Where(m => m.MatchID == matchID && (m.RoundSideID == null || m.RoundSideID == roundSideID)).ToList();
                 foreach(var marker in markers)
                 {
-                    await Clients.Caller.SendAsync("AddOrUpdateMarker", marker.MapMarkerID, JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData));
+                    await Clients.Caller.SendAsync("AddOrUpdateMarker", ToJsonMarker(marker));
                 }
             }
         }
@@ -95,6 +95,7 @@ namespace Arma3Event.Hubs
         {
             await DoUpdateMarker(mapMarkerID, markerData, true);
         }
+
         public async Task MoveMarker(int mapMarkerID, MarkerData markerData)
         {
             await DoUpdateMarker(mapMarkerID, markerData, false);
@@ -125,18 +126,61 @@ namespace Arma3Event.Hubs
             }
         }
 
+        public async Task PointMap(int matchID, int? roundSideID, double[] pos)
+        {
+            var user = await GetUser(matchID);
+            
+            if (await CanEdit(user, roundSideID))
+            {
+                if (roundSideID == null)
+                {
+                    await Clients.Group($"Match:{matchID}").SendAsync("PointMap", user.MatchUserID, pos);
+                }
+                else
+                {
+                    await Clients.Group($"MatchRound:{roundSideID}").SendAsync("PointMap", user.MatchUserID, pos);
+                }
+            }
+        }
+
+        public async Task EndPointMap(int matchID, int? roundSideID)
+        {
+            var user = await GetUser(matchID);
+            if (await CanEdit(user, roundSideID))
+            {
+                if (roundSideID == null)
+                {
+                    await Clients.Group($"Match:{matchID}").SendAsync("EndPointMap", user.MatchUserID);
+                }
+                else
+                {
+                    await Clients.Group($"MatchRound:{roundSideID}").SendAsync("EndPointMap", user.MatchUserID);
+                }
+            }
+        }
+
         private async Task Notify(string method, MapMarker marker, bool notifyCaller = true)
         {
             string groupName = marker.RoundSideID == null ? $"Match:{marker.MatchID}" : $"MatchRound:{marker.RoundSideID}";
 
             if (notifyCaller)
             {
-                await Clients.Group(groupName).SendAsync(method, marker.MapMarkerID, JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData));
+                await Clients.Group(groupName).SendAsync(method, ToJsonMarker(marker));
             }
             else
             {
-                await Clients.OthersInGroup(groupName).SendAsync(method, marker.MapMarkerID, JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData));
+                await Clients.OthersInGroup(groupName).SendAsync(method, ToJsonMarker(marker));
             }
+        }
+
+        private static Marker ToJsonMarker(MapMarker marker)
+        {
+            return new Marker() 
+            { 
+                id = marker.MapMarkerID, 
+                scope = marker.RoundSideID == null ? 0 : 1,
+                data = JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData) 
+            };
         }
     }
 }

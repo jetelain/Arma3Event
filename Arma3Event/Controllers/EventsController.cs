@@ -381,7 +381,7 @@ namespace Arma3Event.Controllers
             var user = await GetUser();
             if (user == null)
             {
-                return RedirectToAction(nameof(Subscription), new[] { id });
+                return RedirectToAction(nameof(Subscription), new { id });
             }
             var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
 
@@ -392,7 +392,7 @@ namespace Arma3Event.Controllers
 
                 if (matchUser == null && !isAdmin)
                 {
-                    return Forbid();
+                    return RedirectToAction(nameof(Subscription), new { id });
                 }
 
                 // Carte de situation
@@ -407,7 +407,7 @@ namespace Arma3Event.Controllers
             {
                 if (matchUser == null)
                 {
-                    return Forbid();
+                    return RedirectToAction(nameof(Subscription), new { id });
                 }
 
                 // Carte partagée
@@ -486,7 +486,7 @@ namespace Arma3Event.Controllers
         }
 
         [HttpGet("/img/markers/{color}/{marker}.png")]
-        //[ResponseCache(Duration = 1440)]
+        [ResponseCache(Duration = 1440)]
         public IActionResult Icon(GameMarkerColor color, GameMarkerType marker)
         {
             if (color == GameMarkerColor.ColorWhite || marker >= GameMarkerType.flag_aaf)

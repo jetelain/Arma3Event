@@ -293,13 +293,6 @@ var basicColors = { "ColorBlack": "000000", "ColorGrey": "7F7F7F", "ColorRed": "
 function InitMap(mapInfos) {
     $(function () {
 
-        $('.maptool').on('click', function () {
-            if ($('#tool-hand').prop('checked')) {
-                $('.leaflet-container').css('cursor', '');
-            } else {
-                $('.leaflet-container').css('cursor', 'crosshair');
-            }
-        });
 
 
 
@@ -323,7 +316,6 @@ function InitMap(mapInfos) {
 
 
         map.on('click', function (e) {
-
             clickPosition = e.latlng;
             if ($('#tool-mil').prop('checked')) {
                 insertMilSymbol(e.latlng);
@@ -333,11 +325,25 @@ function InitMap(mapInfos) {
             }
         });
 
-        map.on('mousemove', function (e) {
-            $('#coordinates').val(toGrid(e.latlng));
+        $('.maptool').on('click', function () {
+            if ($('#tool-hand').prop('checked')) {
+                $('.leaflet-container').css('cursor', '');
+            } else {
+                $('.leaflet-container').css('cursor', 'crosshair');
+            }
+            if ($('#tool-point').prop('checked')) {
+                map.dragging.disable();
+            } else {
+                map.dragging.enable();
+            }
         });
 
+        var isPointing = false;
+
+
+
         var markers = {};
+        var pointing = {};
 
         var connection = new signalR.HubConnectionBuilder().withUrl("/MapHub").build();
 
@@ -352,11 +358,11 @@ function InitMap(mapInfos) {
             });
         }
 
-        connection.on("AddOrUpdateMarker", function (markerId, markerData) {
-
+        connection.on("AddOrUpdateMarker", function (marker) {
+            var icon = null;
+            var markerId = marker.id;
+            var markerData = marker.data;
             var existing = markers[markerId];
-
-            var icon = undefined;
 
             if (markerData.type == 'mil') {
                 var symbolConfig = $.extend({ size: 32 }, markerData.config);
@@ -395,23 +401,40 @@ function InitMap(mapInfos) {
                 existing.options.markerData = markerData;
             }
             else {
-                var marker = L.marker(markerData.pos, { icon: icon, draggable: true, markerId: markerId, markerData: markerData })
+                markers[markerId] = L.marker(markerData.pos, { icon: icon, draggable: true, markerId: markerId, markerData: markerData })
                     .addTo(map)
                     .on('click', updateMarkerHandler)
                     .on('dragend', markerMoveEnd);
-                markers[markerId] = marker;
             }
-
-           
-
         });
 
-        connection.on("RemoveMarker", function (markerId) {
-            var existing = markers[markerId];
+        connection.on("RemoveMarker", function (marker) {
+            var existing = markers[marker.id];
             if (existing) {
                 existing.remove();
             }
         });
+
+        var pointingIcon = new L.icon({iconUrl: '/img/pointmap.png',iconSize: [16, 16],iconAnchor: [8, 8]});
+
+        connection.on("PointMap", function (id, pos) {
+            console.log("PointMap", id, pos);
+            var existing = pointing[id];
+            if (existing) {
+                existing.setLatLng(pos);
+            }
+            else {
+                pointing[id] = L.marker(pos, { icon: pointingIcon, draggable: false, interactive: false }).addTo(map);
+            }
+        });
+        connection.on("EndPointMap", function (id) {
+            var existing = pointing[id];
+            if (existing) {
+                existing.remove();
+                delete pointing[id];
+            }
+        });
+
         connection.start().then(function () {
             connection.invoke("Hello", mapHubInfos.matchID, mapHubInfos.roundSideID);
         });
@@ -421,6 +444,31 @@ function InitMap(mapInfos) {
 
         $('select').selectpicker();
 
+        map.on('mousemove', function (e) {
+            $('#coordinates').val(toGrid(e.latlng));
+            if (isPointing) {
+                connection.invoke("PointMap", mapHubInfos.matchID, mapHubInfos.roundSideID, [e.latlng.lat, e.latlng.lng]);
+            }
+        });
+        map.on('mousedown', function (e) {
+            if ($('#tool-point').prop('checked')) {
+                isPointing = true;
+                connection.invoke("PointMap", mapHubInfos.matchID, mapHubInfos.roundSideID, [e.latlng.lat, e.latlng.lng]);
+            }
+        });
+
+        map.on('mouseup', function (e) {
+            if (isPointing) {
+                isPointing = false;
+                connection.invoke("EndPointMap", mapHubInfos.matchID, mapHubInfos.roundSideID);
+            }
+        });
+        map.on('mouseout', function (e) {
+            if (isPointing) {
+                isPointing = false;
+                connection.invoke("EndPointMap", mapHubInfos.matchID, mapHubInfos.roundSideID);
+            }
+        });
     });
 }
 
