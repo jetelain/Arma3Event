@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Arma3Event.Entities;
 using Arma3Event.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -48,9 +49,10 @@ namespace Arma3Event
 
             services.AddAuthorization(options =>
             {
+                var admins = Configuration.GetSection("Admins").Get<string[]>();
                 options.AddPolicy("Admin", policy => policy.RequireClaim(
                     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
-                    Configuration.GetValue<string[]>("Admins")
+                    admins.ToArray()
                     ));
                 options.AddPolicy("SteamID", policy => policy.RequireClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
             }); 

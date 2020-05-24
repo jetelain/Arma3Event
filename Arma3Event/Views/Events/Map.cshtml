@@ -34,23 +34,54 @@
 }
 
 <div class="btn-toolbar mb-2 justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
-    <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-secondary" style="width:48px;" title="Déplacer la carte">
+    <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons" style="width:250px;">
+        <label class="btn btn-secondary" title="Déplacer la carte" style="width:45px;">
             <input class="maptool" type="radio" name="tool" id="tool-hand"><i class="far fa-hand-paper"></i>
         </label>
-        <label class="btn btn-secondary" style="width:48px;" title="Pointer sur la carte">
-            <input class="maptool" type="radio" name="tool" id="tool-point"><i class="far fa-hand-pointer"></i>
-        </label>
-        <label class="btn btn-secondary" style="width:48px;" title="Insérer un symbole OTAN APP-6 (D)">
-            <input class="maptool" type="radio" name="tool" id="tool-mil"><img height="16" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAAAzCAYAAADfP/VGAAACTElEQVRoge3ZsUsCcRTA8TdZaurZmJG2RtASURBI0BRELVG0BBFYi0tDkQSOQf0BTTW1FU01tQhBtNSWi8NFFNSc82soT9PTu/N+7/d+d+fwQLg70C8f7n73EwAg0hvbAxEAwN5Yjt4Sqz+WQC2VDvwkhkYwFI2ZxwrHk8aB1MQUbl7eY1HHQM7q6RVqw5lfPHGtNZaWSmPu5glHZ+aMaNn8IfsXlzkHL984uZ4zfv/44hrmSxXzWLWL5veOAqesUVM4kcSl4zMs6oiFcrVzrKKOgVFmpmn38d04bitWEJS109Q4jmL5UZmVJlex/KTMjiYhsbyszIkmYbG8qKxZ0/LJue1rhcTygrJuNZHEUlmZG02ksVRSJkITeSwVlInSJC0WhzLRmqTGkqmMQhNLLEpllJrYYlEoo9bEHkuEMlmalIjlRplMTUrFcqKMQ5Nysewo49KkbCwzZbM7+6yalI5lpgwAsC8aY9GkfKzmexP3O6aysczuTarsZCgTy+pJp8JOhhKxnDzpOJWxxup23cSljC2WiHWTbGXSY4lehctUJjUW5SpchjIpsWS901ErI4/F8U5HpYwsFvcOAYUyklgq7BBQKBMai1sTtTJhsf5p0gbZdwgolLmOpaomCmWuYnlBk0hlXcXymiZRyhzH8rImt8psx/KLJjfKbMXyo6ZulHWM5XdN7Wb79tlUWdtYQdJkV9nGxV1rrFB0wDhpbGEF86UKFsrVQM7W9QNmprPN/zTVY/XGcl5rsXQA+AKAt7/PvanPBwB8AoD+A4WfYoYlQx+dAAAAAElFTkSuQmCC" />
-        </label>
-        <label class="btn btn-secondary" style="width:48px;" title="Insérer un symbole générique">
-            <input class="maptool" type="radio" name="tool" id="tool-basic" data-toggle="collapse">●
-        </label>
+        @if (Model.CanEditMap)
+        {
+            <label class="btn btn-secondary" title="Pointer sur la carte" style="width:45px;">
+                <input class="maptool" type="radio" name="tool" id="tool-point"><i class="far fa-hand-pointer"></i>
+            </label>
+            <label class="btn btn-secondary" title="Insérer un symbole OTAN APP-6 (D)" style="width:45px;">
+                <input class="maptool" type="radio" name="tool" id="tool-mil"><img height="16" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAAAzCAYAAADfP/VGAAACTElEQVRoge3ZsUsCcRTA8TdZaurZmJG2RtASURBI0BRELVG0BBFYi0tDkQSOQf0BTTW1FU01tQhBtNSWi8NFFNSc82soT9PTu/N+7/d+d+fwQLg70C8f7n73EwAg0hvbAxEAwN5Yjt4Sqz+WQC2VDvwkhkYwFI2ZxwrHk8aB1MQUbl7eY1HHQM7q6RVqw5lfPHGtNZaWSmPu5glHZ+aMaNn8IfsXlzkHL984uZ4zfv/44hrmSxXzWLWL5veOAqesUVM4kcSl4zMs6oiFcrVzrKKOgVFmpmn38d04bitWEJS109Q4jmL5UZmVJlex/KTMjiYhsbyszIkmYbG8qKxZ0/LJue1rhcTygrJuNZHEUlmZG02ksVRSJkITeSwVlInSJC0WhzLRmqTGkqmMQhNLLEpllJrYYlEoo9bEHkuEMlmalIjlRplMTUrFcqKMQ5Nysewo49KkbCwzZbM7+6yalI5lpgwAsC8aY9GkfKzmexP3O6aysczuTarsZCgTy+pJp8JOhhKxnDzpOJWxxup23cSljC2WiHWTbGXSY4lehctUJjUW5SpchjIpsWS901ErI4/F8U5HpYwsFvcOAYUyklgq7BBQKBMai1sTtTJhsf5p0gbZdwgolLmOpaomCmWuYnlBk0hlXcXymiZRyhzH8rImt8psx/KLJjfKbMXyo6ZulHWM5XdN7Wb79tlUWdtYQdJkV9nGxV1rrFB0wDhpbGEF86UKFsrVQM7W9QNmprPN/zTVY/XGcl5rsXQA+AKAt7/PvanPBwB8AoD+A4WfYoYlQx+dAAAAAElFTkSuQmCC" />
+            </label>
+            <label class="btn btn-secondary" title="Insérer un symbole générique" style="width:45px;">
+                <input class="maptool" type="radio" name="tool" id="tool-basic" data-toggle="collapse">●
+            </label>
+        }
     </div>
-    <div class="input-group align-self-center">
+    <div class="input-group" style="width:90px;">
         <input type="text" class="form-control form-control-sm text-center" id="coordinates" readonly="readonly" />
     </div>
+    <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons" style="width:250px;">
+
+        @if (Model.Match.Rounds.Count == 1)
+        {
+            <a class="btn btn-secondary @(Model.Round == null ? "active" : "")" asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-fragment="map">
+                Carte de situation
+            </a>
+            <a class="btn btn-secondary @(Model.Round != null ? "active" : "")" asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds.First().RoundID" asp-fragment="map">
+                Carte partagée
+            </a>
+        }
+        else
+        {
+            <a class="btn btn-secondary @(Model.Round == null ? "active" : "")" asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-fragment="map">
+                Situation
+            </a>
+            foreach (var round in Model.Match.Rounds.OrderBy(r => r.Number))
+            {
+                <a class="btn btn-secondary @(Model.Round?.RoundID == round.RoundID ? "active" : "")" asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@round.RoundID" asp-fragment="map">
+                    Manche #@round.Number
+                </a>
+            }
+        }
+    </div>
+</div>
+
+<div class="alert alert-danger" role="alert" id="connectionlost" style="display:none;">
+La connection a été perdue avec le serveur. <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Round?.RoundID" asp-fragment="map">Actualiser la page pour la rétablir</a>.
 </div>
 
 <div class="map" id="map" style="width:100%; height:80vh; margin:0;padding:0;border:0;">
@@ -214,7 +245,7 @@
                             <select id="basic-type" class="form-control">
                                 @foreach (var type in Arma3Event.Arma3GameInfos.GameMarkerTypeHelper.GetAll())
                                 {
-                                <option data-content="<img src='/img/markers/@(type).png' height='24' /> @Html.DisplayFor(m => type)" value="@type">@Html.DisplayFor(m => type)</option>
+                                    <option data-content="<img src='/img/markers/@(type).png' height='24' /> @Html.DisplayFor(m => type)" value="@type">@Html.DisplayFor(m => type)</option>
                                 }
                             </select>
                         </div>
@@ -270,8 +301,12 @@
     <script>
 
         var mapHubInfos = @Json.Serialize(new {
-                         matchID = Model.Match?.MatchID,
-                         roundSideID = Model.RoundSide?.RoundSideID
+                         mapId = new Arma3Event.Hubs.MapId()
+                         {
+                             matchID = Model.Match.MatchID,
+                             roundSideID = Model.RoundSide?.RoundSideID
+                         },
+                         canEdit = Model.CanEditMap
                      });
         var colors = @Json.Serialize(Arma3Event.Arma3GameInfos.GameMarkerColorHelper.GetAll().ToDictionary(k => k.ToString(), k => Arma3Event.Arma3GameInfos.GameMarkerColorHelper.ToHexa(k)));
     </script>

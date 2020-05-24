@@ -7,7 +7,7 @@ namespace Arma3Event.Hubs
 {
     public class Marker
     {
-        internal int scope;
+        public MapId mapId { get; set; }
 
         public int id { get; set; }
 

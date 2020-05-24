@@ -22,48 +22,45 @@ namespace Arma3Event.Hubs
             _auth = auth;
         }
 
-        private async Task<MatchUser> GetUser(int matchID)
+        private async Task<MatchUser> GetUser(MapId mapId)
         {
             var steamId = SteamHelper.GetSteamId(Context.User);
-            var user = await _context.MatchUsers.FirstOrDefaultAsync(u => u.User.SteamId == steamId && u.MatchID == matchID);
+            var user = await _context.MatchUsers.FirstOrDefaultAsync(u => u.User.SteamId == steamId && u.MatchID == mapId.matchID);
             return user;
         }
 
-        private async Task<bool> CanEdit(MatchUser user, int? roundSideID)
+        private async Task<bool> CanEdit(MatchUser user, MapId mapId)
         {
-            if (roundSideID == null)
+            if (mapId.roundSideID == null)
             {
                 // Seuls les organisateurs peuvent modifier la carte de situation
                 return (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded;
             }
-            return await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == roundSideID && rs.MatchSideID == user.MatchSideID);
+            return await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == mapId.roundSideID && rs.MatchSideID == user.MatchSideID);
         }
 
-        private async Task<bool> CanRead(MatchUser user, int? roundSideID)
+        private async Task<bool> CanRead(MatchUser user, MapId mapId)
         {
-            if (await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == roundSideID && rs.MatchSideID == user.MatchSideID))
+            if (mapId.roundSideID == null)
             {
-                return true;
+                // Carte de situation, accessible à tous les inscripts et aux administrateurs
+                return user != null || (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded;
             }
-            if (roundSideID == null && (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded)
-            {
-                // Les organisateurs n'ont le droit de voir que la carte de situation
-                return true;
-            }
-            return false;
+            // Carte partagée, accessible uniquement aux inscrits du coté demandé
+            return await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == mapId.roundSideID && rs.MatchSideID == user.MatchSideID);
         }
 
-        public async Task Hello(int matchID, int? roundSideID)
+        public async Task Hello(MapId mapId)
         {
-            var user = await GetUser(matchID);
-            if (await CanRead(user, roundSideID))
+            var user = await GetUser(mapId);
+            if (await CanRead(user, mapId))
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, $"Match:{matchID}");
-                if (roundSideID != null)
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"Match:{mapId.matchID}");
+                if (mapId.roundSideID != null)
                 {
-                    await Groups.AddToGroupAsync(Context.ConnectionId, $"MatchRound:{roundSideID}");
+                    await Groups.AddToGroupAsync(Context.ConnectionId, $"MatchRound:{mapId.roundSideID}");
                 }
-                var markers = _context.MapMarkers.Where(m => m.MatchID == matchID && (m.RoundSideID == null || m.RoundSideID == roundSideID)).ToList();
+                var markers = _context.MapMarkers.Where(m => m.MatchID == mapId.matchID && (m.RoundSideID == null || m.RoundSideID == mapId.roundSideID)).ToList();
                 foreach(var marker in markers)
                 {
                     await Clients.Caller.SendAsync("AddOrUpdateMarker", ToJsonMarker(marker));
@@ -71,15 +68,15 @@ namespace Arma3Event.Hubs
             }
         }
 
-        public async Task<int> AddMarker(int matchID, int? roundSideID, MarkerData markerData)
+        public async Task<int> AddMarker(MapId mapId, MarkerData markerData)
         {
-            var user = await GetUser(matchID);
-            if (await CanEdit(user, roundSideID))
+            var user = await GetUser(mapId);
+            if (await CanEdit(user, mapId))
             {
                 var marker = new MapMarker()
                 {
-                    MatchID = matchID,
-                    RoundSideID = roundSideID,
+                    MatchID = mapId.matchID,
+                    RoundSideID = mapId.roundSideID,
                     MarkerData = JsonConvert.SerializeObject(markerData),
                     MatchUserID = user?.MatchUserID
                 };
@@ -104,72 +101,64 @@ namespace Arma3Event.Hubs
         private async Task DoUpdateMarker(int mapMarkerID, MarkerData markerData, bool notifyCaller)
         {
             var marker = _context.MapMarkers.FirstOrDefault(m => m.MapMarkerID == mapMarkerID);
-            var user = await GetUser(marker.MatchID);
-            if (await CanEdit(user, marker.RoundSideID))
+            if (marker != null)
             {
-                marker.MarkerData = JsonConvert.SerializeObject(markerData);
-                _context.Update(marker);
-                await _context.SaveChangesAsync();
-                await Notify("AddOrUpdateMarker", marker, notifyCaller);
+                var mapId = new MapId(marker);
+                var user = await GetUser(mapId);
+                if (await CanEdit(user, mapId))
+                {
+                    marker.MarkerData = JsonConvert.SerializeObject(markerData);
+                    _context.Update(marker);
+                    await _context.SaveChangesAsync();
+                    await Notify("AddOrUpdateMarker", marker, notifyCaller);
+                }
             }
         }
 
         public async Task RemoveMarker(int mapMarkerID)
         {
             var marker = _context.MapMarkers.FirstOrDefault(m => m.MapMarkerID == mapMarkerID);
-            var user = await GetUser(marker.MatchID);
-            if (await CanEdit(user, marker.RoundSideID))
+            if (marker != null)
             {
-                _context.Remove(marker);
-                await _context.SaveChangesAsync();
-                await Notify("RemoveMarker", marker);
-            }
-        }
-
-        public async Task PointMap(int matchID, int? roundSideID, double[] pos)
-        {
-            var user = await GetUser(matchID);
-            
-            if (await CanEdit(user, roundSideID))
-            {
-                if (roundSideID == null)
+                var mapId = new MapId(marker);
+                var user = await GetUser(mapId);
+                if (await CanEdit(user, mapId))
                 {
-                    await Clients.Group($"Match:{matchID}").SendAsync("PointMap", user.MatchUserID, pos);
-                }
-                else
-                {
-                    await Clients.Group($"MatchRound:{roundSideID}").SendAsync("PointMap", user.MatchUserID, pos);
+                    _context.Remove(marker);
+                    await _context.SaveChangesAsync();
+                    await Notify("RemoveMarker", marker);
                 }
             }
         }
 
-        public async Task EndPointMap(int matchID, int? roundSideID)
+        public async Task PointMap(MapId mapId, double[] pos)
         {
-            var user = await GetUser(matchID);
-            if (await CanEdit(user, roundSideID))
+            var user = await GetUser(mapId);
+            if (await CanEdit(user, mapId))
             {
-                if (roundSideID == null)
-                {
-                    await Clients.Group($"Match:{matchID}").SendAsync("EndPointMap", user.MatchUserID);
-                }
-                else
-                {
-                    await Clients.Group($"MatchRound:{roundSideID}").SendAsync("EndPointMap", user.MatchUserID);
-                }
+                await Clients.Group(mapId.GetGroup()).SendAsync("PointMap", user.MatchUserID, pos);
+            }
+        }
+
+        public async Task EndPointMap(MapId mapId)
+        {
+            var user = await GetUser(mapId);
+            if (await CanEdit(user, mapId))
+            {
+                await Clients.Group(mapId.GetGroup()).SendAsync("EndPointMap", user.MatchUserID);
             }
         }
 
         private async Task Notify(string method, MapMarker marker, bool notifyCaller = true)
         {
-            string groupName = marker.RoundSideID == null ? $"Match:{marker.MatchID}" : $"MatchRound:{marker.RoundSideID}";
-
+            MapId mapId = new MapId(marker);
             if (notifyCaller)
             {
-                await Clients.Group(groupName).SendAsync(method, ToJsonMarker(marker));
+                await Clients.Group(mapId.GetGroup()).SendAsync(method, ToJsonMarker(marker));
             }
             else
             {
-                await Clients.OthersInGroup(groupName).SendAsync(method, ToJsonMarker(marker));
+                await Clients.OthersInGroup(mapId.GetGroup()).SendAsync(method, ToJsonMarker(marker));
             }
         }
 
@@ -178,7 +167,7 @@ namespace Arma3Event.Hubs
             return new Marker() 
             { 
                 id = marker.MapMarkerID, 
-                scope = marker.RoundSideID == null ? 0 : 1,
+                mapId = new MapId(marker),
                 data = JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData) 
             };
         }

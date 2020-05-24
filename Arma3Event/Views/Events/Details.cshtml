@@ -34,9 +34,9 @@
             </span>
         </a>
         }
-        @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap) && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
+        @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
         {
-            <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
+            <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" asp-fragment="map" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
         }
     </p>
     </div>
@@ -155,9 +155,9 @@ else
 
                 @if (Model.MatchUser?.Side == side.MatchSide)
                 {
-                    @if (!string.IsNullOrEmpty(Model.Match.GameMap.WebMap))
+                    @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap))
                     {
-                        <p><a asp-action="Map" asp-route-id="@round.MatchID" asp-route-roundId="@round.RoundID" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
+                        <p><a asp-action="Map" asp-route-id="@round.MatchID" asp-route-roundId="@round.RoundID" asp-fragment="map" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
                     }
                     <div class="accordion mb-4" id="squads-@side.RoundSideID">
                         @foreach (var squad in side.Squads)

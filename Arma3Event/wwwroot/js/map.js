@@ -227,7 +227,7 @@ function milsymbolMarkerTool(connection) {
         var symbol = getSymbol();
         var symbolConfig = getSymbolConfig();
 
-        connection.invoke('AddMarker', mapHubInfos.matchID, mapHubInfos.roundSideID, {
+        connection.invoke('AddMarker', mapHubInfos.mapId, {
             type: 'mil',
             symbol: symbol,
             config: symbolConfig,
@@ -266,7 +266,7 @@ function milsymbolMarkerTool(connection) {
 function basicsymbolMarkerTool(connection) {
 
     $('#basicsymbol-insert').on('click', function () {
-        connection.invoke('AddMarker', mapHubInfos.matchID, mapHubInfos.roundSideID, {
+        connection.invoke('AddMarker', mapHubInfos.mapId, {
             type: 'basic',
             symbol: $('#basic-type').val(),
             config: { color: $('#basic-color').val(), label: $('#basic-label').val() },
@@ -401,10 +401,18 @@ function InitMap(mapInfos) {
                 existing.options.markerData = markerData;
             }
             else {
-                markers[markerId] = L.marker(markerData.pos, { icon: icon, draggable: true, markerId: markerId, markerData: markerData })
-                    .addTo(map)
-                    .on('click', updateMarkerHandler)
-                    .on('dragend', markerMoveEnd);
+                var canEdit = mapHubInfos.canEdit && marker.mapId.roundSideID == mapHubInfos.mapId.roundSideID;
+
+                var mapMarker =
+                    L.marker(markerData.pos, { icon: icon, draggable: canEdit, markerId: markerId, markerData: markerData })
+                        .addTo(map);
+
+                if (canEdit) {
+                    mapMarker.on('click', updateMarkerHandler)
+                        .on('dragend', markerMoveEnd);
+                }
+
+                markers[markerId] = mapMarker;
             }
         });
 
@@ -435,9 +443,15 @@ function InitMap(mapInfos) {
             }
         });
 
+        function connectionLost() {
+            $('#connectionlost').show();
+        }
+
         connection.start().then(function () {
-            connection.invoke("Hello", mapHubInfos.matchID, mapHubInfos.roundSideID);
-        });
+            connection.invoke("Hello", mapHubInfos.mapId);
+        }).catch(connectionLost);
+
+        connection.onclose(connectionLost);
 
         milsymbolMarkerTool(connection);
         basicsymbolMarkerTool(connection);
@@ -447,26 +461,26 @@ function InitMap(mapInfos) {
         map.on('mousemove', function (e) {
             $('#coordinates').val(toGrid(e.latlng));
             if (isPointing) {
-                connection.invoke("PointMap", mapHubInfos.matchID, mapHubInfos.roundSideID, [e.latlng.lat, e.latlng.lng]);
+                connection.invoke("PointMap", mapHubInfos.mapId, [e.latlng.lat, e.latlng.lng]);
             }
         });
         map.on('mousedown', function (e) {
             if ($('#tool-point').prop('checked')) {
                 isPointing = true;
-                connection.invoke("PointMap", mapHubInfos.matchID, mapHubInfos.roundSideID, [e.latlng.lat, e.latlng.lng]);
+                connection.invoke("PointMap", mapHubInfos.mapId, [e.latlng.lat, e.latlng.lng]);
             }
         });
 
         map.on('mouseup', function (e) {
             if (isPointing) {
                 isPointing = false;
-                connection.invoke("EndPointMap", mapHubInfos.matchID, mapHubInfos.roundSideID);
+                connection.invoke("EndPointMap", mapHubInfos.mapId);
             }
         });
         map.on('mouseout', function (e) {
             if (isPointing) {
                 isPointing = false;
-                connection.invoke("EndPointMap", mapHubInfos.matchID, mapHubInfos.roundSideID);
+                connection.invoke("EndPointMap", mapHubInfos.mapId);
             }
         });
     });

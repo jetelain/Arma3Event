@@ -52,7 +52,13 @@
     </dl>
 </div>
 <p>
-    <a asp-action="Edit" asp-route-id="@Model.MatchID" class="btn btn-sm btn-secondary">Modifier</a>
+    <a asp-action="Edit" asp-route-id="@Model.MatchID" class="btn btn-sm btn-secondary">Modifier les informations générales</a>
+    @if (!string.IsNullOrEmpty(Model.GameMap?.WebMap))
+    {
+        <a asp-controller="@ControllersName.Events" asp-action="Map" asp-route-id="@Model.MatchID" asp-fragment="map" class="btn btn-sm btn-secondary">
+            <i class="fas fa-map"></i> Modifier la carte de situation
+        </a>
+    }
 </p>
 
 <div>

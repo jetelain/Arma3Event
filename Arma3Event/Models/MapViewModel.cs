@@ -11,7 +11,11 @@ namespace Arma3Event.Models
         public GameMap GameMap { get { return Match.GameMap; } }
 
         public Match Match { get; set; }
-        public RoundSide RoundSide { get; internal set; }
-        public Round Round { get; internal set; }
+
+        public RoundSide RoundSide { get; set; }
+
+        public Round Round { get; set; }
+
+        public bool CanEditMap { get; set; }
     }
 }

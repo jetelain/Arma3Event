@@ -396,12 +396,14 @@ namespace Arma3Event.Controllers
                 }
 
                 // Carte de situation
-                vm.Match = await _context.Matchs.Include(m => m.GameMap).FirstOrDefaultAsync(m => m.MatchID == id);
+                vm.Match = await _context.Matchs.Include(m => m.GameMap).Include(m => m.Rounds).FirstOrDefaultAsync(m => m.MatchID == id);
 
                 if (vm.Match == null)
                 {
                     return NotFound();
                 }
+
+                vm.CanEditMap = isAdmin;
             }
             else
             {
@@ -413,6 +415,7 @@ namespace Arma3Event.Controllers
                 // Carte partagée
                 vm.Round = await _context.Rounds
                     .Include(m => m.Match).ThenInclude(m => m.GameMap)
+                    .Include(m => m.Match).ThenInclude(m => m.Rounds)
                     .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
                     .FirstOrDefaultAsync(m => m.RoundID == roundId && m.MatchID == id);
                 if (vm.Round == null)
@@ -421,6 +424,7 @@ namespace Arma3Event.Controllers
                 }
                 vm.Match = vm.Round.Match;
                 vm.RoundSide = vm.Round.Sides.FirstOrDefault(s => s.MatchSideID == matchUser.MatchSideID);
+                vm.CanEditMap = true;
             }
 
             // Vérifie qu'il y a un fond de carte
