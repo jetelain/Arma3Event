@@ -32,13 +32,14 @@ namespace Arma3Event.Controllers
         {
             var vm = new HomeViewModel();
             vm.User = await GetUser();
+            var maxDate = DateTime.Today;
             if (vm.User != null)
             {
-                vm.Matchs = await _context.Matchs.Include(m => m.Rounds).Include(m => m.Users).ToListAsync();
+                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).Include(m => m.Users).ToListAsync();
             }
             else
             {
-                vm.Matchs = await _context.Matchs.Include(m => m.Rounds).ToListAsync();
+                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).ToListAsync();
             }
             return View(vm);
         }

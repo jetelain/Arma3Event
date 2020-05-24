@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Arma3Event.Arma3GameInfos;
 using ArmaEvent.Arma3GameInfos;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +31,8 @@ namespace Arma3Event.Entities
         {
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Faction>().ToTable("Faction");
-            modelBuilder.Entity<MapMarker>().ToTable("MapMarkers");
+            modelBuilder.Entity<MapMarker>().ToTable("MapMarkers").HasOne(t => t.MatchUser).WithOne().OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<MatchTechnicalInfos>().ToTable("MatchTechnicalInfos");
 
             modelBuilder.Entity<Match>().ToTable("Match");
@@ -39,7 +41,8 @@ namespace Arma3Event.Entities
             modelBuilder.Entity<Round>().ToTable("Round");
             modelBuilder.Entity<RoundSide>().ToTable("RoundSide");
             modelBuilder.Entity<RoundSquad>().ToTable("RoundSquad");
-            modelBuilder.Entity<RoundSlot>().ToTable("RoundSlot").HasOne(t => t.Squad).WithMany(s => s.Slots).OnDelete(DeleteBehavior.Cascade); ;
+            modelBuilder.Entity<RoundSlot>().ToTable("RoundSlot").HasOne(t => t.Squad).WithMany(s => s.Slots).OnDelete(DeleteBehavior.Cascade);
+
         }
 
         internal void InitBaseData()
@@ -55,13 +58,13 @@ namespace Arma3Event.Entities
             }
             if (!Factions.Any())
             {
-                Factions.Add(new Faction() { Name = "OTAN", UsualSide = GameSide.BLUFOR, Icon = "/img/flags/nato.png" });
-                Factions.Add(new Faction() { Name = "CSAT", UsualSide = GameSide.OPFOR, Icon = "/img/flags/csat.png" });
-                Factions.Add(new Faction() { Name = "AAF", UsualSide = GameSide.Independant, Icon = "/img/flags/aaf.png" });
-                Factions.Add(new Faction() { Name = "USA", UsualSide = GameSide.Independant, Icon = "/img/flags/us.png" });
-                Factions.Add(new Faction() { Name = "UK", UsualSide = GameSide.Independant, Icon = "/img/flags/uk.png" });
-                Factions.Add(new Faction() { Name = "FIA", UsualSide = GameSide.Independant, Icon = "/img/flags/fia.png" });
-                Factions.Add(new Faction() { Name = "France", UsualSide = GameSide.Independant, Icon = "/img/flags/fr.png" });
+                Factions.Add(new Faction() { Name = "OTAN", UsualSide = GameSide.BLUFOR, Flag = "/img/flags/nato.png", GameMarker = GameMarkerType.flag_nato });
+                Factions.Add(new Faction() { Name = "CSAT", UsualSide = GameSide.OPFOR, Flag = "/img/flags/csat.png", GameMarker = GameMarkerType.flag_csat });
+                Factions.Add(new Faction() { Name = "AAF", UsualSide = GameSide.Independant, Flag = "/img/flags/aaf.png", GameMarker = GameMarkerType.flag_aaf });
+                Factions.Add(new Faction() { Name = "USA", UsualSide = GameSide.BLUFOR, Flag = "/img/flags/us.png", GameMarker = GameMarkerType.flag_usa });
+                Factions.Add(new Faction() { Name = "UK", UsualSide = GameSide.BLUFOR, Flag = "/img/flags/uk.png", GameMarker = GameMarkerType.flag_uk });
+                Factions.Add(new Faction() { Name = "FIA", UsualSide = GameSide.Independant, Flag = "/img/flags/fia.png", GameMarker = GameMarkerType.flag_fia });
+                Factions.Add(new Faction() { Name = "France", UsualSide = GameSide.BLUFOR, Flag = "/img/flags/fr.png", GameMarker = GameMarkerType.flag_france });
                 SaveChanges();
             }
             if (!Maps.Any())

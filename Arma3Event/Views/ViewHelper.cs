@@ -33,9 +33,9 @@ namespace Arma3Event
 
         public static string Icon(Faction faction)
         {
-            if (faction != null && !string.IsNullOrEmpty(faction.Icon))
+            if (faction != null && !string.IsNullOrEmpty(faction.Flag))
             {
-                return faction.Icon;
+                return faction.Flag;
             }
             return "/img/factions/none.png";
         }

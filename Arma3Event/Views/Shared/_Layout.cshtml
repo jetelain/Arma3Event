@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Arma3Event</title>
+    <title>@ViewData["Title"] - A3E</title>
     @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />*@
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/slate/bootstrap.min.css" rel="stylesheet" integrity="sha384-G9YbB4o4U6WS4wCthMOpAeweY4gQJyyx0P3nZbEBHyz+AtNoeasfRChmek1C2iqV" crossorigin="anonymous" />
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.6/css/all.css" />
@@ -17,7 +17,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Arma3Event</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">A3E</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -25,11 +25,17 @@
                 <div class="navbar-collapse collapse">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="@ControllersName.Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="@ControllersName.Home" asp-action="Index">Accueil</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="@ControllersName.Events" asp-action="Index">Événements</a>
                         </li>
+                        @if (User?.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="@ControllersName.Users" asp-action="Index">@User.Identity.Name</a>
+                            </li>
+                        }
                         @if ((await AuthorizationService.AuthorizeAsync(User, "Admin")).Succeeded)
                         {
                             <li class="nav-item dropdown">
@@ -39,6 +45,7 @@
                                 <div class="dropdown-menu" aria-labelledby="configDropdownMenu">
                                     <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Événements</a>
                                     <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminGameMaps" asp-action="Index">Maps</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminFactions" asp-action="Index">Armées et factions</a>
                                 </div>
                             </li>
                         }

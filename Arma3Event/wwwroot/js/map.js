@@ -121,6 +121,7 @@ function getSymbolConfig() {
     addToConfig(config, 'location');
     addToConfig(config, 'quantity');
     addToConfig(config, 'staffComments');
+    addToConfig(config, 'reinforcedReduced');
     return config;
 }
 
@@ -142,6 +143,7 @@ function setSymbol(symbol, config) {
     $('#location').val(config.location || '');
     $('#quantity').val(config.quantity || '');
     $('#staffComments').val(config.staffComments || '');
+    $('#reinforcedReduced').val(config.reinforcedReduced || '');
     $('#direction').val(config.direction !== undefined ? (Number(config.direction) * 6400 / 360) : '');
     
     applySymbol();
@@ -206,6 +208,7 @@ function updateMarkerHandler(e) {
 };
 function insertMilSymbol(latlng) {
     clickPosition = latlng;
+    setSymbol(getSymbol(), {}); // Garde le même symbole, mais réinitialise les annotations
     $('#milsymbol').modal('show');
     $('#milsymbol-delete').hide();
     $('#milsymbol-update').hide();
@@ -443,9 +446,12 @@ function InitMap(mapInfos) {
             }
         });
 
-        function connectionLost() {
-            $('#connectionlost').show();
+        function connectionLost(e) {
+            if (e) {
+                $('#connectionlost').show();
+            }
         }
+
 
         connection.start().then(function () {
             connection.invoke("Hello", mapHubInfos.mapId);

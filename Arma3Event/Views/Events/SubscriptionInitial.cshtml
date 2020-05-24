@@ -16,48 +16,54 @@
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
 
-<h2>Inscription à l'événement</h2>
-<hr />
-<dl class="row">
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Match)
-    </dt>
-    <dd class="col-sm-10">
-        <a asp-action="Details" asp-route-id="@Model.Match.MatchID">
-            @Html.DisplayFor(model => model.Match.Name)
-        </a>
-    </dd>
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Match.Date)
-    </dt>
-    <dd class="col-sm-10">
-        <i class="far fa-clock"></i> @Html.DisplayFor(model => model.Match.Date) à @Html.DisplayFor(model => model.Match.StartTime)
-    </dd>
-</dl>
 <form asp-action="SubscriptionInitial" asp-route-id="@Model.Match.MatchID">
-    <div class="row">
-        <div class="col-md-4">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MatchSideID" />
-            <input type="hidden" asp-for="RoundSquadID" />
-            @if (Model.User.UserID == 0)
-            {
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="MatchSideID" />
+    <input type="hidden" asp-for="RoundSquadID" />
+
+    @if (Model.User.UserID == 0)
+    {
+        <h3 class="mt-2">Inscription au site</h3>
+        <div class="row">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label asp-for="User.Name" class="control-label"></label>
-                    <div class="input-group">
-                        <input asp-for="User.Name" class="form-control" />
-                    </div>
+                    <input asp-for="User.Name" class="form-control" />
                     <span asp-validation-for="User.Name" class="text-danger"></span>
                 </div>
-            }
-            else
-            {
-                <input type="hidden" asp-for="User.UserID" />
-            }
+                <div class="form-group">
+                    <label asp-for="User.PrivacyOptions" class="control-label"></label>
+                    <select asp-for="User.PrivacyOptions" asp-items="Html.GetEnumSelectList<Arma3Event.Entities.UserPrivacyOptions>()" class="form-control"></select>
+                    <span asp-validation-for="User.PrivacyOptions" class="text-danger"></span>
+                </div>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <input type="hidden" asp-for="User.UserID" />
+    }
+
+    <h3 class="mt-2">Inscription à l'événement</h3>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Match)
+        </dt>
+        <dd class="col-sm-10">
+            <a asp-action="Details" asp-route-id="@Model.Match.MatchID">
+                @Html.DisplayFor(model => model.Match.Name)
+            </a>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Match.Date)
+        </dt>
+        <dd class="col-sm-10">
+            <i class="far fa-clock"></i> @Html.DisplayFor(model => model.Match.Date) à @Html.DisplayFor(model => model.Match.StartTime)
+        </dd>
+    </dl>
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-6">
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="AcceptSubscription" /> @Html.DisplayNameFor(model => model.AcceptSubscription)
@@ -68,7 +74,7 @@
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="AcceptMatchRules" /> @Html.DisplayNameFor(model => model.AcceptMatchRules)
                     @if (!string.IsNullOrEmpty(Model.Match.RulesLink))
-                    { 
+                    {
                         @: : <a href="@Model.Match.RulesLink" target="_blank" class="mr-4"><i class="fas fa-balance-scale"></i> Règlement</a>
                     }
                 </label>

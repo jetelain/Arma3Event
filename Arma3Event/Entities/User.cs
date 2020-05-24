@@ -17,5 +17,8 @@ namespace Arma3Event.Entities
         [StringLength(100)]
         [Display(Name = "Nom dans steam")]
         public string SteamName { get; set; }
+
+        [Display(Name = "Paramètres de confidentialité")]
+        public UserPrivacyOptions PrivacyOptions { get; set; }
     }
 }

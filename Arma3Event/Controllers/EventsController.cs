@@ -143,6 +143,16 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
 
+            if (!vm.AcceptMatchRules)
+            {
+                ModelState.AddModelError("AcceptMatchRules", "Vous devez accepter le réglement de l'événement");
+            }
+
+            if (!vm.AcceptSubscription)
+            {
+                ModelState.AddModelError("AcceptSubscription", "Vous devez accepter le traitement des données nécessaires à votre inscription");
+            }
+
             if (!ModelState.IsValid)
             {
                 vm.Match = match;
@@ -514,6 +524,43 @@ namespace Arma3Event.Controllers
                     return File(stream.ToArray(), "image/png");
                 }
             }
+        }
+        public async Task<IActionResult> CancelSubscription(int id)
+        {
+            var user = await GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var matchUser = await _context.MatchUsers
+                .Include(u => u.User)
+                .Include(u => u.Match)
+                .FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
+            if (matchUser == null)
+            {
+                return NotFound();
+            }
+            return View(matchUser);
+        }
+
+        // POST: Users/Delete/5
+        [HttpPost, ActionName("CancelSubscription")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelSubscriptionConfirmed(int id)
+        {
+            var user = await GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
+            if (matchUser == null)
+            {
+                return NotFound();
+            }
+            _context.MatchUsers.Remove(matchUser);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(HomeController.Index), ControllersName.Home);
         }
     }
 }

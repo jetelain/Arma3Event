@@ -1,0 +1,43 @@
+﻿@model Arma3Event.Entities.Faction
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Armées et factions</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Flag)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Flag)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UsualSide)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UsualSide)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@Model.FactionID">Modifier</a>
+</div>
+

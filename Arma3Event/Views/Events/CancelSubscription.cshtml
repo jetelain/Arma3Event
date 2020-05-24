@@ -1,0 +1,48 @@
+﻿@model Arma3Event.Entities.MatchUser
+@{
+    ViewData["Title"] = "Annuler l'inscription";
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Evénements</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
+            <li class="breadcrumb-item"><a asp-action="Subscription" asp-route-id="@Model.Match.MatchID">@Model.User.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<h3>Êtes vous sûre de vouloir annuler votre inscription ?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Match)
+        </dt>
+        <dd class="col-sm-10">
+            <a asp-action="Details" asp-route-id="@Model.Match.MatchID">
+                @Html.DisplayFor(model => model.Match.Name)
+            </a>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Match.Date)
+        </dt>
+        <dd class="col-sm-10">
+            <i class="far fa-clock"></i> @Html.DisplayFor(model => model.Match.Date) à @Html.DisplayFor(model => model.Match.StartTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.Name)
+        </dd>
+    </dl>
+
+    <form asp-action="CancelSubscription" asp-route-id="@Model.MatchID">
+        <input type="submit" value="Annuler l'inscription" class="btn btn-danger" />
+    </form>
+</div>

@@ -4,7 +4,7 @@ function getFactionFlag(id) {
 
     var faction = factions.find(function (entry) { return entry.factionID == id });
     if (faction) {
-        return faction.icon;
+        return faction.flag;
     }
 
     return "/img/flags/none.png";

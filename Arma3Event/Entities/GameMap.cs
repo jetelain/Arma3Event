@@ -15,7 +15,11 @@ namespace Arma3Event.Entities
 
         [Display(Name = "Image de fond")]
         public string Image { get; set; }
+
+        [Display(Name = "Lien Workshop Steam")]
         public string WorkshopLink { get; set; }
+
+        [Display(Name = "Identifiant carte web")]
         public string WebMap { get; set; }
     }
 }

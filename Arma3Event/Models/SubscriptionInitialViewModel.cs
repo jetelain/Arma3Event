@@ -12,9 +12,11 @@ namespace Arma3Event.Models
         public int? MatchSideID { get; set; }
         public int? RoundSquadID { get; set; }
         public User User { get; set; }
+
+        [Display(Name = "Evénement")]
         public Match Match { get; set; }
 
-        [Display(Name = "J'accepte le traitement des données nécessaires à mon inscription")]
+        [Display(Name = "J'accepte le traitement des données nécessaires aux inscriptions")]
         [Required]
         public bool AcceptSubscription { get; set; }
 

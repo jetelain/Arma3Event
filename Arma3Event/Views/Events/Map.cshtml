@@ -54,7 +54,7 @@
     <div class="input-group" style="width:90px;">
         <input type="text" class="form-control form-control-sm text-center" id="coordinates" readonly="readonly" />
     </div>
-    <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons" style="width:250px;">
+    <div class="btn-group btn-group-sm btn-group-toggle" style="width:250px;">
 
         @if (Model.Match.Rounds.Count == 1)
         {
@@ -81,7 +81,7 @@
 </div>
 
 <div class="alert alert-danger" role="alert" id="connectionlost" style="display:none;">
-La connection a été perdue avec le serveur. <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Round?.RoundID" asp-fragment="map">Actualiser la page pour la rétablir</a>.
+La connection a été perdue avec le serveur. <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Round?.RoundID">Actualiser la page pour la rétablir</a>.
 </div>
 
 <div class="map" id="map" style="width:100%; height:80vh; margin:0;padding:0;border:0;">
@@ -110,15 +110,15 @@ La connection a été perdue avec le serveur. <a asp-action="Map" asp-route-id="
                 <div>
                     <div class="form-row">
                         <div class="form-group col-md-2">
-                            <label for="id1" class="control-label">Identité 1</label>
+                            <label for="id1" class="control-label">Nature</label>
                             <select id="id1" class="form-control form-control-sm">
                                 <option value="0" selected="selected">Réel</option>
-                                <option value="1">Exercice (X)</option>
-                                <option value="2">Simulation (S)</option>
+                                <option value="1">Exercice</option>
+                                <option value="2">Simulation</option>
                             </select>
                         </div>
                         <div class="form-group col-md-2">
-                            <label for="id2" class="control-label">Identité 2</label>
+                            <label for="id2" class="control-label">Identité</label>
                             <select id="id2" class="form-control  form-control-sm">
                                 <option value="0">En attente (jaune)</option>
                                 <option value="1">Inconnu (jaune)</option>
@@ -200,7 +200,16 @@ La connection a été perdue avec le serveur. <a asp-action="Map" asp-route-id="
                             <label for="quantity" class="control-label">Quantité</label>
                             <input type="text" id="quantity" class="form-control  form-control-sm" />
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-2">
+                            <label for="reinforcedReduced" class="control-label">Renforcé</label>
+                            <select id="reinforcedReduced" class="form-control  form-control-sm">
+                                <option value=""></option>
+                                <option value="(+)">(+) reinforced</option>
+                                <option value="(-)">(-) reduced</option>
+                                <option value="(±)">(±) reinforced and reduced</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
                             <label for="staffComments" class="control-label">Commentaire</label>
                             <input type="text" id="staffComments" class="form-control  form-control-sm" />
                         </div>

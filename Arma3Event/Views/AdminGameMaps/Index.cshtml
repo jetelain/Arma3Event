@@ -23,22 +23,31 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
+            <th>
+                Carte web
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@item.GameMapID">Détails</a>
-                    <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@item.GameMapID">Modifier</a>
-                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.GameMapID">Supprimer</a>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @if (!string.IsNullOrEmpty(item.WebMap))
+                {
+                    <span>Oui</span>
+                }
+            </td>
+            <td>
+                <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@item.GameMapID">Détails</a>
+                <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@item.GameMapID">Modifier</a>
+                <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.GameMapID">Supprimer</a>
+            </td>
+        </tr>
         }
     </tbody>
 </table>
