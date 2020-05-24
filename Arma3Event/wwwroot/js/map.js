@@ -31,7 +31,7 @@ function toGrid(latlng) {
 }
 
 function applySymbolSet() {
-    var id = '0003'; //+ $('#id1').val() + $('#id2').val();
+    var id = '0003';
     var symbolset = $('#set').val();
 
     $('#size').empty();
@@ -63,6 +63,8 @@ function applySymbolSet() {
         else {
             labelHtml += '<strong>' + value.entity + '</strong>';
             labelText = value.entity;
+
+            $('#icon').append($('<option></option>').attr({ 'data-divider': 'true' }));
         }
         $('#icon').append($('<option></option>').attr({ value: value.code, 'data-content': labelHtml }).text(labelText));
     });
@@ -87,8 +89,7 @@ function applySymbolSet() {
     $('#mod2').selectpicker('refresh');
 }
 function getSymbol() {
-    var symbol = '10';
-    symbol += $('#id1').val() || '0';
+    var symbol = '100';
     symbol += $('#id2').val() || '0';
     symbol += $('#set').val() || '00';
     symbol += $('#status').val() || '0';
@@ -118,16 +119,13 @@ function getSymbolConfig() {
     var config = {};
     addToConfig(config, 'uniqueDesignation');
     addDegreesToConfig(config, 'direction');
-    addToConfig(config, 'location');
-    addToConfig(config, 'quantity');
-    addToConfig(config, 'staffComments');
+    addToConfig(config, 'higherFormation');
     addToConfig(config, 'reinforcedReduced');
     return config;
 }
 
 function setSymbol(symbol, config) {
 
-    $('#id1').val(symbol.substr(2, 1));
     $('#id2').val(symbol.substr(3, 1));
     $('#set').val(symbol.substr(4, 2));
     applySymbolSet();
@@ -140,9 +138,7 @@ function setSymbol(symbol, config) {
     $('#mod2').val(symbol.substr(18, 2));
 
     $('#uniqueDesignation').val(config.uniqueDesignation || '');
-    $('#location').val(config.location || '');
-    $('#quantity').val(config.quantity || '');
-    $('#staffComments').val(config.staffComments || '');
+    $('#higherFormation').val(config.higherFormation || '');
     $('#reinforcedReduced').val(config.reinforcedReduced || '');
     $('#direction').val(config.direction !== undefined ? (Number(config.direction) * 6400 / 360) : '');
     
@@ -196,6 +192,7 @@ function updateMarkerHandler(e) {
     } else if (modalMarkerData.type == 'basic') {
         $('#basic-type').val(modalMarkerData.symbol);
         $('#basic-color').val(modalMarkerData.config.color);
+        $('#basic-dir').val(modalMarkerData.config.dir);
         $('#basic-label').val(modalMarkerData.config.label);
         $('select').selectpicker('render');
 
@@ -204,7 +201,13 @@ function updateMarkerHandler(e) {
         $('#basicsymbol-update').show();
         $('#basicsymbol-insert').hide();
         $('#basicsymbol-grid').text(toGrid(e.latlng));
+
+    } else if (modalMarkerData.type == 'line') {
+        $('#line-color').val(modalMarkerData.config.color);
+        $('select').selectpicker('render');
+        $('#line').modal('show');
     }
+
 };
 function insertMilSymbol(latlng) {
     clickPosition = latlng;
@@ -272,7 +275,7 @@ function basicsymbolMarkerTool(connection) {
         connection.invoke('AddMarker', mapHubInfos.mapId, {
             type: 'basic',
             symbol: $('#basic-type').val(),
-            config: { color: $('#basic-color').val(), label: $('#basic-label').val() },
+            config: { color: $('#basic-color').val(), label: $('#basic-label').val(), dir: $('#basic-dir').val() },
             pos: [clickPosition.lat, clickPosition.lng]
         });
         $('#basicsymbol').modal('hide');
@@ -285,10 +288,51 @@ function basicsymbolMarkerTool(connection) {
 
     $('#basicsymbol-update').on('click', function () {
         modalMarkerData.symbol = $('#basic-type').val();
-        modalMarkerData.config = { color: $('#basic-color').val(), label: $('#basic-label').val() };
+        modalMarkerData.config = { color: $('#basic-color').val(), label: $('#basic-label').val(), dir: $('#basic-dir').val() };
         connection.invoke('UpdateMarker', modalMarkerId, modalMarkerData);
         $('#basicsymbol').modal('hide');
     });
+}
+
+function lineMarkerTool(connection) {
+
+    $('#line-delete').on('click', function () {
+        connection.invoke('RemoveMarker', modalMarkerId);
+        $('#line').modal('hide');
+    });
+
+    $('#line-update').on('click', function () {
+        modalMarkerData.config = { color: $('#line-color').val() };
+        connection.invoke('UpdateMarker', modalMarkerId, modalMarkerData);
+        $('#line').modal('hide');
+    });
+}
+
+
+var currentLine = null;
+var lineFirstPoint = null;
+
+function insertLine(latlng, map, append, connection) {
+    var point = latlng;
+    if (!currentLine) {
+        currentLine = L.polyline([point, point], { color: 'black', weight: 3, interactive: false }).addTo(map);
+    } else if (append) {
+        var data = currentLine.getLatLngs();
+        data[data.length - 1] = point;
+        data.push(point);
+        currentLine.setLatLngs(data);
+    } else {
+        var data = currentLine.getLatLngs();
+        data[data.length - 1] = point;
+        currentLine.remove();
+        currentLine = null;
+        connection.invoke('AddMarker', mapHubInfos.mapId, {
+            type: 'line',
+            symbol: 'line',
+            config: {},
+            pos: data.map(function (e) { return [e.lat, e.lng]; }).flat()
+        });
+    }
 }
 
 var basicColors = { "ColorBlack": "000000", "ColorGrey": "7F7F7F", "ColorRed": "E50000", "ColorBrown": "7F3F00", "ColorOrange": "D86600", "ColorYellow": "D8D800", "ColorKhaki": "7F9966", "ColorGreen": "00CC00", "ColorBlue": "0000FF", "ColorPink": "FF4C66", "ColorWhite": "FFFFFF", "ColorUNKNOWN": "B29900", "colorBLUFOR": "004C99", "colorOPFOR": "7F0000", "colorIndependent": "007F00", "colorCivilian": "66007F" };
@@ -317,14 +361,28 @@ function InitMap(mapInfos) {
 
         L.control.scale({ maxWidth: 200, imperial: false }).addTo(map);
 
+        var isPointing = false;
+
+
+
+        var markers = {};
+        var pointing = {};
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/MapHub").build();
+
 
         map.on('click', function (e) {
             clickPosition = e.latlng;
-            if ($('#tool-mil').prop('checked')) {
-                insertMilSymbol(e.latlng);
-            }
-            else if ($('#tool-basic').prop('checked')) {
-                insertBasicSymbol(e.latlng);
+            if (e.originalEvent.target.localName == "div") {
+                if ($('#tool-mil').prop('checked')) {
+                    insertMilSymbol(e.latlng);
+                }
+                else if ($('#tool-basic').prop('checked')) {
+                    insertBasicSymbol(e.latlng);
+                }
+                else if ($('#tool-line').prop('checked')) {
+                    insertLine(e.latlng, map, e.originalEvent.ctrlKey, connection);
+                }
             }
         });
 
@@ -341,14 +399,6 @@ function InitMap(mapInfos) {
             }
         });
 
-        var isPointing = false;
-
-
-
-        var markers = {};
-        var pointing = {};
-
-        var connection = new signalR.HubConnectionBuilder().withUrl("/MapHub").build();
 
 
         function markerMoveEnd(e) {
@@ -366,56 +416,79 @@ function InitMap(mapInfos) {
             var markerId = marker.id;
             var markerData = marker.data;
             var existing = markers[markerId];
+            var canEdit = mapHubInfos.canEdit && marker.mapId.roundSideID == mapHubInfos.mapId.roundSideID;
 
-            if (markerData.type == 'mil') {
-                var symbolConfig = $.extend({ size: 32 }, markerData.config);
-                var sym = new ms.Symbol(markerData.symbol, symbolConfig);
-                icon = L.icon({
-                    iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
-                    iconSize: [sym.getSize().width, sym.getSize().height],
-                    iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
-                });
-            }
-            else if (markerData.type == 'basic') {
-                var url = '/img/markers/' + markerData.config.color + '/' + markerData.symbol + '.png';
+            if (markerData.type == 'line') {
 
-                if (markerData.config.label && markerData.config.label.length > 0) {
-                    var iconHtml = $('<div></div>').append(
-                            $('<div></div>')
-                            .addClass('text-marker-content')
-                            .css('color', '#' + basicColors[markerData.config.color])
-                            .text(markerData.config.label)
-                            .prepend('<img src="' + url + '" width="32" height="32" />'))
-                        .html();
+                var posList = [];
+                for (var i = 0; i < markerData.pos.length; i += 2) {
+                    posList.push([markerData.pos[i], markerData.pos[i + 1]]);
+                }
+                var color = '#' + (basicColors[markerData.config.color] || '000000');
+                if (existing) {
+                    existing.setLatLngs(posList);
+                    existing.setStyle({ color: color });
+                    existing.options.markerData = markerData;
+                } else {
+                    var mapMarker = L.polyline(posList, { color: color, weight: 3, interactive: canEdit, markerId: markerId, markerData: markerData }).addTo(map);
+                    if (canEdit) {
+                        mapMarker.on('click', updateMarkerHandler);
+                    }
+                    markers[markerId] = mapMarker;
+                }
 
-                    icon = new L.DivIcon({
-                        className: 'text-marker',
-                        html: iconHtml,
-                        iconAnchor: [16, 16]
+            } else {
+                if (markerData.type == 'mil') {
+                    var symbolConfig = $.extend({ size: 32 }, markerData.config);
+                    var sym = new ms.Symbol(markerData.symbol, symbolConfig);
+                    icon = L.icon({
+                        iconUrl: sym.asCanvas(window.devicePixelRatio).toDataURL(),
+                        iconSize: [sym.getSize().width, sym.getSize().height],
+                        iconAnchor: [sym.getAnchor().x, sym.getAnchor().y]
                     });
                 }
+                else if (markerData.type == 'basic') {
+                    var url = '/img/markers/' + markerData.config.color + '/' + markerData.symbol + '.png';
+
+                    if ((markerData.config.label && markerData.config.label.length > 0) || markerData.config.dir) {
+                        var img = $('<img src="' + url + '" width="32" height="32" />');
+                        if (markerData.config.dir) {
+                            img.css('transform', 'rotate(' + (Number(markerData.config.dir) * 360 / 6400) + 'deg)')
+                        }
+
+                        var iconHtml = $('<div></div>').append(
+                            $('<div></div>')
+                                .addClass('text-marker-content')
+                                .css('color', '#' + basicColors[markerData.config.color])
+                                .text(markerData.config.label)
+                                .prepend(img))
+                            .html();
+
+                        icon = new L.DivIcon({
+                            className: 'text-marker',
+                            html: iconHtml,
+                            iconAnchor: [16, 16]
+                        });
+                    }
+                    else {
+                        icon = L.icon({ iconUrl: url, iconSize: [32, 32], iconAnchor: [16, 16] });
+                    }
+                }
+                if (existing) {
+                    existing.setIcon(icon);
+                    existing.setLatLng(markerData.pos);
+                    existing.options.markerData = markerData;
+                }
                 else {
-                    icon = L.icon({iconUrl: url,iconSize: [32, 32],iconAnchor: [16, 16]});
+                    var mapMarker =
+                        L.marker(markerData.pos, { icon: icon, draggable: canEdit, interactive: canEdit, markerId: markerId, markerData: markerData })
+                            .addTo(map);
+                    if (canEdit) {
+                        mapMarker.on('click', updateMarkerHandler)
+                            .on('dragend', markerMoveEnd);
+                    }
+                    markers[markerId] = mapMarker;
                 }
-            }
-            if (existing) {
-                existing.setIcon(icon);
-                existing.setLatLng(markerData.pos);
-                existing.options.markerData = markerData;
-            }
-            else {
-                var canEdit = mapHubInfos.canEdit && marker.mapId.roundSideID == mapHubInfos.mapId.roundSideID;
-
-                var mapMarker =
-                    L.marker(markerData.pos, { icon: icon, draggable: canEdit, markerId: markerId, markerData: markerData })
-                        .addTo(map);
-
-                if (canEdit) {
-                    mapMarker.on('click', updateMarkerHandler)
-                        .on('dragend', markerMoveEnd);
-                }
-
-                markers[markerId] = mapMarker;
             }
         });
 
@@ -461,6 +534,7 @@ function InitMap(mapInfos) {
 
         milsymbolMarkerTool(connection);
         basicsymbolMarkerTool(connection);
+        lineMarkerTool(connection);
 
         $('select').selectpicker();
 
@@ -468,6 +542,11 @@ function InitMap(mapInfos) {
             $('#coordinates').val(toGrid(e.latlng));
             if (isPointing) {
                 connection.invoke("PointMap", mapHubInfos.mapId, [e.latlng.lat, e.latlng.lng]);
+            }
+            if (currentLine) {
+                var data = currentLine.getLatLngs();
+                data[data.length-1] = [e.latlng.lat, e.latlng.lng];
+                currentLine.setLatLngs(data);
             }
         });
         map.on('mousedown', function (e) {
