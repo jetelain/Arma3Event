@@ -64,6 +64,7 @@ namespace Arma3Event.Arma3GameInfos
         flag_norway,
         flag_poland,
         flag_portugal,
+        flag_russia,
         flag_slovakia,
         flag_slovenia,
         flag_spain,
