@@ -311,11 +311,13 @@ function lineMarkerTool(connection) {
 
 var currentLine = null;
 var lineFirstPoint = null;
+var basicColors = { "ColorBlack": "000000", "ColorGrey": "7F7F7F", "ColorRed": "E50000", "ColorBrown": "7F3F00", "ColorOrange": "D86600", "ColorYellow": "D8D800", "ColorKhaki": "7F9966", "ColorGreen": "00CC00", "ColorBlue": "0000FF", "ColorPink": "FF4C66", "ColorWhite": "FFFFFF", "ColorUNKNOWN": "B29900", "colorBLUFOR": "004C99", "colorOPFOR": "7F0000", "colorIndependent": "007F00", "colorCivilian": "66007F" };
 
 function insertLine(latlng, map, append, connection) {
     var point = latlng;
+
     if (!currentLine) {
-        currentLine = L.polyline([point, point], { color: 'black', weight: 3, interactive: false }).addTo(map);
+        currentLine = L.polyline([point, point], { color: '#'+basicColors[$('#tool-color').val()], weight: 3, interactive: false }).addTo(map);
     } else if (append) {
         var data = currentLine.getLatLngs();
         data[data.length - 1] = point;
@@ -329,13 +331,12 @@ function insertLine(latlng, map, append, connection) {
         connection.invoke('AddMarker', mapHubInfos.mapId, {
             type: 'line',
             symbol: 'line',
-            config: {},
+            config: { color: $('#tool-color').val()},
             pos: data.map(function (e) { return [e.lat, e.lng]; }).flat()
         });
     }
 }
 
-var basicColors = { "ColorBlack": "000000", "ColorGrey": "7F7F7F", "ColorRed": "E50000", "ColorBrown": "7F3F00", "ColorOrange": "D86600", "ColorYellow": "D8D800", "ColorKhaki": "7F9966", "ColorGreen": "00CC00", "ColorBlue": "0000FF", "ColorPink": "FF4C66", "ColorWhite": "FFFFFF", "ColorUNKNOWN": "B29900", "colorBLUFOR": "004C99", "colorOPFOR": "7F0000", "colorIndependent": "007F00", "colorCivilian": "66007F" };
 
 function InitMap(mapInfos) {
     $(function () {
@@ -396,6 +397,11 @@ function InitMap(mapInfos) {
                 map.dragging.disable();
             } else {
                 map.dragging.enable();
+            }
+            if ($('#tool-line').prop('checked')) {
+                $('#tool-color').selectpicker('show');
+            } else {
+                $('#tool-color').selectpicker('hide');
             }
         });
 
@@ -537,6 +543,7 @@ function InitMap(mapInfos) {
         lineMarkerTool(connection);
 
         $('select').selectpicker();
+        $('#tool-color').selectpicker('hide');
 
         map.on('mousemove', function (e) {
             $('#coordinates').val(toGrid(e.latlng));
