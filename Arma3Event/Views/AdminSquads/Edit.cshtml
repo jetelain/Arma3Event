@@ -1,7 +1,7 @@
 ﻿@model Arma3Event.Models.RoundSquadFormViewModel
 
 @{
-    ViewData["Title"] = "Modifier une squad";
+    ViewData["Title"] = "Modifier un groupe";
 }
 
 @section NavBar  {
@@ -10,7 +10,7 @@
             <li class="breadcrumb-item"><a asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Administration</a></li>
             <li class="breadcrumb-item"><a asp-controller="@ControllersName.AdminMatchs" asp-action="Details" asp-route-id="@Model.Squad.Side.MatchSide.Match.MatchID">@Model.Squad.Side.MatchSide.Match.Name</a></li>
             <li class="breadcrumb-item">@Model.Squad.Side.MatchSide.Name</li>
-            <li class="breadcrumb-item">Carte @Model.Squad.Side.Round.Number : @Model.Squad.Side.MatchSide.Match.GameMap.Name</li>
+            <li class="breadcrumb-item">Manche @Model.Squad.Side.Round.Number</li>
             <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
         </ol>
     </nav>

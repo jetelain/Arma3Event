@@ -31,7 +31,10 @@ namespace Arma3Event.Entities
         {
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Faction>().ToTable("Faction");
-            modelBuilder.Entity<MapMarker>().ToTable("MapMarkers").HasOne(t => t.MatchUser).WithOne().OnDelete(DeleteBehavior.SetNull);
+
+            var mapMarkers = modelBuilder.Entity<MapMarker>().ToTable("MapMarkers");
+            mapMarkers.HasOne(t => t.MatchUser).WithMany().OnDelete(DeleteBehavior.SetNull);
+            mapMarkers.HasOne(t => t.RoundSquad).WithMany().OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<MatchTechnicalInfos>().ToTable("MatchTechnicalInfos");
 
@@ -41,8 +44,10 @@ namespace Arma3Event.Entities
             modelBuilder.Entity<Round>().ToTable("Round");
             modelBuilder.Entity<RoundSide>().ToTable("RoundSide");
             modelBuilder.Entity<RoundSquad>().ToTable("RoundSquad");
-            modelBuilder.Entity<RoundSlot>().ToTable("RoundSlot").HasOne(t => t.Squad).WithMany(s => s.Slots).OnDelete(DeleteBehavior.Cascade);
 
+            var roundSlot = modelBuilder.Entity<RoundSlot>().ToTable("RoundSlot");
+            roundSlot.HasOne(t => t.Squad).WithMany(s => s.Slots).OnDelete(DeleteBehavior.Cascade);
+            roundSlot.HasOne(t => t.AssignedUser).WithMany(s => s.Slots).OnDelete(DeleteBehavior.SetNull);
         }
 
         internal void InitBaseData()
@@ -71,7 +76,7 @@ namespace Arma3Event.Entities
             {
                 Maps.Add(new GameMap() { Name = "Altis", Image = "/img/maps/altis.jpg" });
                 Maps.Add(new GameMap() { Name = "Stratis", Image = "/img/maps/stratis.jpg" });
-                Maps.Add(new GameMap() { Name = "Tanoa", Image = "/img/maps/tanoa.jpg" });
+                Maps.Add(new GameMap() { Name = "Tanoa", Image = "/img/maps/tanoa.jpg", WebMap = "tanoa" });
                 Maps.Add(new GameMap() { Name = "Linovia", Image = "/img/maps/linovia.jpg" });
                 Maps.Add(new GameMap() { Name = "Taunus", Image = "/img/maps/x-cam-taunus.jpg", WebMap = "taunus", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=836147398" });
                 Maps.Add(new GameMap() { Name = "Lythium", Image = "/img/maps/lythium.jpg", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=909547724" });

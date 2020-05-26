@@ -108,6 +108,7 @@ namespace Arma3Event.Hubs
                 if (await CanEdit(user, mapId))
                 {
                     marker.MarkerData = JsonConvert.SerializeObject(markerData);
+                    marker.MatchUserID = user?.MatchUserID;
                     _context.Update(marker);
                     await _context.SaveChangesAsync();
                     await Notify("AddOrUpdateMarker", marker, notifyCaller);

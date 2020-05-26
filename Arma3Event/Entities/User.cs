@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Arma3Event.Entities
 {
@@ -20,5 +21,7 @@ namespace Arma3Event.Entities
 
         [Display(Name = "Paramètres de confidentialité")]
         public UserPrivacyOptions PrivacyOptions { get; set; }
+
+        public List<MatchUser> Matchs { get; set; }
     }
 }

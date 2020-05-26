@@ -169,7 +169,7 @@ else
                                 <div class="card-header" id="squad-name-@squad.RoundSquadID">
                                     <h5 class="mb-0">
                                         <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
-                                            <span class="badge badge-dark">@Html.DisplayFor(model => squad.Number)</span> @Html.DisplayFor(model => squad.Name)
+                                            <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
                                             @if (freeSlots > 0)
                                             {
                                                 <span class="badge badge-success">@freeSlots place(s) libre(s)</span>
@@ -200,7 +200,7 @@ else
                                                     <td>
                                                         @if (slot.AssignedUser != null)
                                                         {
-                                                            <span>@Html.DisplayFor(m => slot.AssignedUser.User.Name)</span>
+                                                            <a asp-controller="@ControllersName.Users" asp-action="Details" asp-route-id="@slot.AssignedUser.UserID">@Html.DisplayFor(m => slot.AssignedUser.User.Name)</a>
                                                         }
                                                         else
                                                         {
@@ -225,7 +225,7 @@ else
                                 <div class="card-header" id="squad-name-@squad.RoundSquadID">
                                     <h5 class="mb-0">
                                         <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
-                                            <span class="badge badge-dark">@Html.DisplayFor(model => squad.Number)</span> @Html.DisplayFor(model => squad.Name)
+                                            <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
                                         </button>
                                     </h5>
                                 </div>
@@ -264,7 +264,7 @@ else
                     @foreach (var user in side.Users ?? new List<Arma3Event.Entities.MatchUser>())
                     {
                         <li class="list-group-item">
-                            @user.User.Name
+                            <a asp-controller="@ControllersName.Users" asp-action="Details" asp-route-id="@user.User.UserID">@user.User.Name</a>
                         </li>
                     }
                 </ul>
@@ -282,7 +282,7 @@ else
         @foreach (var user in Model.Match.Users.Where(u => u.MatchSideID == null))
         {
             <li class="list-group-item">
-                @user.User.Name
+                <a asp-controller="@ControllersName.Users" asp-action="Details" asp-route-id="@user.User.UserID">@user.User.Name</a>
             </li>
         }
     </ul>

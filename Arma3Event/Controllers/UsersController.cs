@@ -41,6 +41,8 @@ namespace Arma3Event.Controllers
             }
 
             var user = await _context.Users
+                .Include(u => u.Matchs).ThenInclude(m => m.Match)
+                .Include(u => u.Matchs).ThenInclude(m => m.Side)
                 .FirstOrDefaultAsync(m => m.UserID == id);
             if (user == null)
             {

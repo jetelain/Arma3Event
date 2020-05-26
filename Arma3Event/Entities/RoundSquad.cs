@@ -7,9 +7,12 @@ namespace Arma3Event.Entities
 {
     public class RoundSquad
     {
+        internal static string[] UniqueDesignations = new[] { "10", "11", "12", "13", "14", "20", "21", "22", "23", "24", "30", "31", "32", "33", "34", "40", "41", "42", "43", "44" };
+
         public int RoundSquadID { get; set; }
 
-        public int Number { get; set; }
+        [Display(Name = "Identifiant unique")]
+        public string UniqueDesignation { get; set; }
 
         [Display(Name = "Libellé")]
         public string Name { get; set; }
@@ -36,7 +39,7 @@ namespace Arma3Event.Entities
         public int SlotsCount { get; set; }
 
         [NotMapped]
-        public string GenericName { get { return $"Squad {Number}"; } }
+        public string GenericName { get { return $"Groupe {UniqueDesignation}"; } }
     }
 
 

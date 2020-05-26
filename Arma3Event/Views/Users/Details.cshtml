@@ -6,6 +6,8 @@
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
 
+<h2>Informations</h2>
+<hr />
 <div>
     <dl class="row">
         <dt class="col-sm-2">
@@ -14,7 +16,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        @if (Model.PrivacyOptions == Arma3Event.Entities.UserPrivacyOptions.SteamProfilPublic || ViewBag.IsSelf)
+        @if (Model.PrivacyOptions >= Arma3Event.Entities.UserPrivacyOptions.SteamProfilPublic || ViewBag.IsSelf)
         {
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.SteamName)
@@ -43,10 +45,65 @@
         <a class="btn btn-secondary" asp-action="Edit">Modifier les informations</a>
     </p>
 }
+else if (Model.PrivacyOptions >= Arma3Event.Entities.UserPrivacyOptions.SteamProfilPublic)
+{
+    <p>
+        <a class="btn btn-secondary" href="https://steamcommunity.com/profiles/@(Model.SteamId)/" target="_blank"><i class="fab fa-steam"></i> Voir le profil Steam</a>
+    </p>
+}
+
+@if (Model.PrivacyOptions >= Arma3Event.Entities.UserPrivacyOptions.AllPublic || ViewBag.IsSelf)
+{
+    <h2>Inscriptions</h2>
+    <hr />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Matchs[0].Match)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Matchs[0].Match.Date)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Matchs[0].Side)
+                </th>
+                <th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var match in Model.Matchs.OrderBy(m => m.Match.Date))
+            {
+                var cssClass = (match.Match.Date >= DateTime.Today ? "" : "text-muted");
+                var btnClass = (match.Match.Date >= DateTime.Today ? "btn-secondary" : "btn-outline-secondary");
+                <tr>
+                    <td><a class="@cssClass" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@match.MatchID">@Html.DisplayFor(m => match.Match.Name)</a></td>
+                    <td class="@cssClass">@Html.DisplayFor(m => match.Match.Date)</td>
+                    <td class="@cssClass">@Html.DisplayFor(m => match.Side.Name)</td>
+                    <td>
+                        @if (ViewBag.IsSelf)
+                        {
+                            <a asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@match.MatchID" class="btn btn-sm @btnClass">Voir l'inscription</a>
+                        }
+                        <a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@match.MatchID" class="btn btn-sm @btnClass">Voir le briefing</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Inscrit à <strong>@Model.Matchs.Count()</strong> événements. Les paramètres de confidentialité de l'utilisateur ne permet pas d'afficher la liste des inscriptions.</p>
+}
+
 @if (ViewBag.IsSelf)
 {
+    <hr class="mt-5" />
     <h2 class="mt-5">Zone de danger</h2>
+    <hr />
     <p>
-        <a class="btn btn-danger btn-sm" asp-action="Delete">Supprimer le compte et toutes les inscriptions</a>
+        <a class="btn btn-danger btn-sm" asp-action="Delete">Supprimer le compte et annuler toutes les inscriptions</a>
     </p>
 }

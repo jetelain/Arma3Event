@@ -102,7 +102,7 @@ namespace Arma3Event.Controllers
             {
                 InviteOnly = s.InviteOnly,
                 Name = s.Name,
-                Number = s.Number,
+                UniqueDesignation = s.UniqueDesignation,
                 RestrictTeamComposition = s.RestrictTeamComposition,
                 SlotsCount = s.SlotsCount,
                 RoundSideID = target.RoundSideID,
@@ -318,7 +318,7 @@ namespace Arma3Event.Controllers
                 {
                     if (s.Squads != null)
                     {
-                        s.Squads = s.Squads.OrderBy(a => a.Number).ToList();
+                        s.Squads = s.Squads.OrderBy(a => a.UniqueDesignation).ToList();
                     }
                 }
             }
@@ -360,6 +360,16 @@ namespace Arma3Event.Controllers
                     foreach (var side in vm.Match.Sides)
                     {
                         _context.Update(side);
+
+                        if (side.SquadsPolicy == SquadsPolicy.SquadsAndSlotsRestricted)
+                        {
+                            var squadsToRestrict = await _context.RoundSquads.Where(s => s.Side.MatchSideID == side.MatchSideID && !s.RestrictTeamComposition).ToListAsync();
+                            foreach(var squad in squadsToRestrict)
+                            {
+                                squad.RestrictTeamComposition = true;
+                                _context.Update(squad);
+                            }
+                        }
                     }
                     foreach (var round in vm.Match.Rounds)
                     {

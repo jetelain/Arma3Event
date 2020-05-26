@@ -274,22 +274,27 @@ namespace Arma3Event.Controllers
                 }
                 else if (roundSquadID != null)
                 {
-                    var roundSquad = await _context.RoundSquads.Include(s => s.Side).FirstOrDefaultAsync(s => s.Side.Round.MatchID == id && s.Side.MatchSideID == matchUser.MatchSideID && s.RoundSquadID == roundSquadID);
+                    var roundSquad = await _context.RoundSquads.Include(s => s.Side).Include(s => s.Slots).FirstOrDefaultAsync(s => s.Side.Round.MatchID == id && s.Side.MatchSideID == matchUser.MatchSideID && s.RoundSquadID == roundSquadID);
                     if (roundSquad == null || roundSquad.RestrictTeamComposition)
                     {
                         return RedirectToAction(nameof(Subscription), new { id });
                     }
-                    roundSquad.SlotsCount++;
-                    roundSlot = new RoundSlot()
+
+                    roundSlot = roundSquad.Slots.FirstOrDefault(s => s.MatchUserID == null);
+                    if (roundSlot == null)
                     {
-                        Squad = roundSquad,
-                        SlotNumber = roundSquad.SlotsCount,
-                        Role = Role.Member
-                    };
-                    roundSlot.SetTimestamp();
-                    _context.Add(roundSlot);
-                    _context.Update(roundSquad);
-                    await _context.SaveChangesAsync();
+                        roundSquad.SlotsCount++;
+                        roundSlot = new RoundSlot()
+                        {
+                            Squad = roundSquad,
+                            SlotNumber = roundSquad.SlotsCount,
+                            Role = Role.Member
+                        };
+                        roundSlot.SetTimestamp();
+                        _context.Add(roundSlot);
+                        _context.Update(roundSquad);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 else if (!string.IsNullOrEmpty(squadName) && roundSideID != null)
                 {
@@ -301,7 +306,7 @@ namespace Arma3Event.Controllers
                     var roundSquad = new RoundSquad()
                     {
                         Name = squadName,
-                        Number = Enumerable.Range(1, 40).First(num => !others.Any(t => t.Number == num)),
+                        UniqueDesignation = RoundSquad.UniqueDesignations.First(num => !others.Any(t => t.UniqueDesignation == num)),
                         RoundSideID = roundSideID.Value,
                         SlotsCount = 1,
                         Slots = new List<RoundSlot>(),

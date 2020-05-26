@@ -1,16 +1,22 @@
 ﻿@model Arma3Event.Models.RoundSquadFormViewModel
 
-<input type="hidden" asp-for="Squad.Number" />
 <input type="hidden" asp-for="Squad.RoundSideID" />
 
 <h4>Informations générales</h4>
 <hr />
 <div class="row">
     <div class="col-md-8">
-        <div class="form-group">
-            <label asp-for="Squad.Name" class="control-label"></label>
-            <input asp-for="Squad.Name" class="form-control" />
-            <span asp-validation-for="Squad.Name" class="text-danger"></span>
+        <div class="form-row">
+            <div class="form-group col-4">
+                <label asp-for="Squad.UniqueDesignation" class="control-label"></label>
+                <input asp-for="Squad.UniqueDesignation" class="form-control" />
+                <span asp-validation-for="Squad.UniqueDesignation" class="text-danger"></span>
+            </div>
+            <div class="form-group col-8">
+                <label asp-for="Squad.Name" class="control-label"></label>
+                <input asp-for="Squad.Name" class="form-control" />
+                <span asp-validation-for="Squad.Name" class="text-danger"></span>
+            </div>
         </div>
         <div class="form-group form-check">
             <label class="form-check-label">
@@ -25,11 +31,11 @@
                 @Html.DisplayNameFor(model => model.Squad.RestrictTeamComposition)
             </label>
         </div>
-        <div class="form-group form-check">
+        @*<div class="form-group form-check">
             <label class="form-check-label">
                 <input class="form-check-input" asp-for="Squad.InviteOnly" /> @Html.DisplayNameFor(model => model.Squad.InviteOnly)
             </label>
-        </div>
+        </div>*@
     </div>
 </div>
 

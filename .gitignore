@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 /Arma3Event/Arma3Event.db
 /Arma3Event/appsettings.Development.json
+/Arma3Event/wwwroot/help/legal.html

@@ -16,8 +16,10 @@ namespace Arma3Event.Entities
         [Display(Name = "Libellé")]
         public string Label { get; set; }
 
+        [Display(Name = "Inscript")]
         public int? MatchUserID { get; set; }
 
+        [Display(Name = "Inscript")]
         public MatchUser AssignedUser { get; set; }
 
         public long? Timestamp { get; set; }

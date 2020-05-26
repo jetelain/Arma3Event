@@ -57,6 +57,7 @@ namespace Arma3Event.Controllers
 
             await PrepareViewModel(vm);
             await PrepareDrowndownList(vm);
+            await ComputeSquadNumber(vm.Squad);
             return View(vm);
         }
 
@@ -127,14 +128,17 @@ namespace Arma3Event.Controllers
 
         private async Task ComputeSquadNumber(RoundSquad squad)
         {
-            var others = await _context.RoundSquads.Where(rs => rs.RoundSideID == squad.RoundSideID).ToListAsync();
-            if (others.Count == 0)
+            if (string.IsNullOrEmpty(squad.UniqueDesignation))
             {
-                squad.Number = 1;
-            }
-            else
-            {
-                squad.Number = Enumerable.Range(1, 40).First(num => !others.Any(t => t.Number == num));
+                var others = await _context.RoundSquads.Where(rs => rs.RoundSideID == squad.RoundSideID).ToListAsync();
+                if (others.Count == 0)
+                {
+                    squad.UniqueDesignation = RoundSquad.UniqueDesignations.First();
+                }
+                else
+                {
+                    squad.UniqueDesignation = RoundSquad.UniqueDesignations.First(num => !others.Any(t => t.UniqueDesignation == num));
+                }
             }
             if (string.IsNullOrEmpty(squad.Name))
             {
