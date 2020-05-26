@@ -360,3 +360,33 @@
 
 }(this, document));
 
+function MGRS_CRS(factorx, factory, tileWidth) {
+    return L.extend({}, L.CRS.Simple, {
+        projection: L.Projection.LonLat,
+        transformation: new L.Transformation(factorx, 0, -factory, tileWidth),
+        scale: function (zoom) {
+            return Math.pow(2, zoom);
+        },
+        zoom: function (scale) {
+            return Math.log(scale) / Math.LN2;
+        },
+        distance: function (latlng1, latlng2) {
+            var dx = latlng2.lng - latlng1.lng,
+                dy = latlng2.lat - latlng1.lat;
+            return Math.sqrt(dx * dx + dy * dy);
+        },
+        infinite: true
+    });
+}
+
+function toCoord(num) {
+    if (num <= 0) {
+        return "0000";
+    }
+    var numText = "00000" + num.toFixed(0);
+    return numText.substr(numText.length - 5, 4);
+}
+
+function toGrid(latlng) {
+    return toCoord(latlng.lng) + " - " + toCoord(latlng.lat);
+}
