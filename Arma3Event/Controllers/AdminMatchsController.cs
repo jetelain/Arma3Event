@@ -25,7 +25,7 @@ namespace Arma3Event.Controllers
         // GET: Matches
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Matchs.ToListAsync());
+            return View(await _context.Matchs.OrderBy(m => m.StartDate).ToListAsync());
         }
 
         // GET: Matches/Details/5
@@ -248,7 +248,7 @@ namespace Arma3Event.Controllers
             }
             else if (vm.Match.Sides.Count < wantedSides)
             {
-                vm.Match.Sides.AddRange(Enumerable.Range(vm.Match.Sides.Count, wantedSides - vm.Match.Sides.Count).Select(i => new MatchSide() { Name = "Equipe " + ViewHelper.SideName(i), Number = i + 1 }));
+                vm.Match.Sides.AddRange(Enumerable.Range(vm.Match.Sides.Count, wantedSides - vm.Match.Sides.Count).Select(i => new MatchSide() { Name = "Equipe " + ViewHelper.SideName(i), Number = i + 1, MaxUsersCount = 20 }));
                 foreach (var round in vm.Match.Rounds)
                 {
                     round.Sides.AddRange(Enumerable.Range(round.Sides.Count, wantedSides - round.Sides.Count).Select(i => new RoundSide()));

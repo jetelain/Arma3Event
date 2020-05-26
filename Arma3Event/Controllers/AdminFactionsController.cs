@@ -23,7 +23,7 @@ namespace Arma3Event.Controllers
         // GET: AdminFactions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Factions.ToListAsync());
+            return View(await _context.Factions.OrderBy(f => f.Name).ToListAsync());
         }
 
         // GET: AdminFactions/Details/5

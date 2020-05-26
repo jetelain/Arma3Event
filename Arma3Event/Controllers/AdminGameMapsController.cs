@@ -23,7 +23,7 @@ namespace Arma3Event.Controllers
         // GET: AdminGameMaps
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Maps.ToListAsync());
+            return View(await _context.Maps.OrderBy(m => m.Name).ToListAsync());
         }
 
         // GET: AdminGameMaps/Details/5
