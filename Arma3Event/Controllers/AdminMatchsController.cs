@@ -131,7 +131,8 @@ namespace Arma3Event.Controllers
                 StartTime = new DateTime(1,1,1,21,0,0),
                 Sides = new List<MatchSide>(),
                 Template = MatchTemplate.SingleSideCooperative,
-                Rounds = new List<Round>()
+                Rounds = new List<Round>(),
+                RulesLink = "/Events/Rules"
             };
 
             ApplyTemplate(vm);

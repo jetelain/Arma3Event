@@ -3,6 +3,28 @@
     tinymce.init({
         selector: 'textarea',
         plugins: 'image fullscreen autolink link',
-        content_css: '/lib/bootstrap/dist/css/bootstrap.min.css,/css/site.css,/css/htmledit.css,//fonts.googleapis.com/css?family=Source+Sans+Pro%7CRoboto%7CRoboto&#038;ver=1.0.0',
-        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image link | fullscreen'
+        content_css: 'https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/slate/bootstrap.min.css,/css/site.css,/css/htmledit.css',
+        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image link | fullscreen',
+        file_picker_callback: function (callback, value, meta) {
+            imagePicker(callback);
+        },
+        images_upload_handler: function (blobInfo, success, failure) {
+            var upimg = $('#upimg');
+            var form = new FormData(upimg[0]);
+            form.append('image', blobInfo.blob(), blobInfo.filename());
+            $.ajax({
+                url: upimg.attr('action'),
+                data: form,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (data) {
+                    success(data);
+                },
+                error: function (xhr, status) {
+                    failure('HTTP Error: ' + status);
+                }
+            });
+        },
+        height: "350"
     });</script>

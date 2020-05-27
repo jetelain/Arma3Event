@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = Model.Match.Name;
+    ViewData["Description"] = Model.Match.ShortDescription;
 
     if (!string.IsNullOrEmpty(Model.Match.Image))
     {

@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = Model.Match.Name;
+    if (!string.IsNullOrEmpty(Model.Match.Image))
+    {
+        ViewData["TitleStyle"] = $"background-image: url({Model.Match.Image});";
+    }
 }
 
 @section NavBar  {

@@ -6,6 +6,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @if (ViewData["Description"] != null)
+    {
+        <meta name="description" content="@ViewData["Description"]" />
+    }
     <title>@ViewData["Title"] - A3E</title>
     @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />*@
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/slate/bootstrap.min.css" rel="stylesheet" integrity="sha384-G9YbB4o4U6WS4wCthMOpAeweY4gQJyyx0P3nZbEBHyz+AtNoeasfRChmek1C2iqV" crossorigin="anonymous" />

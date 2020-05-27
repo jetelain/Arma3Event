@@ -351,3 +351,4 @@ MigrationBackup/
 /Arma3Event/Arma3Event.db
 /Arma3Event/appsettings.Development.json
 /Arma3Event/wwwroot/help/legal.html
+/Arma3Event/wwwroot/img/uploaded/*

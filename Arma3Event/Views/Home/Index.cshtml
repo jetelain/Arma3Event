@@ -13,9 +13,9 @@
     {
         <div class="col mb-4">
             <div class="card h-100">
-                @*<a asp-controller="Events" asp-action="Details" asp-route-id="@ev.Event.EventID">
-                        <img src="@(ev.Event.Image ?? @ev.Event.EventType.DefaultImage)" class="card-img-top" alt="@ev.Event.EventType.Label" />
-                    </a>*@
+                <a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.MatchID">
+                        <img src="@(item.Image ?? "http://game.pmad.net/img/banner/opex2.jpg")" class="card-img-top" alt="" />
+                    </a>
                 <div class="card-body">
                     <h5 class="card-title"><a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.MatchID">@Html.DisplayFor(modelItem => item.Name)</a></h5>
                     <h6 class="card-subtitle mb-2 text-muted"><i class="far fa-clock"></i> @Html.DisplayFor(modelItem => item.Date) @Html.DisplayFor(modelItem => item.StartTime)</h6>
@@ -27,7 +27,7 @@
                     }
                     else
                     {
-                        <a class="btn btn-sm btn-success" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@item.MatchID">S'inscrire</a>
+                        <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@item.MatchID">S'inscrire</a>
                     }
                     <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.MatchID">En savoir plus</a>
                 </div>

@@ -1,29 +1,41 @@
 ﻿
-@using Microsoft.AspNetCore.Authentication
-@model AuthenticationScheme[]
+@model Arma3Event.Models.SignInViewModel
 
 @{
-    ViewData["Title"] = "Se connecter";
+    if (Model.Event != null)
+    {
+        ViewData["Title"] = $"{Model.Event.Name} - Inscription";
+        ViewData["Description"] = Model.Event.ShortDescription; 
+        if (!string.IsNullOrEmpty(Model.Event.Image))
+        {
+            ViewData["TitleStyle"] = $"background-image: url({Model.Event.Image});";
+        }
+    }
+    else
+    {
+        ViewData["Title"] = "Se connecter";
+    }
+
 }
 
 @section Title { <h1><span>Se connecter</span></h1> }
 
-@if (ViewBag.ReturnUrl != "/")
+@if (Model.Event != null)
 {
-<div class="alert alert-primary" role="alert">
-    <h4 class="alert-heading">Inscription</h4>
-    <p>Pour pouvoir vous inscrire, il est nécessaire de se connecter avec Steam.<br />L'inscription à l'événement se fera dans un écran de confirmation après.</p>
-</div>
+    <div class="alert alert-primary" role="alert">
+        <h4 class="alert-heading">Inscription</h4>
+        <p>Pour pouvoir vous inscrire, il est nécessaire de se connecter avec Steam.<br />L'inscription à l'événement se fera dans un écran de confirmation après.</p>
+    </div>
 }
 
 <p class="text-muted">Nous ne stockons des données que si vous vous inscrivez à un événement.<br />
 Pour plus d'informations sur les traitements effectués, merci de vous référez aux <a class="text-muted" asp-controller="@ControllersName.Home" asp-action="Privacy">mentions légales</a>.</p>
 
-@foreach (var scheme in Model.OrderBy(p => p.DisplayName))
+@foreach (var scheme in Model.Providers.OrderBy(p => p.DisplayName))
 {
     <form method="post" asp-action="SignIn">
         <input type="hidden" name="Provider" value="@scheme.Name" />
-        <input type="hidden" name="ReturnUrl" value="@ViewBag.ReturnUrl" />
+        <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
         <div class="form-group">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="true" id="isPersistent" name="isPersistent">

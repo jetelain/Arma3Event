@@ -4,13 +4,13 @@
     ViewData["Title"] = "Créer un événement";
 }
 
-@section NavBar  { 
+@section NavBar  {
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Administration</a></li>
             <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
         </ol>
-    </nav> 
+    </nav>
 }
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
@@ -25,6 +25,7 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_ImagePicker");}
     @{await Html.RenderPartialAsync("_HtmlEditor");}
     <script src="~/js/matchform.js" asp-append-version="true"></script>
 }

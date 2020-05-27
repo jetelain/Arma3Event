@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Arma3Event.Entities;
+using Arma3Event.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +13,13 @@ namespace Arma3Event.Controllers
 {
     public class AuthenticationController : Controller
     {
+        private readonly Arma3EventContext _context;
+
+        public AuthenticationController(Arma3EventContext context)
+        {
+            _context = context;
+        }
+
         [HttpGet]
         public async Task<IActionResult> SignIn(string ReturnUrl)
         {
@@ -18,8 +27,20 @@ namespace Arma3Event.Controllers
             {
                 return BadRequest();
             }
-            ViewData["ReturnUrl"] = ReturnUrl ?? "/"; 
-            return View("SignIn", await GetExternalProvidersAsync(HttpContext));
+            var vm = new SignInViewModel();
+            vm.ReturnUrl = ReturnUrl ?? "/";
+            vm.Providers = await GetExternalProvidersAsync(HttpContext);
+
+            if (ReturnUrl != null && ReturnUrl.StartsWith("/Events/Subscription/"))
+            {
+                var eventIdText = ReturnUrl.Substring(21).Split('?')[0];
+                int eventId;
+                if (int.TryParse(eventIdText, out eventId))
+                {
+                    vm.Event = await _context.Matchs.FindAsync(eventId);
+                }
+            }
+            return View("SignIn", vm);
         }
 
         [HttpPost]

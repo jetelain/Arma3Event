@@ -37,6 +37,7 @@ namespace Arma3Event.Entities
         [Display(Name = "Description résumée")]
         public string ShortDescription { get; set; }
 
+        [Display(Name = "Date et heure de début")]
         public DateTime StartDate
         {
             get { return new DateTime(Date.Year, Date.Month, Date.Day, StartTime.Hour, StartTime.Minute, StartTime.Second); }

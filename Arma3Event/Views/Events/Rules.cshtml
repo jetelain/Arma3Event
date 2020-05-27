@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Réglement des événements";
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+@if (System.IO.File.Exists("wwwroot/help/rules.html"))
+{
+    @Html.Raw(System.IO.File.ReadAllText("wwwroot/help/rules.html"))
+}
+else
+{
+    <p class="alert alert-danger">Configuration incomplète. Vous devez renseigner le règlement par défaut dans le fichier wwwdata/help/rules.html.</p>
+}

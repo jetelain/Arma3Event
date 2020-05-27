@@ -567,5 +567,10 @@ namespace Arma3Event.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(HomeController.Index), ControllersName.Home);
         }
+
+        public IActionResult Rules()
+        {
+            return View();
+        }
     }
 }
