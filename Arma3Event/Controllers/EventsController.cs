@@ -393,13 +393,7 @@ namespace Arma3Event.Controllers
         [HttpGet]
         public async Task<IActionResult> Map(int id, int? roundId)
         {
-            var user = await GetUser();
-            if (user == null)
-            {
-                return RedirectToAction(nameof(Subscription), new { id });
-            }
-            var matchUser = await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
-
+            var matchUser = await GetMatchUser(id);
             var vm = new MapViewModel();
             if (roundId == null)
             {
@@ -448,6 +442,16 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
             return View(vm);
+        }
+
+        private async Task<MatchUser> GetMatchUser(int id)
+        {
+            var user = await GetUser();
+            if (user != null)
+            {
+                return await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
+            }
+            return null;
         }
 
         [HttpGet]
