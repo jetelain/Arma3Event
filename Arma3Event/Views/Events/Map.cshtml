@@ -339,12 +339,11 @@
     <script src="https://unpkg.com/milstd@0.1.6/milstd.js">
     </script>
     <script src="https://unpkg.com/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-    <script src="~/js/mapUtils.js" asp-append-version="true">
+    <script src="https://jetelain.github.io/Arma3Map/js/mapUtils.js">
     </script>
     <script src="~/js/milstdExtra.js" asp-append-version="true">
     </script>
     <script>
-
         var mapHubInfos = @Json.Serialize(new {
                          mapId = new Arma3Event.Hubs.MapId()
                          {
@@ -357,6 +356,11 @@
     </script>
     <script src="~/js/map.js" asp-append-version="true">
     </script>
-    <script src="~/maps/@(Model.GameMap.WebMap).js" asp-append-version="true">
+    <script src="https://jetelain.github.io/Arma3Map/maps/@(Model.GameMap.WebMap).js">
+    </script>
+    <script>
+        var mapInfos = Arma3Map.Maps.@(Model.GameMap.WebMap);
+        mapInfos.tilePattern = 'https://jetelain.github.io/Arma3Map' + mapInfos.tilePattern;
+        InitMap(mapInfos);
     </script>
 }
