@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
+using Arma3Event.Hubs;
 
 namespace Arma3Event.Models
 {
@@ -17,5 +18,6 @@ namespace Arma3Event.Models
         public Round Round { get; set; }
 
         public bool CanEditMap { get; set; }
+        public MapId MapId { get; internal set; }
     }
 }

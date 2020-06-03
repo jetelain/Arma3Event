@@ -36,7 +36,14 @@ namespace Arma3Event.Hubs
                 // Seuls les organisateurs peuvent modifier la carte de situation
                 return (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded;
             }
-            return await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == mapId.roundSideID && rs.MatchSideID == user.MatchSideID);
+            return await CanUserEdit(_context, user, mapId);
+        }
+
+        internal static async Task<bool> CanUserEdit(Arma3EventContext context, MatchUser user, MapId mapId)
+        {
+            return await context.RoundSlots.AnyAsync(rs => rs.Squad.RoundSideID == mapId.roundSideID &&
+                rs.MatchUserID == user.MatchUserID &&
+                rs.Role >= Role.SquadLeader);
         }
 
         private async Task<bool> CanRead(MatchUser user, MapId mapId)

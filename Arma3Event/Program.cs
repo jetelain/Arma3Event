@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Arma3Event.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Arma3Event
 {

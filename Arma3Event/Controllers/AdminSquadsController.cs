@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
 using Arma3Event.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -187,6 +190,17 @@ namespace Arma3Event.Controllers
                 .Where(u => !u.Slots.Any(s => s.Squad != null && s.Squad.RoundSideID == vm.Squad.RoundSideID && s.RoundSquadID != vm.Squad.RoundSquadID))
                 .Select(u => new SelectListItem(u.User.Name, u.MatchUserID.ToString()))
                 .ToList();
+
+            var metadata = MetadataProvider.GetMetadataForType(typeof(Role));
+            vm.SquadLeadRoles = new List<SelectListItem>() { CreateItem(metadata, Role.SquadLeader), CreateItem(metadata, Role.SectionLeader) };
+            vm.SquadMemberRoles = new List<SelectListItem>() { CreateItem(metadata, Role.TeamLeader), CreateItem(metadata, Role.Member) };
+        }
+
+        private SelectListItem CreateItem(ModelMetadata metadata, Role role)
+        {
+            var key = ((int)role).ToString();
+            var group = metadata.EnumGroupedDisplayNamesAndValues.First(v => v.Value == key);
+            return new SelectListItem(group.Key.Name, ((int)role).ToString());
         }
 
         // POST: RoundSquads/Edit/5
@@ -271,7 +285,7 @@ namespace Arma3Event.Controllers
             foreach (var slot in vm.Squad.Slots)
             {
                 slot.SlotNumber = slotNumber;
-                if (slotNumber == 1)
+                if (slotNumber == 1 && slot.Role < Role.SquadLeader)
                 {
                     slot.Role = Role.SquadLeader;
                 }

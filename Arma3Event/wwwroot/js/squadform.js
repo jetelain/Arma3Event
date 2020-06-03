@@ -19,8 +19,6 @@ $(function () {
         fields.prop('disabled', $(this).val() == '');
         $(this).on('change', function () { fields.prop('disabled', $(this).val() == ''); });
     });
-    $('select.role:enabled option[value="0"]').prop('disabled', 'true');
-
     updateUserId();
     $('select.userid').on('change', updateUserId);
 });

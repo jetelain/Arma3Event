@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AngleSharp.Html;
 using Arma3Event.Arma3GameInfos;
 using Arma3Event.Entities;
+using Arma3Event.Hubs;
 using Arma3Event.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -413,6 +414,7 @@ namespace Arma3Event.Controllers
                 }
 
                 vm.CanEditMap = isAdmin;
+                vm.MapId = new MapId() { matchID = vm.Round.Match.MatchID };
             }
             else
             {
@@ -433,7 +435,12 @@ namespace Arma3Event.Controllers
                 }
                 vm.Match = vm.Round.Match;
                 vm.RoundSide = vm.Round.Sides.FirstOrDefault(s => s.MatchSideID == matchUser.MatchSideID);
-                vm.CanEditMap = true;
+                vm.MapId = new MapId()
+                {
+                    matchID = vm.Round.Match.MatchID,
+                    roundSideID = vm.RoundSide.RoundSideID
+                };
+                vm.CanEditMap = await MapHub.CanUserEdit(_context, matchUser, vm.MapId);
             }
 
             // Vérifie qu'il y a un fond de carte

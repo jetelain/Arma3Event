@@ -1,4 +1,5 @@
 ﻿@model Arma3Event.Models.RoundSquadFormViewModel
+@using Arma3Event.Entities
 
 <input type="hidden" asp-for="Squad.RoundSideID" />
 
@@ -50,14 +51,13 @@
     <input type="hidden" asp-for="Squad.Slots[i].Timestamp" />
     <div class="form-group col-md-2">
         <label asp-for="Squad.Slots[i].Role" class="control-label @(i>0?"sr-only":"")"></label>
-        <select asp-for="Squad.Slots[i].Role" asp-items="Html.GetEnumSelectList<Arma3Event.Entities.Role>()" class="form-control role" disabled="@(i == 0 ? "disabled":null)">
-            <option value="">(Fermé)</option>
+        <select asp-for="Squad.Slots[i].Role" asp-items="(i == 0) ? Model.SquadLeadRoles : Model.SquadMemberRoles" class="form-control role">
+            @if (i != 0)
+            {
+                <option value="">(Fermé)</option>
+            }
         </select>
         <span asp-validation-for="Squad.Slots[i].Role" class="text-danger"></span>
-        @if (i == 0)
-        {
-            <input type="hidden" asp-for="Squad.Slots[i].Role" />
-        }
     </div>
     <div class="form-group col-md-3">
         <label asp-for="Squad.Slots[i].Label" class="control-label @(i>0?"sr-only":"")"></label>

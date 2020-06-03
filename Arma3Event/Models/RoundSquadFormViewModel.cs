@@ -11,5 +11,7 @@ namespace Arma3Event.Models
     {
         public RoundSquad Squad { get; set; }
         public List<SelectListItem> MatchUserDropdownList { get; internal set; }
+        public List<SelectListItem> SquadLeadRoles { get; internal set; }
+        public List<SelectListItem> SquadMemberRoles { get; internal set; }
     }
 }

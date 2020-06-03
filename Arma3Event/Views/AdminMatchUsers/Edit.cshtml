@@ -39,7 +39,7 @@
                 var round = Model.SlotPerRound[i];
                 <div class="form-group">
                     <label asp-for="SlotPerRound[i].RoundSlotID" class="control-label">
-                        Emplacement pour carte @round.Round.Number: @round.Round.Match.GameMap.Name
+                        Emplacement pour manche @round.Round.Number
                     </label>
                     <select asp-for="SlotPerRound[i].RoundSlotID" class="form-control roundSlot">
                         <option value="">(Aucun)</option>

@@ -144,18 +144,27 @@
                     <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)<br />@side.MatchSide.Name</h4>
                     <div class="d-flex mt-1 mb-1">
                         <div class="mr-1">
-                            <a class="btn btn-sm btn-primary" asp-controller="@ControllersName.AdminSquads" asp-action="Create" asp-route-roundSideID="@side.RoundSideID">Créer un groupe</a>
+                            <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.AdminSquads" asp-action="Create" asp-route-roundSideID="@side.RoundSideID">Créer un groupe</a>
+                            @if (round.Number > 1 && side.MatchSide.SquadsPolicy != Arma3Event.Entities.SquadsPolicy.Unrestricted)
+                            {
+                                <a class="btn btn-sm btn-secondary" asp-action="DuplicateFromPrevious" asp-route-id="@Model.MatchID" asp-route-roundId="@side.RoundID" asp-route-roundSideID="@side.RoundSideID">Dupliquer depuis la manche précédente</a>
+                            }
                         </div>
+                        @if (side.MatchSide.SquadsPolicy != Arma3Event.Entities.SquadsPolicy.Unrestricted)
+                        {
                         <div class="dropdown">
-                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dupliquer depuis...</button>
+                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dupliquer depuis un autre événement</button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#">Dupliquer depuis un autre événement</a>
-                                @if (round.Number > 1)
+                                @foreach (Arma3Event.Entities.RoundSide otherRoundSide in ViewBag.DuplicableRoundSides)
                                 {
-                                    <a class="dropdown-item" asp-action="DuplicateFromPrevious" asp-route-id="@Model.MatchID" asp-route-roundId="@side.RoundID" asp-route-roundSideID="@side.RoundSideID">Dupliquer depuis la carte précédente</a>
+                                    <a class="dropdown-item" asp-action="DuplicateFromOther" 
+                                       asp-route-id="@Model.MatchID" 
+                                       asp-route-roundSideID="@side.RoundSideID"
+                                       asp-route-otherRoundSideID="@otherRoundSide.RoundSideID">@otherRoundSide.MatchSide.Match.Name - @otherRoundSide.MatchSide.Name</a>
                                 }
                             </div>
                         </div>
+                        }
                     </div>
                     <table class="table">
                         <colgroup>
@@ -204,7 +213,7 @@
                             <th>Utilisateur</th>
                             @foreach (var round in Model.Rounds)
                             {
-                                <th>Carte @round.Number</th>
+                                <th>Manche @round.Number</th>
                             }
                             <th></th>
                         </tr>

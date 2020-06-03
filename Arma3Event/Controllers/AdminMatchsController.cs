@@ -49,54 +49,85 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
             SortModel(match);
+
+            ViewBag.DuplicableRoundSides = await _context.RoundSides
+                .Include(r => r.MatchSide).ThenInclude(s => s.Match)
+                .Where(s => s.MatchSide.SquadsPolicy != SquadsPolicy.Unrestricted && s.MatchSide.MatchID != id)
+                .OrderBy(s => s.MatchSide.Match.StartDate)
+                .ToListAsync();
+
             return View(match);
         }
 
-
-        public async Task<IActionResult> DuplicateFromPrevious(int roundSideID)
+        public async Task<IActionResult> DuplicateFromOther(int roundSideID, int otherRoundSideID)
         {
-            var roundSide = _context.RoundSides
+            var roundSide = await _context.RoundSides
                 .Include(rs => rs.Round)
                 .Include(rs => rs.Squads).ThenInclude(s => s.Slots)
-                .FirstOrDefault(s => s.RoundSideID == roundSideID);
+                .FirstOrDefaultAsync(s => s.RoundSideID == roundSideID);
             if (roundSide == null)
             {
                 return NotFound();
             }
             var round = roundSide.Round;
 
-            var previousRound= _context.Rounds.FirstOrDefault(r => r.MatchID == round.MatchID && r.Number == round.Number - 1);
+            var otherRoundSide = await _context.RoundSides
+                .Include(rs => rs.Round)
+                .Include(rs => rs.Squads).ThenInclude(s => s.Slots)
+                .FirstOrDefaultAsync(s => s.RoundSideID == otherRoundSideID);
+            if (roundSide == null)
+            {
+                return NotFound();
+            }
+            await DuplicateSquadsAndSlots(otherRoundSide, roundSide, false);
+
+            return RedirectToAction(nameof(Details), ControllersName.AdminMatchs, new { id = round.MatchID }, "round-" + round.RoundID);
+        }
+
+        public async Task<IActionResult> DuplicateFromPrevious(int roundSideID)
+        {
+            var roundSide = await _context.RoundSides
+                .Include(rs => rs.Round)
+                .Include(rs => rs.Squads).ThenInclude(s => s.Slots)
+                .FirstOrDefaultAsync(s => s.RoundSideID == roundSideID);
+            if (roundSide == null)
+            {
+                return NotFound();
+            }
+            var round = roundSide.Round;
+
+            var previousRound= await _context.Rounds.FirstOrDefaultAsync(r => r.MatchID == round.MatchID && r.Number == round.Number - 1);
             if (previousRound == null)
             {
                 return NotFound();
             }
 
-            var previousRoundSide = _context.RoundSides
+            var previousRoundSide = await _context.RoundSides
                 .Include(rs => rs.Round)
                 .Include(rs => rs.Squads).ThenInclude(s => s.Slots)
-                .FirstOrDefault(s => s.RoundID == previousRound.RoundID && s.MatchSideID == roundSide.MatchSideID);
+                .FirstOrDefaultAsync(s => s.RoundID == previousRound.RoundID && s.MatchSideID == roundSide.MatchSideID);
             if (previousRoundSide == null)
             {
                 return NotFound();
             }
 
-            await DuplicateSquadsAndSlots(previousRoundSide, roundSide);
+            await DuplicateSquadsAndSlots(previousRoundSide, roundSide, true);
 
             return RedirectToAction(nameof(Details), ControllersName.AdminMatchs, new { id = round.MatchID }, "round-" + round.RoundID);
         }
 
-        private async Task DuplicateSquadsAndSlots(RoundSide source, RoundSide target)
+        private async Task DuplicateSquadsAndSlots(RoundSide source, RoundSide target, bool includeUser)
         {
             _context.RemoveRange(target.Squads);
 
-            target.Squads = source.Squads.Select(s => DuplicateSquadAndSlots(target, s)).ToList();
+            target.Squads = source.Squads.Select(s => DuplicateSquadAndSlots(target, s, includeUser)).ToList();
 
             _context.AddRange(target.Squads);
 
             await _context.SaveChangesAsync();
         }
 
-        private static RoundSquad DuplicateSquadAndSlots(RoundSide target, RoundSquad s)
+        private static RoundSquad DuplicateSquadAndSlots(RoundSide target, RoundSquad s, bool includeUser)
         {
             var copy = new RoundSquad()
             {
@@ -110,7 +141,7 @@ namespace Arma3Event.Controllers
             copy.Slots = s.Slots.Select(p => new RoundSlot()
             {
                 Label = p.Label,
-                MatchUserID = p.MatchUserID,
+                MatchUserID = includeUser ? p.MatchUserID : null,
                 Role = p.Role,
                 SlotNumber = p.SlotNumber,
                 Squad = copy,

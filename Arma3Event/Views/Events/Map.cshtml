@@ -345,11 +345,7 @@
     </script>
     <script>
         var mapHubInfos = @Json.Serialize(new {
-                         mapId = new Arma3Event.Hubs.MapId()
-                         {
-                             matchID = Model.Match.MatchID,
-                             roundSideID = Model.RoundSide?.RoundSideID
-                         },
+                         mapId = Model.MapId,
                          canEdit = Model.CanEditMap
                      });
         var colors = @Json.Serialize(Arma3Event.Arma3GameInfos.GameMarkerColorHelper.GetAll().ToDictionary(k => k.ToString(), k => Arma3Event.Arma3GameInfos.GameMarkerColorHelper.ToHexa(k)));
