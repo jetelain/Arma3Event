@@ -110,6 +110,7 @@ namespace Arma3Event.Controllers
                             foreach (var slot in previousSlots)
                             {
                                 slot.MatchUserID = null;
+                                slot.IsValidated = false;
                                 slot.SetTimestamp();
                                 _context.Update(slot);
                             }
@@ -122,6 +123,7 @@ namespace Arma3Event.Controllers
                             foreach (var slot in previousSlots)
                             {
                                 slot.MatchUserID = null;
+                                slot.IsValidated = false;
                                 slot.SetTimestamp();
                                 _context.Update(slot);
                             }
@@ -130,6 +132,7 @@ namespace Arma3Event.Controllers
                             foreach (var slot in newSlots)
                             {
                                 slot.MatchUserID = vm.MatchUser.MatchUserID;
+                                slot.IsValidated = true;
                                 slot.SetTimestamp();
                                 _context.Update(slot);
                             }

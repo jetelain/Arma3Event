@@ -14,33 +14,45 @@
 
 @if (Model.MatchUser != null)
 {
-    <div class="alert alert-secondary" role="alert">
-        <h4 class="alert-heading">Inscription</h4>
-        @if (Model.MatchUser.Side == null)
-        {
-            <p>Vous êtes inscrit en liste d'attente.</p>
-        }
-        else
-        {
-            <p>Vous êtes bien inscrit.</p>
-        }
+<div class="alert alert-secondary" role="alert">
+    <h4 class="alert-heading">Inscription</h4>
+    @if (Model.MatchUser.Side == null)
+    {
+        <p>Vous êtes inscrit en liste d'attente.</p>
+    }
+    else if (Model.MatchUser.Slots.Any(s => !s.IsValidated))
+    {
+        <p>Vous êtes bien inscrit. Votre place dans le groype est réservée, un organisateur doit la valider.</p>
+    }
+    else if (Model.MatchUser.Slots.All(s => s.IsValidated))
+    {
+        <p>Vous êtes bien inscrit. Votre place est validée.</p>
+    }
+    else if (Model.MatchUser.Side.SquadsPolicy == Arma3Event.Entities.SquadsPolicy.SquadsAndSlotsRestricted)
+    {
+        <p>Votre inscription est incomplète, vous devez choisir un groupe et une place.</p>
+    }
+    else
+    {
+        <p>Vous êtes bien inscrit.</p>
+    }
     <p>
         <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Voir l'inscription</a>
         @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos?.ModsDefinition))
         {
-        <a class="btn btn-secondary" asp-action="DownloadModPack" asp-route-id="@Model.Match.MatchID">
-            Télécharger le modpack
-            <span class="badge badge-primary">
-                @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsCount)
-            </span>
-        </a>
+            <a class="btn btn-secondary" asp-action="DownloadModPack" asp-route-id="@Model.Match.MatchID">
+                Télécharger le modpack
+                <span class="badge badge-primary">
+                    @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsCount)
+                </span>
+            </a>
         }
         @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
         {
             <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" asp-fragment="map" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
         }
     </p>
-    </div>
+</div>
 }
 
 <div>

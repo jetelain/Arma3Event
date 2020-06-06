@@ -26,6 +26,8 @@ namespace Arma3Event.Entities
 
         public Role? Role { get; set; }
 
+        public bool IsValidated { get; set; }
+
         public void SetTimestamp()
         {
             Timestamp = DateTime.UtcNow.Ticks;

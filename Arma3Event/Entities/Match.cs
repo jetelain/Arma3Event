@@ -71,5 +71,8 @@ namespace Arma3Event.Entities
         public string RulesLink { get; set; }
 
         public MatchTechnicalInfos MatchTechnicalInfos { get; set; }
+
+        [Display(Name = "Etat")]
+        public MatchState State { get; set; }
     }
 }

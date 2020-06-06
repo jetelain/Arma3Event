@@ -49,6 +49,7 @@
     <input type="hidden" asp-for="Squad.Slots[i].RoundSlotID" />
     <input type="hidden" asp-for="Squad.Slots[i].SlotNumber" />
     <input type="hidden" asp-for="Squad.Slots[i].Timestamp" />
+    <input type="hidden" asp-for="Squad.Slots[i].IsValidated" />
     <div class="form-group col-md-2">
         <label asp-for="Squad.Slots[i].Role" class="control-label @(i>0?"sr-only":"")"></label>
         <select asp-for="Squad.Slots[i].Role" asp-items="(i == 0) ? Model.SquadLeadRoles : Model.SquadMemberRoles" class="form-control role">

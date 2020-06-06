@@ -325,6 +325,7 @@ namespace Arma3Event.Controllers
                 {
                     var key = $"Squad.Slots[{slot.SlotNumber - 1}].MatchUserID";
                     slot.MatchUserID = existing.MatchUserID;
+                    slot.IsValidated = existing.IsValidated;
                     ModelState.AddModelError(key, "La valeur a été modifiée entre temps par un autre utilisateur.");
                     concurrent++;
                 }

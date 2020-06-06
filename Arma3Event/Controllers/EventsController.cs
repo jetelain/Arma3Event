@@ -350,6 +350,7 @@ namespace Arma3Event.Controllers
             }
 
             roundSlot.MatchUserID = matchUser.MatchUserID;
+            roundSlot.IsValidated = false;
             if (roundSlot.Role == null)
             {
                 roundSlot.Role = Role.Member;

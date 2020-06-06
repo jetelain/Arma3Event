@@ -142,6 +142,7 @@ namespace Arma3Event.Controllers
             {
                 Label = p.Label,
                 MatchUserID = includeUser ? p.MatchUserID : null,
+                IsValidated = includeUser ? p.IsValidated : false,
                 Role = p.Role,
                 SlotNumber = p.SlotNumber,
                 Squad = copy,
@@ -207,7 +208,21 @@ namespace Arma3Event.Controllers
 
             return RedirectToAction(nameof(Details), ControllersName.AdminMatchs, new { id = matchUser.MatchID }, "unassigned");
         }
-        
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveSlots(int id, int matchUserId)
+        {
+            var slots = await _context.RoundSlots.Where(s => s.MatchUserID == matchUserId && s.AssignedUser.MatchID == id).ToListAsync();
+            foreach(var slot in slots)
+            {
+                slot.IsValidated = true;
+                _context.Update(slot);
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), ControllersName.AdminMatchs, new { id = id }, "users");
+        }
+
         // POST: Matches/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.

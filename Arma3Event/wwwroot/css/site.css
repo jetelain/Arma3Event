@@ -186,6 +186,7 @@ img.mil-icon {
         }
         .matchindicator .num.num-1 {
             background: yellow;
+            color: black;
         }
         .matchindicator .num.num-2 {
             background: red;

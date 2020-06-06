@@ -1,4 +1,5 @@
 ﻿@model Arma3Event.Models.HomeViewModel
+@using Arma3Event.Entities
 
 @{
     ViewData["Title"] = "PLANOPS";
@@ -8,10 +9,13 @@
 @section Title {
     <div class="container indicators">
         <div id="clock"></div>
-        <div class="matchindicator row">
-            <div class="num num-0 col-2">0</div>
-            <div class="desc col-10">inscription ouverte</div>
-        </div>
+        @if (nextMatch != null && nextMatch.State != MatchState.Over)
+        {       
+            <div class="matchindicator row">
+                <div class="num num-@((int)nextMatch.State) col-2">@((int)nextMatch.State)</div>
+                <div class="desc col-10">@Html.DisplayFor(_ => nextMatch.State)</div>
+            </div>
+        }
     </div>
     <h1><span>@ViewData["Title"]</span></h1>
 

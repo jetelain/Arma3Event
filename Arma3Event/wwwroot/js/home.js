@@ -7,7 +7,7 @@
 
     function updateClock() {
         var dt = new Date();
-        $('#clock').text(fixed(dt.getUTCHours()) + ':' + fixed(dt.getUTCMinutes()) + ':' + fixed(dt.getUTCSeconds()));
+        $('#clock').text(fixed(dt.getUTCHours()) + ':' + fixed(dt.getUTCMinutes()) + ':' + fixed(dt.getUTCSeconds())+' Z');
     }
 
     updateClock();
