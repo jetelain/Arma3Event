@@ -67,6 +67,7 @@ div.title {
     margin-top: -1em;
     margin-bottom: 1em;
     padding-top: 6rem;
+    position:relative;
 }
 
 main div.title {
@@ -136,3 +137,70 @@ img.mil-icon {
     color:white;
     cursor:pointer;
 }
+.leaflet-container.mainmap {
+    background-color: rgb(50, 56, 62);
+}
+
+.indicators {
+    position: relative;
+    top:-80px;
+}
+
+    .indicators > div {
+        position: absolute;
+    }
+
+#clock {
+    width: 100px;
+    height: 34px;
+    padding: 3px 10px;
+    text-align: center;
+    left: 0px;
+    font-family: 'Ubuntu Mono', monospace;
+    font-size: 16px;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+}
+
+.matchindicator {
+    width: 220px;
+    right: 0px;
+    height: 34px;
+}
+
+    .matchindicator .num {
+        padding: 5px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-direction: column;
+    }
+
+
+        .matchindicator .num.num-0 {
+            background: green;
+        }
+        .matchindicator .num.num-1 {
+            background: yellow;
+        }
+        .matchindicator .num.num-2 {
+            background: red;
+        }
+        .matchindicator .num.num-3 {
+            background: black;
+        }
+
+    .matchindicator .desc {
+        padding: 2px 5px;
+        font-size: 10px;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-direction: column;
+        text-align: center;
+    }
