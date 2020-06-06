@@ -187,7 +187,14 @@ else
                                                 <col width="80" />
                                                 @if (hasLabels)
                                                 {
-                                                    <col width="150" />
+                                                    if (round.Sides.Count == 1)
+                                                    {
+                                                        <col width="300" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <col width="150" />
+                                                    }
                                                 }
                                             </colgroup>
                                             @foreach (var slot in squad.Slots)
@@ -232,7 +239,7 @@ else
                                 </div>
                                 <div id="squad-@squad.RoundSquadID" class="collapse" aria-labelledby="squad-name-@squad.RoundSquadID" data-parent="#squads-@side.RoundSideID">
                                     <div class="card-body">
-                                        <p class="text-muted">Le détail des squads est affiché uniquement aux inscrits du même coté.</p>
+                                        <p class="text-muted">Le détail des groupes est affiché uniquement aux inscrits du même coté.</p>
                                     </div>
                                 </div>
                             </div>

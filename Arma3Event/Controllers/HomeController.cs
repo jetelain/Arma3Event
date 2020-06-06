@@ -35,11 +35,11 @@ namespace Arma3Event.Controllers
             var maxDate = DateTime.Today;
             if (vm.User != null)
             {
-                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).Include(m => m.Users).ToListAsync();
+                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).Include(m => m.GameMap).Include(m => m.Users).ToListAsync();
             }
             else
             {
-                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).ToListAsync();
+                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).Include(m => m.GameMap).ToListAsync();
             }
             return View(vm);
         }

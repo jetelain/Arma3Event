@@ -1,0 +1,22 @@
+﻿@model Arma3Event.Models.HomeCardViewModel
+
+<div class="card h-100">
+    <a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID">
+        <img src="@(Model.Match.Image ?? "http://game.pmad.net/img/banner/opex2.jpg")" class="card-img-top" alt="" />
+    </a>
+    <div class="card-body">
+        <h5 class="card-title"><a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID">@Html.DisplayFor(_ => Model.Match.Name)</a></h5>
+        <h6 class="card-subtitle mb-2 text-muted"><i class="far fa-clock"></i> @Html.DisplayFor(_ => Model.Match.Date) @Html.DisplayFor(_ => Model.Match.StartTime)</h6>
+        <p class="card-text">@Html.DisplayFor(_ => Model.Match.ShortDescription)</p>
+
+        @if (Model.Match.Users != null && Model.User != null && Model.Match.Users.Any(u => u.UserID == Model.User.UserID))
+        {
+            <a class="btn btn-sm btn-success" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Inscrit</a>
+        }
+        else
+        {
+            <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">S'inscrire</a>
+        }
+        <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID">En savoir plus</a>
+    </div>
+</div>

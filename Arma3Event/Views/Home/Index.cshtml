@@ -2,36 +2,69 @@
 
 @{
     ViewData["Title"] = "PLANOPS";
+    var nextMatch = Model.Matchs.FirstOrDefault();
 }
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
 
-<h2>Prochains événements</h2>
-
-<div class="row row-cols-1 row-cols-md-3">
-    @foreach (var item in Model.Matchs)
-    {
-        <div class="col mb-4">
-            <div class="card h-100">
-                <a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.MatchID">
-                        <img src="@(item.Image ?? "http://game.pmad.net/img/banner/opex2.jpg")" class="card-img-top" alt="" />
-                    </a>
-                <div class="card-body">
-                    <h5 class="card-title"><a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.MatchID">@Html.DisplayFor(modelItem => item.Name)</a></h5>
-                    <h6 class="card-subtitle mb-2 text-muted"><i class="far fa-clock"></i> @Html.DisplayFor(modelItem => item.Date) @Html.DisplayFor(modelItem => item.StartTime)</h6>
-                    <p class="card-text">@Html.DisplayFor(modelItem => item.ShortDescription)</p>
-
-                    @if (item.Users != null && Model.User != null && item.Users.Any(u => u.UserID == Model.User.UserID))
-                    {
-                        <a class="btn btn-sm btn-success" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@item.MatchID">Inscrit</a>
-                    }
-                    else
-                    {
-                        <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@item.MatchID">S'inscrire</a>
-                    }
-                    <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.MatchID">En savoir plus</a>
-                </div>
-            </div>
+@if(nextMatch != null)
+{
+<h2>Prochain événement</h2>
+<div class="row">
+    <div class="col-6">
+        @{await Html.RenderPartialAsync("_MatchCard", new HomeCardViewModel() { User = Model.User, Match = nextMatch });}
+    </div>
+    <div class="col-6">
+        <div class="map" id="map" style="width:100%; height:100%; margin:0; padding:0; border:0;">
         </div>
-    }
+        <a asp-controller="@ControllersName.Events" asp-action="Map" asp-route-id="@nextMatch.MatchID" asp-route-roundID="@nextMatch.Rounds.First().RoundID" asp-fragment="map" id="maplink" class="btn btn-sm btn-secondary"><i class="fas fa-map"></i> Voir la carte</a>
+    </div>
 </div>
+
+@if(Model.Matchs.Skip(1).Any())
+    {
+<h2>Événements suivants</h2>
+<div class="row row-cols-1 row-cols-md-2">
+    @foreach (var item in Model.Matchs.Skip(1))
+        {
+    <div class="col mb-4">
+        @{await Html.RenderPartialAsync("_MatchCard", new HomeCardViewModel() { User= Model.User, Match = item });}
+    </div>
+        }
+</div>
+    }
+}
+
+@section Styles {
+    @if(!string.IsNullOrEmpty(nextMatch?.GameMap?.WebMap))
+    {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+    }
+}
+
+@section Scripts {
+    @if(!string.IsNullOrEmpty(nextMatch?.GameMap?.WebMap))
+    {
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin="">
+    </script>
+    <script src="https://jetelain.github.io/Arma3Map/js/mapUtils.js">
+    </script>
+    <script src="https://unpkg.com/@@microsoft/signalr@3.1.4/dist/browser/signalr.min.js">
+    </script>
+    <script src="~/js/mapPreview.js" asp-append-version="true">
+    </script>
+    <script src="~/js/mapHome.js" asp-append-version="true">
+    </script>
+    <script src="https://jetelain.github.io/Arma3Map/maps/@(nextMatch.GameMap.WebMap).js">
+    </script>
+    <script>
+            var mapHubInfos = @Json.Serialize(new {
+                    mapId = new Arma3Event.Hubs.MapId(){matchID = nextMatch.MatchID},
+                    canEdit = false
+                });
+            var mapInfos = Arma3Map.Maps.@(nextMatch.GameMap.WebMap);
+            mapInfos.tilePattern = 'https://jetelain.github.io/Arma3Map' + mapInfos.tilePattern;
+            InitMap(mapInfos);
+    </script>
+    }
+}
