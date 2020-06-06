@@ -8,7 +8,7 @@
 @section NavBar  {
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index">Evénements</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Opérations</a></li>
             <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
             @if (Model.Round != null && Model.Match.Template != Arma3Event.Entities.MatchTemplate.SingleSideCooperative)
             {

@@ -13,14 +13,14 @@ namespace Arma3Event.Models
         public int? RoundSquadID { get; set; }
         public User User { get; set; }
 
-        [Display(Name = "Evénement")]
+        [Display(Name = "Opération")]
         public Match Match { get; set; }
 
         [Display(Name = "J'accepte le traitement des données nécessaires aux inscriptions")]
         [Required]
         public bool AcceptSubscription { get; set; }
 
-        [Display(Name ="J'ai lu et j'accepte le règlement de l'événement")]
+        [Display(Name = "J'ai lu et j'accepte le règlement de l'opération")]
         [Required]
         public bool AcceptMatchRules { get; set; }
     }

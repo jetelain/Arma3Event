@@ -51,7 +51,7 @@ namespace Arma3Event.Entities
         [Display(Name = "Accès sur invitation uniquement")]
         public bool InviteOnly { get; set; }
 
-        [Display(Name = "Type d'événement")]
+        [Display(Name = "Type d'opération")]
         public MatchTemplate Template { get; set; }
 
         public List<Round> Rounds { get; set; }

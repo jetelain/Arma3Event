@@ -10,10 +10,10 @@ namespace Arma3Event.Entities
     {
         public int MatchUserID { get; set; }
 
-        [Display(Name = "Evénement")]
+        [Display(Name = "Opération")]
         public int MatchID { get; set; }
 
-        [Display(Name = "Evénement")]
+        [Display(Name = "Opération")]
         public Match Match { get; set; }
 
         [Display(Name = "Coté")]

@@ -146,7 +146,7 @@ namespace Arma3Event.Controllers
 
             if (!vm.AcceptMatchRules)
             {
-                ModelState.AddModelError("AcceptMatchRules", "Vous devez accepter le réglement de l'événement");
+                ModelState.AddModelError("AcceptMatchRules", "Vous devez accepter le réglement de l'opération");
             }
 
             if (!vm.AcceptSubscription)

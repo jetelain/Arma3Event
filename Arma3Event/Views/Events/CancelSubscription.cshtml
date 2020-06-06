@@ -10,7 +10,7 @@
 @section NavBar  {
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index">Evénements</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Opérations</a></li>
             <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
             <li class="breadcrumb-item"><a asp-action="Subscription" asp-route-id="@Model.Match.MatchID">@Model.User.Name</a></li>
             <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>

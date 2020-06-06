@@ -32,7 +32,7 @@
                             <a class="nav-link" asp-area="" asp-controller="@ControllersName.Home" asp-action="Index">Accueil</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="@ControllersName.Events" asp-action="Index">Événements</a>
+                            <a class="nav-link" asp-area="" asp-controller="@ControllersName.Events" asp-action="Index">Opérations</a>
                         </li>
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {
@@ -47,7 +47,7 @@
                                     Administration
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="configDropdownMenu">
-                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Événements</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Opérations</a>
                                     <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminGameMaps" asp-action="Index">Maps</a>
                                     <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminFactions" asp-action="Index">Armées et factions</a>
                                 </div>

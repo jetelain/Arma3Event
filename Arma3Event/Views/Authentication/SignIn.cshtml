@@ -24,12 +24,14 @@
 {
     <div class="alert alert-primary" role="alert">
         <h4 class="alert-heading">Inscription</h4>
-        <p>Pour pouvoir vous inscrire, il est nécessaire de se connecter avec Steam.<br />L'inscription à l'événement se fera dans un écran de confirmation après.</p>
+        <p>Pour pouvoir vous inscrire, il est nécessaire de se connecter avec Steam.<br />L'inscription à l'opération se fera dans un écran de confirmation après.</p>
     </div>
 }
 
-<p class="text-muted">Nous ne stockons des données que si vous vous inscrivez à un événement.<br />
-Pour plus d'informations sur les traitements effectués, merci de vous référez aux <a class="text-muted" asp-controller="@ControllersName.Home" asp-action="Privacy">mentions légales</a>.</p>
+<p class="text-muted">
+    Nous ne stockons des données que si vous vous inscrivez à une opération.<br />
+    Pour plus d'informations sur les traitements effectués, merci de vous référez aux <a class="text-muted" asp-controller="@ControllersName.Home" asp-action="Privacy">mentions légales</a>.
+</p>
 
 @foreach (var scheme in Model.Providers.OrderBy(p => p.DisplayName))
 {

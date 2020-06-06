@@ -150,25 +150,56 @@ img.mil-icon {
         position: absolute;
     }
 
-#clock {
-    width: 100px;
-    height: 34px;
-    padding: 3px 10px;
+.clockindicator {
+    width: 170px;
+    height: 52px;
+    padding: 0px;
     text-align: center;
     left: 0px;
-    font-family: 'Ubuntu Mono', monospace;
-    font-size: 16px;
-    background: rgba(0,0,0,0.5);
+
+    background: rgba(0,0,0,0.7);
     display: flex;
     justify-content: center;
     align-content: center;
     flex-direction: column;
+    line-height:1;
+}
+    .clockindicator .header {
+        font-size: 12px;
+    }
+    .clockindicator .clock {
+        font-family: 'Ubuntu Mono', monospace;
+        font-size: 26px;
+        color:red;
+    }
+
+.countdownindicator {
+    width: 170px;
+    height: 52px;
+    padding: 0px;
+    text-align: center;
+    left: 180px;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    line-height: 1;
 }
 
+    .countdownindicator .header {
+        font-size: 12px;
+    }
+
+    .countdownindicator .clock {
+        font-family: 'Ubuntu Mono', monospace;
+        font-size: 26px;
+    }
+
 .matchindicator {
-    width: 220px;
+    width: 300px;
     right: 0px;
-    height: 34px;
+    height: 52px;
 }
 
     .matchindicator .num {
@@ -178,8 +209,13 @@ img.mil-icon {
         justify-content: center;
         align-content: center;
         flex-direction: column;
+        line-height: 1.2;
+        font-size: 22px;
     }
 
+    .matchindicator .num span {
+        font-size: 10px;
+    }
 
         .matchindicator .num.num-0 {
             background: green;
@@ -197,11 +233,27 @@ img.mil-icon {
 
     .matchindicator .desc {
         padding: 2px 5px;
-        font-size: 10px;
-        background: rgba(0,0,0,0.5);
+        font-size: 14px;
+        background: rgba(0,0,0,0.7);
         display: flex;
         justify-content: center;
         align-content: center;
         flex-direction: column;
         text-align: center;
     }
+
+        .matchindicator .desc.desc-0 {
+            background: rgba(0,64,0,0.7);
+        }
+
+        .matchindicator .desc.desc-1 {
+            background: rgba(64,64,0,0.7);
+        }
+
+        .matchindicator .desc.desc-2 {
+            background: rgba(64,0,0,0.7);
+        }
+
+        .matchindicator .desc.desc-3 {
+            background: rgba(0,0,0,0.7);
+        }
