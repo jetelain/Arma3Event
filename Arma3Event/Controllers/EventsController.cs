@@ -414,7 +414,7 @@ namespace Arma3Event.Controllers
                 }
 
                 vm.CanEditMap = isAdmin;
-                vm.MapId = new MapId() { matchID = vm.Round.Match.MatchID };
+                vm.MapId = new MapId() { matchID = vm.Match.MatchID };
             }
             else
             {

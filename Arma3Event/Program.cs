@@ -32,8 +32,8 @@ namespace Arma3Event
                 try
                 {
                     var context = services.GetRequiredService<Arma3EventContext>();
-                    //context.Database.Migrate();
-                    context.Database.EnsureCreated();
+                    context.Database.Migrate();
+                    //context.Database.EnsureCreated();
                     context.InitBaseData();
                 }
                 catch (Exception ex)
