@@ -74,5 +74,8 @@ namespace Arma3Event.Entities
 
         [Display(Name = "Etat")]
         public MatchState State { get; set; }
+
+        [Display(Name = "Lien vers le Mission Brief")]
+        public string MissionBriefLink { get; set; }
     }
 }

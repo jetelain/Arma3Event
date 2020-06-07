@@ -457,7 +457,7 @@ namespace Arma3Event.Controllers
             var user = await GetUser();
             if (user != null)
             {
-                return await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
+                return await _context.MatchUsers.Include(u => u.Slots).FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == id);
             }
             return null;
         }
@@ -486,7 +486,7 @@ namespace Arma3Event.Controllers
             vm.User = await GetUser();
             if (vm.User != null)
             {
-                vm.MatchUser = match.Users.FirstOrDefault(u => u.UserID == vm.User.UserID);
+                vm.MatchUser = await GetMatchUser(match.MatchID);
             }
             AdminMatchsController.SortModel(match);
             return View(vm);
@@ -501,7 +501,15 @@ namespace Arma3Event.Controllers
             {
                 return NotFound();
             }
-            // XXX: Vérifier l'inscription ?
+            var user = await GetMatchUser(id);
+            if (user == null)
+            {
+                return Forbid();
+            }
+            if(!await _context.RoundSlots.AnyAsync(u => u.MatchUserID == user.MatchUserID && u.IsValidated))
+            {
+                return Forbid();
+            }
             return File(Encoding.UTF8.GetBytes(match.MatchTechnicalInfos.ModsDefinition), "application/octet-steam", $"modpack{match.MatchID}.html");
         }
 

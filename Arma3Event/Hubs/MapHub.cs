@@ -43,7 +43,8 @@ namespace Arma3Event.Hubs
         {
             return await context.RoundSlots.AnyAsync(rs => rs.Squad.RoundSideID == mapId.roundSideID &&
                 rs.MatchUserID == user.MatchUserID &&
-                rs.Role >= Role.SquadLeader);
+                rs.Role >= Role.SquadLeader &&
+                rs.IsValidated);
         }
 
         private async Task<bool> CanRead(MatchUser user, MapId mapId)

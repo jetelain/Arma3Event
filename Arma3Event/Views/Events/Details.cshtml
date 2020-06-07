@@ -14,52 +14,14 @@
 
 @if (Model.MatchUser != null)
 {
-<div class="alert alert-secondary" role="alert">
-    <h4 class="alert-heading">Inscription</h4>
-    @if (Model.MatchUser.Side == null)
-    {
-        <p>Vous êtes inscrit en liste d'attente.</p>
-    }
-    else if (Model.MatchUser.Slots.Any(s => !s.IsValidated))
-    {
-        <p>Vous êtes bien inscrit. Votre place dans le groype est réservée, un organisateur doit la valider.</p>
-    }
-    else if (Model.MatchUser.Slots.All(s => s.IsValidated))
-    {
-        <p>Vous êtes bien inscrit. Votre place est validée.</p>
-    }
-    else if (Model.MatchUser.Side.SquadsPolicy == Arma3Event.Entities.SquadsPolicy.SquadsAndSlotsRestricted)
-    {
-        <p>Votre inscription est incomplète, vous devez choisir un groupe et une place.</p>
-    }
-    else
-    {
-        <p>Vous êtes bien inscrit.</p>
-    }
-    <p>
-        <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Voir l'inscription</a>
-        @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos?.ModsDefinition))
-        {
-            <a class="btn btn-secondary" asp-action="DownloadModPack" asp-route-id="@Model.Match.MatchID">
-                Télécharger le modpack
-                <span class="badge badge-primary">
-                    @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsCount)
-                </span>
-            </a>
-        }
-        @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
-        {
-            <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" asp-fragment="map" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
-        }
-    </p>
-</div>
+    await Html.RenderPartialAsync("_SubscriptionStatus", new ViewDataDictionary(ViewData) { { "Page", "Event" } });
 }
 
 <div>
     @Html.Raw(Model.Match.Description)
 </div>
 
-<dl class="row">
+<dl class="row mb-5">
     @{await Html.RenderPartialAsync("_MatchEssentialInfos");}
 </dl>
 
@@ -72,7 +34,7 @@
         <div>
             <div class="row mb-4">
                 @foreach (var side in Model.Match.Sides)
-                    {
+                {
                     <div class="@ViewHelper.SideColClass(Model.Match.Sides)">
                         <h3 class="text-center">@side.Name</h3>
                         <p class="text-center text-muted">@Html.DisplayFor(model => side.SquadsPolicy)</p>
@@ -107,8 +69,8 @@ else
                     <p class="text-center text-muted">@Html.DisplayFor(model => side.SquadsPolicy)</p>
                     <p class="text-center">
                         @if (Model.MatchUser != null)
-            {
-                @if (Model.MatchUser.Side == side)
+                        {
+                            @if (Model.MatchUser.Side == side)
                             {
                                 <a class="btn btn-success" asp-action="Subscription" asp-route-id="@Model.Match.MatchID" asp-route-matchSideID="@side.MatchSideID">Inscrit coté @side.Name</a>
                             }
@@ -157,108 +119,108 @@ else
         <div class="row">
             @foreach (var side in round.Sides)
             {
-            <div class="@ViewHelper.SideColClass(round.Sides)">
-                <h4 class="text-center">
-                    <img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)
-                    @if (round.Sides.Count > 1)
-                    {
-                        <br />@side.MatchSide.Name
-                    }
-                </h4>
-
-                @if (Model.MatchUser?.Side == side.MatchSide || Model.Match.Sides.Count == 1)
-                {
-                    @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.MatchUser != null)
-                    {
-                        <p><a asp-action="Map" asp-route-id="@round.MatchID" asp-route-roundId="@round.RoundID" asp-fragment="map" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
-                    }
-                    <div class="accordion mb-4" id="squads-@side.RoundSideID">
-                        @foreach (var squad in side.Squads)
+                <div class="@ViewHelper.SideColClass(round.Sides)">
+                    <h4 class="text-center">
+                        <img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)
+                        @if (round.Sides.Count > 1)
                         {
-                            var hasLabels = squad.Slots.Any(s => !string.IsNullOrEmpty(s.Label));
-                            var freeSlots = squad.Slots.Count(s => s.AssignedUser == null);
+                            <br />@side.MatchSide.Name
+                        }
+                    </h4>
 
-                            <div class="card">
-                                <div class="card-header" id="squad-name-@squad.RoundSquadID">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
-                                            <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
-                                            @if (freeSlots > 0)
-                                            {
-                                                <span class="badge badge-success">@freeSlots place(s) libre(s)</span>
-                                            }
-                                        </button>
-                                    </h5>
-                                </div>
+                    @if (Model.MatchUser?.Side == side.MatchSide || Model.Match.Sides.Count == 1)
+                    {
+                        @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.MatchUser != null)
+                        {
+                            <p><a asp-action="Map" asp-route-id="@round.MatchID" asp-route-roundId="@round.RoundID" asp-fragment="map" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
+                        }
+                        <div class="accordion mb-4" id="squads-@side.RoundSideID">
+                            @foreach (var squad in side.Squads)
+                            {
+                                var hasLabels = squad.Slots.Any(s => !string.IsNullOrEmpty(s.Label));
+                                var freeSlots = squad.Slots.Count(s => s.AssignedUser == null);
 
-                                <div id="squad-@squad.RoundSquadID" class="collapse" aria-labelledby="squad-name-@squad.RoundSquadID" data-parent="#squads-@side.RoundSideID">
-                                    <div class="card-body p-0">
-
-                                        <table class="table m-0">
-                                            <colgroup>
-                                                <col width="80" />
-                                                @if (hasLabels)
+                                <div class="card">
+                                    <div class="card-header" id="squad-name-@squad.RoundSquadID">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
+                                                <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
+                                                @if (freeSlots > 0)
                                                 {
-                                                    if (round.Sides.Count == 1)
-                                                    {
-                                                        <col width="300" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <col width="150" />
-                                                    }
+                                                    <span class="badge badge-success">@freeSlots place(s) libre(s)</span>
                                                 }
-                                            </colgroup>
-                                            @foreach (var slot in squad.Slots)
-                                            {
-                                                <tr>
-                                                    <td class="pl-4"><span class="badge badge-secondary @slot.Role">@Html.DisplayFor(m => slot.Role)</span></td>
+                                            </button>
+                                        </h5>
+                                    </div>
+
+                                    <div id="squad-@squad.RoundSquadID" class="collapse" aria-labelledby="squad-name-@squad.RoundSquadID" data-parent="#squads-@side.RoundSideID">
+                                        <div class="card-body p-0">
+
+                                            <table class="table m-0">
+                                                <colgroup>
+                                                    <col width="80" />
                                                     @if (hasLabels)
                                                     {
-                                                        <td>@Html.DisplayFor(m => slot.Label)</td>
-                                                    }
-                                                    <td>
-                                                        @if (slot.AssignedUser != null)
+                                                        if (round.Sides.Count == 1)
                                                         {
-                                                            <a asp-controller="@ControllersName.Users" asp-action="Details" asp-route-id="@slot.AssignedUser.UserID">@Html.DisplayFor(m => slot.AssignedUser.User.Name)</a>
+                                                            <col width="300" />
                                                         }
                                                         else
                                                         {
-                                                            <a class="badge badge-success" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Libre</a>
+                                                            <col width="150" />
                                                         }
-                                                    </td>
-                                                </tr>
-                                            }
-                                        </table>
+                                                    }
+                                                </colgroup>
+                                                @foreach (var slot in squad.Slots)
+                                                {
+                                                    <tr>
+                                                        <td class="pl-4"><span class="badge badge-secondary @slot.Role">@Html.DisplayFor(m => slot.Role)</span></td>
+                                                        @if (hasLabels)
+                                                        {
+                                                            <td>@Html.DisplayFor(m => slot.Label)</td>
+                                                        }
+                                                        <td>
+                                                            @if (slot.AssignedUser != null)
+                                                            {
+                                                                <a asp-controller="@ControllersName.Users" asp-action="Details" asp-route-id="@slot.AssignedUser.UserID">@Html.DisplayFor(m => slot.AssignedUser.User.Name)</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a class="badge badge-success" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Libre</a>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="accordion  mb-4" id="squads-@side.RoundSideID">
-                        @foreach (var squad in side.Squads)
-                        {
-                            <div class="card">
-                                <div class="card-header" id="squad-name-@squad.RoundSquadID">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
-                                            <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="squad-@squad.RoundSquadID" class="collapse" aria-labelledby="squad-name-@squad.RoundSquadID" data-parent="#squads-@side.RoundSideID">
-                                    <div class="card-body">
-                                        <p class="text-muted">Le détail des groupes est affiché uniquement aux inscrits du même coté.</p>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="accordion  mb-4" id="squads-@side.RoundSideID">
+                            @foreach (var squad in side.Squads)
+                            {
+                                <div class="card">
+                                    <div class="card-header" id="squad-name-@squad.RoundSquadID">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
+                                                <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="squad-@squad.RoundSquadID" class="collapse" aria-labelledby="squad-name-@squad.RoundSquadID" data-parent="#squads-@side.RoundSideID">
+                                        <div class="card-body">
+                                            <p class="text-muted">Le détail des groupes est affiché uniquement aux inscrits du même coté.</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
+                            }
+                        </div>
+                    }
+                </div>
             }
         </div>
     }

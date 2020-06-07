@@ -1,7 +1,7 @@
 ﻿@model Arma3Event.Models.EventDetailsViewModel
 
 <dt class="col-sm-2">
-    @Html.DisplayNameFor(model => model.Match.Date)
+    <a name="infos"></a>@Html.DisplayNameFor(model => model.Match.Date)
 </dt>
 <dd class="col-sm-10">
     <i class="far fa-clock"></i> @Html.DisplayFor(model => model.Match.Date) à @Html.DisplayFor(model => model.Match.StartTime)
@@ -31,7 +31,7 @@
 
 
 
-@if (Model.Match.MatchTechnicalInfos != null && Model.MatchUser != null)
+@if (Model.Match.MatchTechnicalInfos != null && Model.MatchUser != null && Model.MatchUser.Slots.Any(s => s.IsValidated))
 {
     var reveal = Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords == null || Model.Match.StartDate.Subtract(DateTime.Now).TotalHours < Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords;
     

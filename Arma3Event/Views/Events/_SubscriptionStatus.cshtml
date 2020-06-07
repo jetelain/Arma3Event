@@ -1,0 +1,108 @@
+﻿@model Arma3Event.Models.EventDetailsViewModel
+
+<div class="alert alert-secondary" role="alert">
+    @if (Model.MatchUser.Side == null)
+    {
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Inscription non finalisée</h4>
+        <p>Vous devez choisir un coté.</p>
+
+        @if (ViewBag.Page == "Event")
+        {
+            <p>
+                <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Voir l'inscription</a>
+            </p>
+        }
+
+    }
+    else
+    {
+        var slotUnassigned = Model.MatchUser.Side.Rounds.Any(r => !r.Squads.Any(s => s.Slots.Any(s => s.AssignedUser == Model.MatchUser)));
+
+        @if (slotUnassigned && Model.MatchUser.Side.SquadsPolicy != Arma3Event.Entities.SquadsPolicy.Unrestricted)
+        {
+            <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Inscription non finalisée</h4>
+            <p>Vous devez choisir un groupe.</p>
+
+            @if (ViewBag.Page == "Event")
+            {
+                <p>
+                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Voir l'inscription</a>
+                </p>
+            }
+        }
+        else
+        {
+            @if (slotUnassigned)
+            {
+                <h4 class="alert-heading">Inscrit</h4>
+                <p>Vous pouvez optionnellement rejoindre un groupe. Vous pourrez également décider de cela au dernier moment.</p>
+            }
+            else if (Model.MatchUser.Slots.Any(s => !s.IsValidated))
+            {
+                <h4 class="alert-heading">Inscription dans le groupe en attente de validation</h4>
+                <p>Vous êtes bien inscrit. Votre place dans le groupe est réservée, un organisateur doit la valider.</p>
+            }
+            else
+            {
+                <h4 class="alert-heading">Inscription validée</h4>
+                <p>Vous êtes bien inscrit. Votre place est validée.</p>
+            }
+            <p>
+                @if (ViewBag.Page == "Event")
+                {
+                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">Voir l'inscription</a>
+                }
+                else
+                {
+                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID">Voir l'opération</a>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
+                {
+                    <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" asp-fragment="map" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Match.MissionBriefLink))
+                {
+                    <a class="btn btn-secondary" href="@Model.Match.MissionBriefLink" target="_blank">
+                        <i class="fas fa-file"></i> Voir le Mission brief
+                    </a>
+                }
+                else
+                {
+                    <a class="btn btn-secondary disabled">
+                        <i class="fas fa-file"></i> Mission brief en attente
+                    </a>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos?.ModsDefinition) && Model.MatchUser.Slots.Any(s => s.IsValidated))
+                {
+                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="DownloadModPack" asp-route-id="@Model.Match.MatchID">
+                        <i class="fas fa-cubes"></i> Télécharger le modpack
+                        <span class="badge badge-primary">
+                            @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsCount)
+                        </span>
+                    </a>
+                }
+                else
+                {
+                    <a class="btn btn-secondary disabled">
+                        <i class="fas fa-cubes"></i> Modpack en attente
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos?.GameServerAddress))
+                {
+                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID" href="#infos">
+                        <i class="fas fa-server"></i> Voir le serveur
+                    </a>
+                }
+                else
+                {
+                    <a class="btn btn-secondary disabled">
+                        <i class="fas fa-server"></i> Serveur en attente
+                    </a>
+                }
+            </p>
+        }
+    }
+</div>
