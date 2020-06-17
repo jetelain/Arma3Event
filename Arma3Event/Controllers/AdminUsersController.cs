@@ -10,28 +10,23 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Arma3Event.Controllers
 {
-    [Authorize(Policy = "LoggedUser")]
-    public class UsersController : Controller
+    [Authorize(Policy = "Admin")]
+    public class AdminUsersController : Controller
     {
         private readonly Arma3EventContext _context;
 
-        public UsersController(Arma3EventContext context)
+        public AdminUsersController(Arma3EventContext context)
         {
             _context = context;
         }
 
-        // GET: Users
+        // GET: AdminUsers
         public async Task<IActionResult> Index()
         {
-            var user = await UserHelper.GetUser(_context, User);
-            if (user == null)
-            {
-                return RedirectToAction(nameof(HomeController.Index), ControllersName.Home);
-            }
-            return RedirectToAction(nameof(Details), new { id = user.UserID });
+            return View(await _context.Users.ToListAsync());
         }
 
-        // GET: Users/Details/5
+        // GET: AdminUsers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -40,23 +35,46 @@ namespace Arma3Event.Controllers
             }
 
             var user = await _context.Users
-                .Include(u => u.Matchs).ThenInclude(m => m.Match)
-                .Include(u => u.Matchs).ThenInclude(m => m.Side)
                 .FirstOrDefaultAsync(m => m.UserID == id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            ViewBag.IsSelf = (await UserHelper.GetUser(_context, User)).UserID == user.UserID;
-            
             return View(user);
         }
 
-        // GET: Users/Edit/5
-        public async Task<IActionResult> Edit()
+        // GET: AdminUsers/Create
+        public IActionResult Create()
         {
-            var user = await UserHelper.GetUser(_context, User);
+            return View();
+        }
+
+        // POST: AdminUsers/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(User user)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(user);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(user);
+        }
+
+        // GET: AdminUsers/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -64,22 +82,22 @@ namespace Arma3Event.Controllers
             return View(user);
         }
 
-        // POST: Users/Edit/5
+        // POST: AdminUsers/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("Name,PrivacyOptions")] User userData)
+        public async Task<IActionResult> Edit(int id, User user)
         {
-            var user = await UserHelper.GetUser(_context, User);
+            if (id != user.UserID)
+            {
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    user.Name = userData.Name;
-                    user.PrivacyOptions = userData.PrivacyOptions;
-                    user.SteamName = User.Identity.Name;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
@@ -99,11 +117,16 @@ namespace Arma3Event.Controllers
             return View(user);
         }
 
-        // GET: Users/Delete/5
-        public async Task<IActionResult> Delete()
+        // GET: AdminUsers/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            var user = await UserHelper.GetUser(_context, User);
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var user = await _context.Users
+                .FirstOrDefaultAsync(m => m.UserID == id);
             if (user == null)
             {
                 return NotFound();
@@ -112,15 +135,15 @@ namespace Arma3Event.Controllers
             return View(user);
         }
 
-        // POST: Users/Delete/5
+        // POST: AdminUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed()
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await UserHelper.GetUser(_context, User);
+            var user = await _context.Users.FindAsync(id);
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(HomeController.Index), ControllersName.Home);
+            return RedirectToAction(nameof(Index));
         }
 
         private bool UserExists(int id)

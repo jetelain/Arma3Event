@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 
 namespace Arma3Event.Hubs
 {
-    [Authorize(Policy = "SteamID")]
     public class MapHub : Hub
     {
         private readonly Arma3EventContext _context;
@@ -24,9 +23,12 @@ namespace Arma3Event.Hubs
 
         private async Task<MatchUser> GetUser(MapId mapId)
         {
-            var steamId = SteamHelper.GetSteamId(Context.User);
-            var user = await _context.MatchUsers.FirstOrDefaultAsync(u => u.User.SteamId == steamId && u.MatchID == mapId.matchID);
-            return user;
+            var user = await UserHelper.GetUser(_context, Context.User);
+            if (user != null)
+            {
+                return await _context.MatchUsers.FirstOrDefaultAsync(u => u.UserID == user.UserID && u.MatchID == mapId.matchID);
+            }
+            return null;
         }
 
         private async Task<bool> CanEdit(MatchUser user, MapId mapId)
@@ -52,7 +54,8 @@ namespace Arma3Event.Hubs
             if (mapId.roundSideID == null)
             {
                 // Carte de situation, accessible à tous les inscripts et aux administrateurs
-                return user != null || (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded;
+                //return user != null || (await _auth.AuthorizeAsync(Context.User, "Admin")).Succeeded;
+                return true;
             }
             // Carte partagée, accessible uniquement aux inscrits du coté demandé
             return await _context.RoundSides.AnyAsync(rs => rs.RoundSideID == mapId.roundSideID && rs.MatchSideID == user.MatchSideID);
@@ -76,6 +79,7 @@ namespace Arma3Event.Hubs
             }
         }
 
+        [Authorize(Policy = "LoggedUser")]
         public async Task<int> AddMarker(MapId mapId, MarkerData markerData)
         {
             var user = await GetUser(mapId);
@@ -96,11 +100,13 @@ namespace Arma3Event.Hubs
             return 0;
         }
 
+        [Authorize(Policy = "LoggedUser")]
         public async Task UpdateMarker(int mapMarkerID, MarkerData markerData)
         {
             await DoUpdateMarker(mapMarkerID, markerData, true);
         }
 
+        [Authorize(Policy = "LoggedUser")]
         public async Task MoveMarker(int mapMarkerID, MarkerData markerData)
         {
             await DoUpdateMarker(mapMarkerID, markerData, false);
@@ -124,6 +130,7 @@ namespace Arma3Event.Hubs
             }
         }
 
+        [Authorize(Policy = "LoggedUser")]
         public async Task RemoveMarker(int mapMarkerID)
         {
             var marker = _context.MapMarkers.FirstOrDefault(m => m.MapMarkerID == mapMarkerID);
@@ -140,6 +147,7 @@ namespace Arma3Event.Hubs
             }
         }
 
+        [Authorize(Policy = "LoggedUser")]
         public async Task PointMap(MapId mapId, double[] pos)
         {
             var user = await GetUser(mapId);
@@ -149,6 +157,7 @@ namespace Arma3Event.Hubs
             }
         }
 
+        [Authorize(Policy = "LoggedUser")]
         public async Task EndPointMap(MapId mapId)
         {
             var user = await GetUser(mapId);

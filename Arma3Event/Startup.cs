@@ -54,7 +54,7 @@ namespace Arma3Event
                     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
                     admins.ToArray()
                     ));
-                options.AddPolicy("SteamID", policy => policy.RequireClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
+                options.AddPolicy("LoggedUser", policy => policy.RequireClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
             }); 
             
             if (Environment.OSVersion.Platform == PlatformID.Unix)

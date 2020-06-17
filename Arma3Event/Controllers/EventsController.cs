@@ -35,7 +35,7 @@ namespace Arma3Event.Controllers
             return View(await _context.Matchs.Include(m => m.Rounds).ToListAsync());
         }
 
-        [Authorize(Policy = "SteamID")]
+        [Authorize(Policy = "LoggedUser")]
         [HttpGet]
         public async Task<IActionResult> Subscription(int? id, int? matchSideID, int? roundSquadID)
         {
@@ -87,13 +87,11 @@ namespace Arma3Event.Controllers
 
         private async Task<User> GetUser()
         {
-            var steamId = SteamHelper.GetSteamId(User);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.SteamId == steamId);
-            return user;
+            return await UserHelper.GetUser(_context, User);
         }
 
         //
-        [Authorize(Policy = "SteamID")]
+        [Authorize(Policy = "LoggedUser")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubscriptionSide(int id, int matchSideID)
@@ -133,7 +131,7 @@ namespace Arma3Event.Controllers
             return count < max;
         }
 
-        [Authorize(Policy = "SteamID")]
+        [Authorize(Policy = "LoggedUser")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubscriptionInitial(int id, SubscriptionInitialViewModel vm)
@@ -165,7 +163,7 @@ namespace Arma3Event.Controllers
                 var user = await GetUser();
                 if (user == null)
                 {
-                    vm.User.SteamId = SteamHelper.GetSteamId(User);
+                    vm.User.SteamId = UserHelper.GetSteamId(User);
                     vm.User.SteamName = User.Identity.Name;
                     vm.User.UserID = 0;
                     _context.Add(vm.User);
@@ -207,7 +205,7 @@ namespace Arma3Event.Controllers
             return RedirectToAction(nameof(Subscription), new { id });
         }
 
-        [Authorize(Policy = "SteamID")]
+        [Authorize(Policy = "LoggedUser")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetSide(int id)
@@ -243,7 +241,7 @@ namespace Arma3Event.Controllers
             return RedirectToAction(nameof(Subscription), new { id });
         }
 
-        [Authorize(Policy = "SteamID")]
+        [Authorize(Policy = "LoggedUser")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubscriptionSlot(int id, int? roundSquadID, int? roundSlotID, int? roundSideID, string squadName)
@@ -359,7 +357,7 @@ namespace Arma3Event.Controllers
             await _context.SaveChangesAsync();
         }
 
-        [Authorize(Policy = "SteamID")]
+        [Authorize(Policy = "LoggedUser")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LeaveSlot(int id, int roundSlotID)
@@ -492,7 +490,7 @@ namespace Arma3Event.Controllers
             return View(vm);
         }
 
-        [Authorize(Policy = "SteamID")]
+        [Authorize(Policy = "LoggedUser")]
         [HttpGet]
         public async Task<IActionResult> DownloadModPack(int id)
         {

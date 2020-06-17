@@ -26,6 +26,7 @@ namespace Arma3Event.Entities
         public DbSet<RoundSlot> RoundSlots { get; set; }
         public DbSet<MapMarker> MapMarkers { get; set; }
         public DbSet<MatchTechnicalInfos> MatchTechnicalInfos { get; set; }
+        public DbSet<UserLogin> UserLogins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,7 +38,6 @@ namespace Arma3Event.Entities
             mapMarkers.HasOne(t => t.RoundSquad).WithMany().OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<MatchTechnicalInfos>().ToTable("MatchTechnicalInfos");
-
             modelBuilder.Entity<Match>().ToTable("Match");
             modelBuilder.Entity<MatchSide>().ToTable("MatchSide");
             modelBuilder.Entity<MatchUser>().ToTable("MatchUser");
@@ -48,19 +48,14 @@ namespace Arma3Event.Entities
             var roundSlot = modelBuilder.Entity<RoundSlot>().ToTable("RoundSlot");
             roundSlot.HasOne(t => t.Squad).WithMany(s => s.Slots).OnDelete(DeleteBehavior.Cascade);
             roundSlot.HasOne(t => t.AssignedUser).WithMany(s => s.Slots).OnDelete(DeleteBehavior.SetNull);
+
+            var userLogin = modelBuilder.Entity<UserLogin>().ToTable("UserLogin");
+            userLogin.HasIndex(p => p.Login).IsUnique();
+            userLogin.HasIndex(p => p.UserID).IsUnique();
         }
 
         internal void InitBaseData()
         {
-            if (!Users.Any())
-            {
-                for (int i = 1; i <= 80; ++i)
-                {
-                    Users.Add(new User() { Name = $"User {i}", SteamId = "XXXXXXXXX" });
-                }
-                SaveChanges();
-
-            }
             if (!Factions.Any())
             {
                 Factions.Add(new Faction() { Name = "OTAN", UsualSide = GameSide.BLUFOR, Flag = "/img/flags/nato.png", GameMarker = GameMarkerType.flag_nato });

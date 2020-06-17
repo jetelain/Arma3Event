@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Arma3Event.Controllers
@@ -68,6 +71,65 @@ namespace Arma3Event.Controllers
             // Note: the authenticationScheme parameter must match the value configured in Startup.cs
             return Challenge(new AuthenticationProperties { RedirectUri = ReturnUrl, IsPersistent = isPersistent }, provider);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SignInPassword([FromForm] string login, [FromForm] string password, [FromForm] bool isPersistent, [FromForm] string ReturnUrl)
+        {
+            if (!ReturnUrl.StartsWith("/"))
+            {
+                return BadRequest();
+            }
+
+            var user = await _context.UserLogins
+                .Include(u => u.User)
+                .FirstOrDefaultAsync(u => u.Login == login);
+
+            if (user != null && user.IsValidPassword(password))
+            {
+                var claims = new List<Claim>();
+                claims.Add(new Claim(ClaimTypes.Name, user.User.Name));
+                claims.Add(new Claim(UserHelper.UserIdClaim, user.UserID.ToString()));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, "https://github.com/jetelain/Arma3Event/id/" + user.UserID));
+
+                var claimIdenties = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimPrincipal = new ClaimsPrincipal(claimIdenties);
+
+                await Request.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimPrincipal, new AuthenticationProperties() { IsPersistent = isPersistent });
+
+                return Redirect(ReturnUrl);
+            }
+
+            ModelState.AddModelError(string.Empty, "Nom d'utilisateur ou mot de passe incorrect.");
+
+            return await SignIn(ReturnUrl);
+        }
+
+        /*private async Task SignInUser(string username, bool isPersistent)
+        {
+            // Initialization.  
+
+            try
+            {
+                // Setting  
+                claims.Add(new Claim(ClaimTypes.Name, username));
+                var claimIdenties = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimPrincipal = new ClaimsPrincipal(claimIdenties);
+                var authenticationManager = Request.HttpContext;
+
+                // Sign In.  
+                await authenticationManager.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimPrincipal, new AuthenticationProperties() { IsPersistent = isPersistent });
+            }
+            catch (Exception ex)
+            {
+                // Info  
+                throw ex;
+            }
+        }*/
+
+
+
+
 
         [HttpGet, HttpPost]
         public IActionResult SignOut()

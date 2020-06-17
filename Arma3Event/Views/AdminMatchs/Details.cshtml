@@ -266,7 +266,7 @@
     <h4 class="text-center"><a name="unassigned"></a>Non affiliés (@Model.Users.Count(u => u.MatchSideID == null))</h4>
     <p>
         <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.MatchID">Lien d'invitation</a>
-        <a class="btn btn-sm btn-secondary" asp-action="AddRamdomUsers" asp-route-id="@Model.MatchID">[TEST] Ajouter des utilisateurs au hasard</a>
+        <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.AdminMatchUsers" asp-action="Create" asp-route-matchID="@Model.MatchID">Inscrire un utilisateur</a>
     </p>
     <table class="table">
         <thead>

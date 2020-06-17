@@ -183,17 +183,6 @@ namespace Arma3Event.Controllers
             vm.FactionsData = await _context.Factions.ToListAsync(); 
         }
 
-        public async Task<IActionResult> AddRamdomUsers(int id)
-        {
-            var rnd = new Random();
-            var users = (await _context.Users.ToListAsync()).OrderBy(elem => rnd.Next()).Take(80);
-
-            _context.AddRange(users.Select(u => new MatchUser() { UserID = u.UserID, MatchID = id }));
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Details), ControllersName.AdminMatchs, new { id }, "users");
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetUserSide(int matchUserId, [FromForm]int matchSideId)

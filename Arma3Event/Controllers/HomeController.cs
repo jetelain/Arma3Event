@@ -23,9 +23,7 @@ namespace Arma3Event.Controllers
         }
         private async Task<User> GetUser()
         {
-            var steamId = SteamHelper.GetSteamId(User);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.SteamId == steamId);
-            return user;
+            return await UserHelper.GetUser(_context, User);
         }
 
         public async Task<IActionResult> Index()
