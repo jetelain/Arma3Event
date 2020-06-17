@@ -41,9 +41,17 @@
 
 @if (ViewBag.IsSelf)
 {
-    <p>
-        <a class="btn btn-secondary" asp-action="Edit">Modifier les informations</a>
-    </p>
+<p>
+    <a class="btn btn-secondary" asp-action="Edit">Modifier les informations</a>
+    @if (ViewBag.UsePassword)
+    {
+        <a class="btn btn-secondary" asp-action="Password">Modifier le mot de passe</a>
+        @*if (!string.IsNullOrEmpty(Model.SteamId))
+        {
+            <a class="btn btn-outline-danger" asp-action="DeletePassword">Supprimer le mot de passe</a>
+        }*@
+    }
+</p>
 }
 else if (Model.PrivacyOptions >= Arma3Event.Entities.UserPrivacyOptions.SteamProfilPublic)
 {

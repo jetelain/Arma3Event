@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Arma3Event.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Arma3Event.Models;
 
 namespace Arma3Event.Controllers
 {
@@ -48,8 +49,14 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
 
-            ViewBag.IsSelf = (await UserHelper.GetUser(_context, User)).UserID == user.UserID;
-            
+            var self = await UserHelper.GetUser(_context, User);
+
+            if (self.UserID == user.UserID)
+            {
+                ViewBag.IsSelf = true;
+                ViewBag.UsePassword = await _context.UserLogins.AnyAsync(l => l.UserID == self.UserID);
+            }
+
             return View(user);
         }
 
@@ -62,6 +69,70 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
             return View(user);
+        }
+
+        // GET: Users/Edit/5
+        public async Task<IActionResult> Password()
+        {
+            var user = await UserHelper.GetUser(_context, User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var userPwd = await _context.UserLogins.FirstOrDefaultAsync(u => u.UserID == user.UserID);
+            return View(new PasswordViewModel()
+            {
+                Login = userPwd?.Login,
+                NeedOldPassword = userPwd != null
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Password([Bind("Login,OldPassword,Password,PasswordRepeat")] PasswordViewModel vm)
+        {
+            var user = await UserHelper.GetUser(_context, User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var userPwd = await _context.UserLogins.FirstOrDefaultAsync(u => u.UserID == user.UserID);
+            if (vm.Password != vm.PasswordRepeat)
+            {
+                ModelState.AddModelError("PasswordRepeat", "Les deux mots de passe ne correspondent pas.");
+            }
+            else if (await _context.UserLogins.AnyAsync(u => u.UserID != user.UserID && u.Login == vm.Login))
+            {
+                ModelState.AddModelError("Login", "Le nom d'utilisateur est déjà utilisé.");
+            }
+            else if (userPwd != null && !userPwd.IsValidPassword(vm.OldPassword))
+            {
+                ModelState.AddModelError("OldPassword", "L'ancien mot de passe ne corresponds pas.");
+            }
+            else if (ModelState.IsValid)
+            {
+                if (userPwd != null)
+                {
+                    userPwd.Login = vm.Login;
+                    userPwd.SetPassword(vm.Password);
+                    _context.Update(userPwd);
+                }
+                else
+                {
+                    userPwd = new UserLogin();
+                    userPwd.UserID = user.UserID;
+                    userPwd.Login = vm.Login;
+                    userPwd.SetPassword(vm.Password);
+                    _context.Add(userPwd);
+                }
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            vm.OldPassword = string.Empty;
+            vm.Password = string.Empty;
+            vm.PasswordRepeat = string.Empty;
+            vm.NeedOldPassword = userPwd != null;
+            return View(vm);
         }
 
         // POST: Users/Edit/5
