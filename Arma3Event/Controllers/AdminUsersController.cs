@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Arma3Event.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Arma3Event.Models;
+using System.Text.RegularExpressions;
 
 namespace Arma3Event.Controllers
 {
@@ -35,6 +37,7 @@ namespace Arma3Event.Controllers
             }
 
             var user = await _context.Users
+                .Include(u => u.ManualLogin)
                 .FirstOrDefaultAsync(m => m.UserID == id);
             if (user == null)
             {
@@ -150,5 +153,102 @@ namespace Arma3Event.Controllers
         {
             return _context.Users.Any(e => e.UserID == id);
         }
+
+        //GeneratePassword
+
+        public async Task<IActionResult> RemovePassword(int id)
+        {
+            var user = await _context.UserLogins
+                .Include(u => u.User)
+                .FirstOrDefaultAsync(m => m.UserID == id && !string.IsNullOrEmpty(m.User.SteamId));
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
+        [HttpPost, ActionName("RemovePassword")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemovePasswordConfirmed([FromForm] int userLoginID)
+        {
+            var userLogin = await _context.UserLogins.FindAsync(userLoginID);
+            _context.UserLogins.Remove(userLogin);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = userLogin.UserID });
+        }
+
+        public async Task<IActionResult> GeneratePassword(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.ManualLogin)
+                .FirstOrDefaultAsync(m => m.UserID == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(new GeneratePasswordViewModel()
+            {
+                User = user,
+                Login = user?.ManualLogin?.Login ?? GenerateLogin(user.Name),
+                GeneratedPassword = UserHelper.GenerateRandomPassword()
+            });
+        }
+
+        private static readonly Regex NonAlphaNum = new Regex("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+
+        private string GenerateLogin(string name)
+        {
+            return NonAlphaNum.Replace(name, "");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GeneratePassword(GeneratePasswordViewModel vm)
+        {
+            var user = await _context.Users
+                .Include(u => u.ManualLogin)
+                .FirstOrDefaultAsync(m => m.UserID == vm.User.UserID);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (await _context.UserLogins.AnyAsync(u => u.UserID != user.UserID && u.Login.ToLower() == vm.Login.ToLower()))
+            {
+                ModelState.AddModelError("Login", "Le nom d'utilisateur est déjà utilisé.");
+            }
+            else if (ModelState.IsValid)
+            {
+                if (user.ManualLogin != null)
+                {
+                    user.ManualLogin.Login = vm.Login;
+                    user.ManualLogin.SetPassword(vm.GeneratedPassword);
+                    _context.Update(user.ManualLogin);
+                }
+                else
+                {
+                    user.ManualLogin = new UserLogin();
+                    user.ManualLogin.UserID = user.UserID;
+                    user.ManualLogin.Login = vm.Login;
+                    user.ManualLogin.SetPassword(vm.GeneratedPassword);
+                    _context.Add(user.ManualLogin);
+                }
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details), new { id = user.UserID });
+            }
+            return View(new GeneratePasswordViewModel()
+            {
+                User = user,
+                Login = vm.Login,
+                GeneratedPassword = vm.GeneratedPassword
+            });
+        }
+
+        
+
     }
 }

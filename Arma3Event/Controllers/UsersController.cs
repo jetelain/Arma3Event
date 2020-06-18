@@ -101,7 +101,7 @@ namespace Arma3Event.Controllers
             {
                 ModelState.AddModelError("PasswordRepeat", "Les deux mots de passe ne correspondent pas.");
             }
-            else if (await _context.UserLogins.AnyAsync(u => u.UserID != user.UserID && u.Login == vm.Login))
+            else if (await _context.UserLogins.AnyAsync(u => u.UserID != user.UserID && u.Login.ToLower() == vm.Login.ToLower()))
             {
                 ModelState.AddModelError("Login", "Le nom d'utilisateur est déjà utilisé.");
             }

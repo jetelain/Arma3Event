@@ -83,7 +83,7 @@ namespace Arma3Event.Controllers
 
             var user = await _context.UserLogins
                 .Include(u => u.User)
-                .FirstOrDefaultAsync(u => u.Login == login);
+                .FirstOrDefaultAsync(u => u.Login.ToLower() == login.ToLower());
 
             if (user != null && user.IsValidPassword(password))
             {

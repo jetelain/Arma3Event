@@ -49,11 +49,11 @@ namespace Arma3Event
         {
             if (opts == null) opts = new PasswordOptions()
             {
-                RequiredLength = 8,
+                RequiredLength = 16,
                 RequiredUniqueChars = 4,
                 RequireDigit = true,
                 RequireLowercase = true,
-                RequireNonAlphanumeric = true,
+                RequireNonAlphanumeric = false,
                 RequireUppercase = true
             };
 
