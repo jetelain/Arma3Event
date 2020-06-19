@@ -38,8 +38,17 @@
 
 }
 
+@if (Model.News != null)
+{
+    <div class="newsbar alert alert-primary" role="alert">
+        <a class="newsbar-heading" href="#">Annonces</a>
+        <a class="newsbar-title" href="#">@Model.News.Title</a>
+    </div>
+}
+
 @if (nextMatch != null)
 {
+
 
 <div class="row">
     <div class="col">

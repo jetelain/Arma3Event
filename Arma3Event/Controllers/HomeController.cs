@@ -39,6 +39,7 @@ namespace Arma3Event.Controllers
             {
                 vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).Include(m => m.GameMap).ToListAsync();
             }
+            vm.News = await _context.News.OrderByDescending(n => n.Date).FirstOrDefaultAsync();
             return View(vm);
         }
 

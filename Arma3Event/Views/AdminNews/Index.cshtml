@@ -1,0 +1,50 @@
+﻿@model IEnumerable<Arma3Event.Entities.News>
+
+@{
+    ViewData["Title"] = "Annonces";
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Créer une annonce</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.NewsID">@Html.DisplayFor(modelItem => item.Title)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.NewsID" class="btn btn-sm btn-secondary">Détails</a>
+                    <a asp-action="Edit" asp-route-id="@item.NewsID" class="btn btn-sm btn-secondary">Modifier</a>
+                    <a asp-action="Delete" asp-route-id="@item.NewsID" class="btn btn-sm btn-danger">Supprimer</a>
+            </tr>
+        }
+    </tbody>
+</table>

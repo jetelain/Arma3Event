@@ -10,5 +10,6 @@ namespace Arma3Event.Models
     {
         public List<Match> Matchs { get; internal set; }
         public User User { get; internal set; }
+        public News News { get; internal set; }
     }
 }

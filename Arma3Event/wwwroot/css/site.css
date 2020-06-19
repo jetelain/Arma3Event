@@ -264,3 +264,11 @@ img.mil-icon {
         display: none;
     }
 }
+
+.newsbar .newsbar-heading {
+    text-decoration: none;
+    margin-right: 10px;
+    padding-right: 10px;
+    border-right: 1px solid #ccc;
+    color: #ccc;
+}

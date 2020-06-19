@@ -4,6 +4,7 @@ using System.Linq;
 using Arma3Event.Arma3GameInfos;
 using ArmaEvent.Arma3GameInfos;
 using Microsoft.EntityFrameworkCore;
+using Arma3Event.Entities;
 
 namespace Arma3Event.Entities
 {
@@ -52,6 +53,8 @@ namespace Arma3Event.Entities
             var userLogin = modelBuilder.Entity<UserLogin>().ToTable("UserLogin");
             userLogin.HasIndex(p => p.Login).IsUnique();
             userLogin.HasIndex(p => p.UserID).IsUnique();
+
+            modelBuilder.Entity<News>().ToTable("News");
         }
 
         internal void InitBaseData()
@@ -78,6 +81,8 @@ namespace Arma3Event.Entities
                 SaveChanges();
             }
         }
+
+        public DbSet<Arma3Event.Entities.News> News { get; set; }
 
     }
 }
