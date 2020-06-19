@@ -1,0 +1,56 @@
+﻿@model IEnumerable<Arma3Event.Entities.News>
+
+
+@{
+    ViewData["Title"] = "Annonces";
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+
+
+
+@foreach (var item in Model)
+{
+<div class="card mb-2">
+
+    @*@if (item.Match != null)
+    {
+        <a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.Match.MatchID">
+            <img src="@(item.Match.Image ?? "http://game.pmad.net/img/banner/opex2.jpg")" class="card-img-top" alt="@item.Match.Name" />
+        </a>
+    }
+    else
+    {
+        <img src="~/img/banner.jpg" class="card-img-top" alt="PLANOPS" />
+    }*@
+
+    <div class="card-body newscard">
+
+        <h5 class="card-title"><a asp-action="Details" asp-route-id="@item.NewsID">@Html.DisplayFor(modelItem => item.Title)</a></h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+            @if (item.Match != null)
+            {
+                <a class="text-muted" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@item.Match.MatchID">@item.Match.Name</a>
+            }
+            else
+            {
+                @: PLANOPS
+            }
+            - Annonce du @Html.DisplayFor(modelItem => item.Date)
+        </h6>
+        <div class="newscontent">
+            @Html.Raw(item.Content)
+        </div>
+    </div>
+</div>
+    }
+

@@ -272,3 +272,12 @@ img.mil-icon {
     border-right: 1px solid #ccc;
     color: #ccc;
 }
+
+
+.newscard p:last-of-type {
+    margin-bottom:0px;
+}
+
+.newscontent a {
+    text-decoration: underline;
+}

@@ -474,6 +474,7 @@ namespace Arma3Event.Controllers
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
+                .Include(m => m.News)
                 .FirstOrDefaultAsync(m => m.MatchID == id);
             if (match == null)
             {

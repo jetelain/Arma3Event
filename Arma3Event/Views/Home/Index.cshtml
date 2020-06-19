@@ -41,8 +41,8 @@
 @if (Model.News != null)
 {
     <div class="newsbar alert alert-primary" role="alert">
-        <a class="newsbar-heading" href="#">Annonces</a>
-        <a class="newsbar-title" href="#">@Model.News.Title</a>
+        <a class="newsbar-heading" asp-controller="@ControllersName.News" asp-action="Index">Annonces</a>
+        <a class="newsbar-title" asp-controller="@ControllersName.News" asp-action="Details" asp-route-id="@Model.News.NewsID">@Model.News.Title</a>
     </div>
 }
 

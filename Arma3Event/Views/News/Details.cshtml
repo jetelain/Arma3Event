@@ -1,0 +1,69 @@
+﻿@model Arma3Event.Models.NewsDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.News.Title;
+    if (Model.News.Match != null && !string.IsNullOrEmpty(Model.News.Match.Image))
+    {
+        ViewData["TitleStyle"] = $"background-image: url({Model.News.Match.Image});";
+    }
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            @if (Model.News.Match != null)
+            {
+                <li class="breadcrumb-item"><a asp-controller="@ControllersName.Events" asp-action="Index">Opérations</a></li>
+                <li class="breadcrumb-item"><a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.News.Match.MatchID">@Model.News.Match.Name</a></li>
+            }
+            else
+            {
+                <li class="breadcrumb-item"><a asp-action="Index">Annonces</a></li>
+            }
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title {
+    @if (Model.News.Match != null)
+    {
+        <h1><span>@Model.News.Match.Name</span></h1>
+    }
+    else
+    {
+        <h1><span>PLANOPS</span></h1>
+    }
+}
+
+<h2>@Html.DisplayFor(modelItem => Model.News.Title)</h2>
+
+<p class="mb-2 text-muted">
+    @if (Model.News.Match != null)
+    {
+        <a class="text-muted" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.News.Match.MatchID">@Model.News.Match.Name</a>
+    }
+    else
+    {
+        @: PLANOPS
+    }
+    - Annonce du @Html.DisplayFor(modelItem => Model.News.Date)
+</p>
+<div class="newscontent mb-5">
+    @Html.Raw(Model.News.Content)
+</div>
+
+<div class="btn-toolbar justify-content-between" role="toolbar">
+    <div class="btn-group">
+        @if (Model.Previous != null)
+        {
+            <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.Previous.NewsID" title="@Model.Previous.Title"><i class="fas fa-chevron-left"></i> Annonce précédente</a>
+        }
+    </div>
+    <div class="btn-group">
+        @if (Model.Next != null)
+        {
+            <a class="btn btn-secondary align-self-end" asp-action="Details" asp-route-id="@Model.Next.NewsID" title="@Model.Next.Title">Annonce suivante <i class="fas fa-chevron-right"></i></a>
+        }
+    </div>
+</div>

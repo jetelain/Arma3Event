@@ -20,7 +20,6 @@
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
 
-
 @{await Html.RenderPartialAsync("_SubscriptionStatus", new ViewDataDictionary(ViewData) { { "Page", "Subscription" } });}
 
 <dl class="row">

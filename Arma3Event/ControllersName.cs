@@ -24,5 +24,6 @@ namespace Arma3Event
         public static readonly string Users = Name<Controllers.UsersController>();
         public static readonly string AdminUsers = Name<Controllers.AdminUsersController>();
         public static readonly string AdminNews = Name<Controllers.AdminNewsController>();
+        public static readonly string News = Name<Controllers.NewsController>();
     }
 }
