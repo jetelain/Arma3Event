@@ -39,9 +39,8 @@
         Communication vocale
     </dt>
     <dd class="col-sm-10">
-        <a asp-action="VoipSystem" asp-route-id="@Model.Match.MatchTechnicalInfos.VoipSystem" class="lnk">
-            @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.VoipSystem)
-            <i class="fas fa-question-circle" title="Afficher le guide d'installation et d'utilisation"></i>
+        <a asp-action="VoipSystem" asp-route-id="@Model.Match.MatchTechnicalInfos.VoipSystem" class="btn btn-sm btn-secondary">
+            <i class="fas fa-microphone"></i> @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.VoipSystem) : Guide d'installation et d'utilisation
         </a>
     </dd>
 
@@ -99,6 +98,7 @@
         </dt>
         <dd class="col-sm-10">
             <a class="btn btn-secondary btn-sm" asp-action="DownloadModPack" asp-route-id="@Model.Match.MatchID">
+                <i class="fas fa-cubes"></i>
                 Télécharger le modpack
                 <span class="badge badge-primary">
                     @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.ModsCount)
