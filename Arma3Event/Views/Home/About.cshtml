@@ -1,0 +1,19 @@
+﻿@model List<Arma3Event.Entities.ContentBlock>
+
+@{
+    ViewData["Title"] = "A propos";
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+@foreach (var item in Model)
+{
+    <div class="card mb-2">
+        <div class="card-body newscard">
+            <h2 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h2>
+            <div class="newscontent">
+                @Html.Raw(item.Content)
+            </div>
+        </div>
+    </div>
+}

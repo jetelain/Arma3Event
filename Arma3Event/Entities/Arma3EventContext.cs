@@ -29,6 +29,7 @@ namespace Arma3Event.Entities
         public DbSet<MatchTechnicalInfos> MatchTechnicalInfos { get; set; }
         public DbSet<UserLogin> UserLogins { get; set; }
 
+        public DbSet<ContentBlock> ContentBlocks { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("User");
@@ -55,6 +56,7 @@ namespace Arma3Event.Entities
             userLogin.HasIndex(p => p.UserID).IsUnique();
 
             modelBuilder.Entity<News>().ToTable("News");
+            modelBuilder.Entity<ContentBlock>().ToTable("ContentBlock");
         }
 
         internal void InitBaseData()

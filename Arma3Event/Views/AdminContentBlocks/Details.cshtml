@@ -1,0 +1,48 @@
+﻿@model Arma3Event.Entities.ContentBlock
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Contenu</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Kind)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Kind)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.OrderNum)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.OrderNum)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Content)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(Model.Content)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.ContentBlockID">Modifier</a>
+</div>

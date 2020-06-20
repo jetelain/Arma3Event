@@ -48,6 +48,11 @@ namespace Arma3Event.Controllers
             return View();
         }
 
+        public async Task<IActionResult> About()
+        {
+            return View(await _context.ContentBlocks.Where(b => b.Kind == ContentBlockKind.AboutPage).OrderBy(n => n.OrderNum).ToListAsync());
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
