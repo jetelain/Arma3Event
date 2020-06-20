@@ -14,11 +14,11 @@
     <dd class="col-sm-10 mb-2">
         @if (!string.IsNullOrEmpty(Model.Match.DiscordLink))
         {
-            <a href="@Model.Match.DiscordLink" target="_blank" class="mr-4"><i class="fab fa-discord"></i> Discord</a>
+            <a href="@Model.Match.DiscordLink" target="_blank" class="mr-4 lnk"><i class="fab fa-discord"></i> Discord</a>
         }
         @if (!string.IsNullOrEmpty(Model.Match.RulesLink))
         {
-            <a href="@Model.Match.RulesLink" target="_blank" class="mr-4"><i class="fas fa-balance-scale"></i> Réglement</a>
+            <a href="@Model.Match.RulesLink" target="_blank" class="mr-4 lnk"><i class="fas fa-balance-scale"></i> Réglement</a>
         }
     </dd>
 }
@@ -39,9 +39,9 @@
         Communication vocale
     </dt>
     <dd class="col-sm-10">
-        <a asp-action="VoipSystem" asp-route-id="@Model.Match.MatchTechnicalInfos.VoipSystem">
+        <a asp-action="VoipSystem" asp-route-id="@Model.Match.MatchTechnicalInfos.VoipSystem" class="lnk">
             @Html.DisplayFor(model => model.Match.MatchTechnicalInfos.VoipSystem)
-            <i class="fas fa-question-circle"></i>
+            <i class="fas fa-question-circle" title="Afficher le guide d'installation et d'utilisation"></i>
         </a>
     </dd>
 
