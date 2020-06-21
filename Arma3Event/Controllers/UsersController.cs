@@ -56,7 +56,11 @@ namespace Arma3Event.Controllers
                 ViewBag.IsSelf = true;
                 ViewBag.UsePassword = await _context.UserLogins.AnyAsync(l => l.UserID == self.UserID);
             }
-
+            else
+            {
+                ViewBag.IsSelf = false;
+                ViewBag.UsePassword = false;
+            }
             return View(user);
         }
 
