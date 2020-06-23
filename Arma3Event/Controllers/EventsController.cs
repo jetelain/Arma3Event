@@ -59,6 +59,10 @@ namespace Arma3Event.Controllers
             var user = await GetUser();
             if (user == null)
             {
+                if (match.State != MatchState.Open)
+                {
+                    return RedirectToAction(nameof(Details), new { id });
+                }
                 return View("SubscriptionInitial", new SubscriptionInitialViewModel()
                 {
                     Match = match,
@@ -70,6 +74,10 @@ namespace Arma3Event.Controllers
             var matchUser = match.Users.FirstOrDefault(u => u.UserID == user.UserID);
             if (matchUser == null)
             {
+                if (match.State != MatchState.Open)
+                {
+                    return RedirectToAction(nameof(Details), new { id });
+                }
                 return View("SubscriptionInitial", new SubscriptionInitialViewModel()
                 {
                     Match = match,
@@ -140,6 +148,10 @@ namespace Arma3Event.Controllers
             if (match == null)
             {
                 return NotFound();
+            }
+            if (match.State != MatchState.Open)
+            {
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             if (!vm.AcceptMatchRules)

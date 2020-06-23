@@ -24,7 +24,7 @@
                 <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID">Voir le brief</a>
             }
         }
-        else
+        else if (Model.Match.State == Arma3Event.Entities.MatchState.Open)
         {
             <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">S'inscrire</a>
         }

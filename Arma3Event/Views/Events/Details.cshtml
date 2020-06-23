@@ -25,7 +25,13 @@
 {
     await Html.RenderPartialAsync("_SubscriptionStatus", new ViewDataDictionary(ViewData) { { "Page", "Event" } });
 }
-
+else if (Model.Match.State != Arma3Event.Entities.MatchState.Open)
+{
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Inscriptions terminées</h4>
+        <p>Si vous êtes inscrit, <a asp-controller="@ControllersName.Authentication" asp-action="SignIn">connectez vous</a> pour accéder à l'ensemble des informations de l'opération.</p>
+    </div>
+}
 <div>
     @Html.Raw(Model.Match.Description)
 </div>
@@ -87,9 +93,13 @@ else
                                 <span class="text-muted">Aller dans votre inscription pour changer de coté.</span>
                             }
                         }
-                        else if ((side.Users?.Count() ?? 0) >= side.MaxUsersCount)
+                        else if (Model.Match.State != Arma3Event.Entities.MatchState.Open)
                         {
-                            <a class="btn btn-secondary" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">S'inscrire et rejoindre @side.Name</a>
+                        <p class="text-center text-muted">Les inscriptions sont terminées.</p>
+                    }
+                    else if ((side.Users?.Count() ?? 0) >= side.MaxUsersCount)
+                    {
+                        <a class="btn btn-secondary" asp-action="Subscription" asp-route-id="@Model.Match.MatchID">S'inscrire et rejoindre @side.Name</a>
                         <p class="text-center text-muted">Nombre maximum d'inscrits atteint, vous pouvez tout de même vous inscrire en liste d'attente.</p>
                     }
                     else
