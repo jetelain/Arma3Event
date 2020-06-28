@@ -29,6 +29,7 @@ namespace Arma3Event
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient();
             services.AddControllersWithViews();
             services.AddSignalR();
 
@@ -50,9 +51,15 @@ namespace Arma3Event
             services.AddAuthorization(options =>
             {
                 var admins = Configuration.GetSection("Admins").Get<string[]>();
+                var videoSpecialists = Configuration.GetSection("VideoSpecialists").Get<string[]>() ?? new string[0];
+
                 options.AddPolicy("Admin", policy => policy.RequireClaim(
                     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
                     admins.ToArray()
+                    ));
+                options.AddPolicy("VideoSpecialist", policy => policy.RequireClaim(
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                    admins.Concat(videoSpecialists).ToArray()
                     ));
                 options.AddPolicy("LoggedUser", policy => policy.RequireClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
             }); 

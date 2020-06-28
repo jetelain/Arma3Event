@@ -58,6 +58,7 @@ namespace Arma3Event.Entities
         public List<MatchSide> Sides { get; set; }
         public List<MatchUser> Users { get; set; }
         public List<News> News { get; set; }
+        public List<Video> Videos { get; set; }
 
         [Display(Name = "Carte")]
         public int? GameMapID { get; set; }

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AngleSharp.Html;
 using Arma3Event.Arma3GameInfos;
 using Arma3Event.Entities;
 using Arma3Event.Hubs;
@@ -14,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace Arma3Event.Controllers
 {
@@ -486,12 +483,13 @@ namespace Arma3Event.Controllers
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
-                .Include(m => m.News)
                 .FirstOrDefaultAsync(m => m.MatchID == id);
             if (match == null)
             {
                 return NotFound();
             }
+            match.News = await _context.News.Where(v => v.MatchID == id).OrderByDescending(v => v.Date).Take(1).ToListAsync();
+            match.Videos = await _context.Videos.Where(v => v.MatchID == id).OrderBy(v => v.Date).ToListAsync();
             var vm = new EventDetailsViewModel();
             vm.Match = match;
             vm.User = await GetUser();

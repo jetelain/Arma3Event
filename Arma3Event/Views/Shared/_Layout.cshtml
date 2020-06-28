@@ -1,6 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService AuthorizationService
-
+@{ 
+    var isAdmin = (await AuthorizationService.AuthorizeAsync(User, "Admin")).Succeeded;
+    var isVideoSpecialist = (await AuthorizationService.AuthorizeAsync(User, "VideoSpecialist")).Succeeded;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,6 +41,9 @@
                             <a class="nav-link" asp-area="" asp-controller="@ControllersName.News" asp-action="Index">Annonces</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="@ControllersName.Videos" asp-action="Index">Vidéos</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="@ControllersName.Home" asp-action="About">A propos</a>
                         </li>
                         @if (User?.Identity?.IsAuthenticated ?? false)
@@ -46,19 +52,23 @@
                                 <a class="nav-link" asp-area="" asp-controller="@ControllersName.Users" asp-action="Index">@User.Identity.Name</a>
                             </li>
                         }
-                        @if ((await AuthorizationService.AuthorizeAsync(User, "Admin")).Succeeded)
+                        @if (isVideoSpecialist || isAdmin)
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" asp-area="" asp-controller="@ControllersName.Home" asp-action="Index" id="configDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Administration
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="configDropdownMenu">
-                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Opérations</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminGameMaps" asp-action="Index">Maps</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminFactions" asp-action="Index">Armées et factions</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminUsers" asp-action="Index">Utilisateurs</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminNews" asp-action="Index">Annonces</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminContentBlocks" asp-action="Index">Contenu</a>
+                                    @if (isAdmin)
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminMatchs" asp-action="Index">Opérations</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminGameMaps" asp-action="Index">Maps</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminFactions" asp-action="Index">Armées et factions</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminUsers" asp-action="Index">Utilisateurs</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminNews" asp-action="Index">Annonces</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminContentBlocks" asp-action="Index">Contenu</a>
+                                    }
+                                    <a class="dropdown-item" asp-area="" asp-controller="@ControllersName.AdminVideos" asp-action="Index">Vidéos</a>
                                 </div>
                             </li>
                         }

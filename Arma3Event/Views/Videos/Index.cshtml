@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Arma3Event.Entities.Video>
+
+@{
+    ViewData["Title"] = "Vidéos";
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<div class="row row-cols-1 row-cols-md-3 mb-4">
+    @foreach (var video in Model)
+    {
+        <div class="col mb-4">
+            <div class="card h-100">
+                <a href="@video.VideoLink">
+                    <img src="@video.Image" class="card-img-top" alt="" />
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title"><a href="@video.VideoLink">@video.Title</a></h5>
+                    @if (video.Match != null)
+                    {
+                        <p class="card-text"><a asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@video.MatchID">@video.Match.Name</a></p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

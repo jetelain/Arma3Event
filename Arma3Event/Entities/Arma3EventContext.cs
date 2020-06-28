@@ -30,6 +30,8 @@ namespace Arma3Event.Entities
         public DbSet<UserLogin> UserLogins { get; set; }
 
         public DbSet<ContentBlock> ContentBlocks { get; set; }
+        public DbSet<Video> Videos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("User");
@@ -57,6 +59,7 @@ namespace Arma3Event.Entities
 
             modelBuilder.Entity<News>().ToTable("News");
             modelBuilder.Entity<ContentBlock>().ToTable("ContentBlock");
+            modelBuilder.Entity<Video>().ToTable("Video");
         }
 
         internal void InitBaseData()

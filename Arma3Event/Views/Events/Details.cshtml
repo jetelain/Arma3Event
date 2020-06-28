@@ -14,7 +14,7 @@
 
 @if (Model.Match.News.Any())
 {
-    var news = Model.Match.News.OrderByDescending(n => n.Date).First();
+    var news = Model.Match.News.First();
     <div class="newsbar alert alert-primary" role="alert">
         <a class="newsbar-heading" asp-controller="@ControllersName.News" asp-action="Index" asp-route-matchID="@Model.Match.MatchID">Annonces</a>
         <a class="newsbar-title" asp-controller="@ControllersName.News" asp-action="Details" asp-route-id="@news.NewsID">@news.Title</a>
@@ -40,10 +40,27 @@ else if (Model.Match.State != Arma3Event.Entities.MatchState.Open)
     @{await Html.RenderPartialAsync("_MatchEssentialInfos");}
 </dl>
 
+@if (Model.Match.Videos.Any())
+{
+    <div class="row row-cols-1 row-cols-md-3 mb-4">
+        @foreach (var video in Model.Match.Videos)
+        {
+            <div class="col mb-4">
+                <div class="card h-100">
+                    <a href="@video.VideoLink">
+                        <img src="@video.Image" class="card-img-top" alt="" />
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="@video.VideoLink">@video.Title</a></h5>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
 @if (Model.MatchUser != null && Model.MatchUser.Side == null)
 {
-
-
     <form asp-action="SubscriptionSide" asp-route-id="@Model.Match.MatchID">
         <div>
             <div class="row mb-4">
