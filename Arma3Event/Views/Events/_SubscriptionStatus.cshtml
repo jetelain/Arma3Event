@@ -92,7 +92,7 @@
                 }
                 @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos?.GameServerAddress))
                 {
-                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID" href="#infos">
+                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID" asp-fragment="infos">
                         <i class="fas fa-server"></i> Voir le serveur
                     </a>
                 }

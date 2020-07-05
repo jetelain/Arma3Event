@@ -51,7 +51,7 @@ namespace Arma3Event.Controllers
 
             var self = await UserHelper.GetUser(_context, User);
 
-            if (self.UserID == user.UserID)
+            if (self?.UserID == user.UserID)
             {
                 ViewBag.IsSelf = true;
                 ViewBag.UsePassword = await _context.UserLogins.AnyAsync(l => l.UserID == self.UserID);
