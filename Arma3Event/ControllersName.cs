@@ -28,5 +28,6 @@ namespace Arma3Event
         public static readonly string AdminContentBlocks = Name<Controllers.AdminContentBlocksController>();
         public static readonly string AdminVideos = Name<Controllers.AdminVideosController>();
         public static readonly string Videos = Name<Controllers.VideosController>();
+        public static readonly string AdminDocuments = Name<Controllers.AdminDocumentsController>();
     }
 }

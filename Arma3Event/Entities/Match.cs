@@ -79,5 +79,8 @@ namespace Arma3Event.Entities
 
         [Display(Name = "Lien vers le Mission Brief")]
         public string MissionBriefLink { get; set; }
+
+        public List<Document> Documents { get; set; }
+
     }
 }

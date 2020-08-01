@@ -31,6 +31,7 @@ namespace Arma3Event.Entities
 
         public DbSet<ContentBlock> ContentBlocks { get; set; }
         public DbSet<Video> Videos { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +61,7 @@ namespace Arma3Event.Entities
             modelBuilder.Entity<News>().ToTable("News");
             modelBuilder.Entity<ContentBlock>().ToTable("ContentBlock");
             modelBuilder.Entity<Video>().ToTable("Video");
+            modelBuilder.Entity<Document>().ToTable("Document");
         }
 
         internal void InitBaseData()
@@ -83,6 +85,17 @@ namespace Arma3Event.Entities
                 Maps.Add(new GameMap() { Name = "Linovia", Image = "/img/maps/linovia.jpg" });
                 Maps.Add(new GameMap() { Name = "Taunus", Image = "/img/maps/x-cam-taunus.jpg", WebMap = "taunus", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=836147398" });
                 Maps.Add(new GameMap() { Name = "Lythium", Image = "/img/maps/lythium.jpg", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=909547724" });
+                SaveChanges();
+            }
+            var oldMissionBrief = Matchs.Where(m => !string.IsNullOrEmpty(m.MissionBriefLink)).ToList();
+            if (oldMissionBrief.Any())
+            {
+                foreach (var match in oldMissionBrief)
+                {
+                    Documents.Add(new Document() { Date = DateTime.Now, MatchID = match.MatchID, Link = match.MissionBriefLink, Type = DocumentType.MissionBrief, Title = "Mission brief" });
+                    match.MissionBriefLink = null;
+                    Update(match);
+                }
                 SaveChanges();
             }
         }

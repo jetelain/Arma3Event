@@ -62,11 +62,28 @@
                     <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" asp-fragment="map" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
                 }
 
-                @if (!string.IsNullOrEmpty(Model.Match.MissionBriefLink))
+                @if (Model.Match.Documents.Any())
                 {
-                    <a class="btn btn-secondary" href="@Model.Match.MissionBriefLink" target="_blank">
-                        <i class="fas fa-file"></i> Voir le Mission brief
-                    </a>
+                    if(Model.Match.Documents.Count == 1)
+                    {
+                        <a class="btn btn-secondary" href="@Model.Match.Documents.First().Link" target="_blank">
+                            <i class="fas fa-file"></i> Voir le Mission brief
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-file"></i> Voir le Mission brief
+                            </button>
+                            <span class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                @foreach (var document in Model.Match.Documents)
+                                {
+                                    <a class="dropdown-item" href="@document.Link" target="_blank">@document.Title</a>
+                                }
+                            </span>
+                        </span>
+                    }
                 }
                 else
                 {

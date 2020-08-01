@@ -52,6 +52,7 @@ namespace Arma3Event.Controllers
             {
                 return NotFound();
             }
+            match.Documents = await _context.Documents.Where(v => v.MatchID == id).OrderBy(v => v.Date).ToListAsync();
 
             var user = await GetUser();
             if (user == null)
@@ -490,6 +491,7 @@ namespace Arma3Event.Controllers
             }
             match.News = await _context.News.Where(v => v.MatchID == id).OrderByDescending(v => v.Date).Take(1).ToListAsync();
             match.Videos = await _context.Videos.Where(v => v.MatchID == id).OrderBy(v => v.Date).ToListAsync();
+            match.Documents = await _context.Documents.Where(v => v.MatchID == id).OrderBy(v => v.Date).ToListAsync();
             var vm = new EventDetailsViewModel();
             vm.Match = match;
             vm.User = await GetUser();

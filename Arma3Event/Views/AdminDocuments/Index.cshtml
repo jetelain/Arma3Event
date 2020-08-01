@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Arma3Event.Entities.Document>
+
+@{
+    ViewData["Title"] = "Documents";
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Ajouer un document</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Match)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Match.Name)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.DocumentID" class="btn btn-sm btn-secondary">Détails</a>
+                    <a asp-action="Edit" asp-route-id="@item.DocumentID" class="btn btn-sm btn-secondary">Modifier</a>
+                    <a asp-action="Delete" asp-route-id="@item.DocumentID" class="btn btn-sm btn-danger">Supprimer</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
