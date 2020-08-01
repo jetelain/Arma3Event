@@ -190,30 +190,39 @@
                     @Html.DisplayFor(_ => item.WeaponHand.Name) @Html.DisplayFor(_ => item.WeaponHand.Mag)
                 </td>
                 <td>
-                    @Html.DisplayFor(_ => item.Uniform.Name)
-                    <ul>
-                        @foreach (var entry in item.Uniform.Items)
-                        {
-                            <li>@entry.Count @entry.Name</li>
-                        } 
-                    </ul>
-                    @Html.DisplayFor(_ => item.Vest.Name)
-                    <ul>
-                        @foreach (var entry in item.Vest.Items)
-                        {
-                            <li>@entry.Count @entry.Name</li>
-                        }
-                    </ul>
+                    @if (item.Uniform != null)
+                    {
+                        @Html.DisplayFor(_ => item.Uniform.Name)
+                        <ul>
+                            @foreach (var entry in item.Uniform.Items)
+                            {
+                                <li>@entry.Count @entry.Name</li>
+                            } 
+                        </ul>
+                    }
+                    @if (item.Vest != null)
+                    {
+                        @Html.DisplayFor(_ => item.Vest.Name)
+                        <ul>
+                            @foreach (var entry in item.Vest.Items)
+                            {
+                                <li>@entry.Count @entry.Name</li>
+                            }
+                        </ul>
+                    }
                     @Html.DisplayFor(_ => item.Helmet)
                 </td>
                 <td>
-                    @Html.DisplayFor(_ => item.Backpack.Name)
-                    <ul>
-                        @foreach (var entry in item.Backpack.Items)
-                        {
-                            <li>@entry.Count @entry.Name</li>
-                        }
-                    </ul>
+                    @if (item.Backpack != null)
+                    {
+                        @Html.DisplayFor(_ => item.Backpack.Name)
+                        <ul>
+                            @foreach (var entry in item.Backpack.Items)
+                            {
+                                <li>@entry.Count @entry.Name</li>
+                            }
+                        </ul>
+                    }
                 </td>
             </tr>
         }
