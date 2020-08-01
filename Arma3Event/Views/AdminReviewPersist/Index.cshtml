@@ -1,0 +1,60 @@
+﻿@model AdminReviewPersistViewModel
+
+@{
+    ViewData["Title"] = "Administration";
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Opération
+            </th>
+            <th>
+                Sauvegarde
+            </th>
+            <th>
+                Serveur
+            </th>
+            <th>
+                Dernier enregistrement
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var backup in Model.Backups)
+        {
+            @foreach (var match in Model.Matchs)
+            {
+        <tr>
+            <td>
+                @match.Name
+            </td>
+            <td>
+                @backup.Name
+            </td>
+            <td>
+                @backup.Server
+            </td>
+            <td>
+                @backup.LastChange
+            </td>
+            <td>
+                <a class="btn btn-secondary" asp-action="Details" asp-route-id="@match.MatchID" asp-route-backupName="@backup.Name" asp-route-server="@backup.Server">Détails</a>
+            </td>
+        </tr>
+            }
+        }
+        </tbody>
+</table>

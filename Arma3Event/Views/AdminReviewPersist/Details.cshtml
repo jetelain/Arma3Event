@@ -1,0 +1,306 @@
+﻿@model AdminReviewPersistDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Match.Name;
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+
+<p>Sauvegarde du <em>@Model.Backup.LastChange</em>. </p>
+
+<p>La sauvegarde est effectuée lorsque le dernier personnel se déconnecte. Pour forcer une sauvegarde, se connecter en administrateur sur le serveur arma avec <code>#login</code> et lancer la commande <code>#persist save</code>.</p>
+
+<h2>Carte des objets sauvegardés</h2>
+
+<div class="map" id="map" style="width:100%; height:70vh; margin:0;padding:0;border:0;">
+</div>
+
+<h2 class="mt-3">Personnels équipés</h2>
+
+<div>
+    @foreach (var round in Model.Match.Rounds)
+    {
+        @if (Model.Match.Rounds.Count > 1)
+        {
+            <div class="title" style="@ViewHelper.Style(Model.Match.GameMap)">
+                <a name="round-@round.RoundID"></a>
+                <p>
+                    <span>
+                        Carte # @round.Number
+                    </span>
+                </p>
+                <h2>
+                    <span>@(Model.Match.GameMap?.Name ?? "Destination inconnue")</span>
+                </h2>
+            </div>
+        }
+
+        <div class="row">
+            @foreach (var side in round.Sides)
+            {
+                var sideReady = side.Squads.SelectMany(s => s.Slots).Where(s => s.AssignedUser != null).Count(s => Model.Backup.Players.Any(p => p.SteamId == s.AssignedUser.User.SteamId));
+                var sideTotal = side.Squads.SelectMany(s => s.Slots).Where(s => s.AssignedUser != null).Count();
+                var sidePercent = sideReady * 100 / sideTotal;
+
+                <div class="@ViewHelper.SideColClass(round.Sides)">
+
+                    @if (round.Sides.Count > 1)
+                    {
+                        <h4 class="text-center">
+                            @side.MatchSide.Name
+                        </h4>
+                    }
+
+                    <div class="progress mb-1" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @sidePercent%;" aria-valuenow="@sidePercent" aria-valuemin="0" aria-valuemax="100">@sidePercent% équipés</div>
+                    </div>
+
+                    <div class="accordion mb-4" id="squads-@side.RoundSideID">
+                        @foreach (var squad in side.Squads)
+                        {
+                            var squadReady = squad.Slots.Where(s => s.AssignedUser != null).Count(s => Model.Backup.Players.Any(p => p.SteamId == s.AssignedUser.User.SteamId));
+                            var squadTotal = squad.Slots.Where(s => s.AssignedUser != null).Count();
+                            var hasLabels = squad.Slots.Any(s => !string.IsNullOrEmpty(s.Label));
+
+                            @if (squadTotal > 0)
+                            {
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
+                                                <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
+
+                                                @if (squadReady != squadTotal)
+                                                {
+                                                    if (squadReady == 0)
+                                                    {
+                                                        <span class="badge badge-danger">Aucun équipés</span>
+                                                    }
+                                                    else if (squadTotal != 0)
+                                                    {
+                                                        <span class="badge badge-warning">@(squadReady * 100 / squadTotal)% équipés</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-success">Tous équipés</span>
+                                                }
+                                            </button>
+                                        </h5>
+                                    </div>
+
+                                    <div id="squad-@squad.RoundSquadID" class="collapse" aria-labelledby="squad-name-@squad.RoundSquadID" data-parent="#squads-@side.RoundSideID">
+                                        <div class="card-body p-0">
+
+                                            <table class="table m-0">
+                                                <colgroup>
+                                                    <col width="80" />
+                                                    @if (hasLabels)
+                                                    {
+                                                        if (round.Sides.Count == 1)
+                                                        {
+                                                            <col width="300" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <col width="150" />
+                                                        }
+                                                    }
+                                                </colgroup>
+                                                @foreach (var slot in squad.Slots)
+                                                {
+                                                    <tr>
+                                                        <td class="pl-4"><span class="badge badge-secondary @slot.Role">@Html.DisplayFor(m => slot.Role)</span></td>
+                                                        @if (hasLabels)
+                                                        {
+                                                            <td>@Html.DisplayFor(m => slot.Label)</td>
+                                                        }
+                                                        <td>
+                                                            @if (slot.AssignedUser != null)
+                                                            {
+                                                                <a asp-controller="@ControllersName.Users" asp-action="Details" asp-route-id="@slot.AssignedUser.UserID">@Html.DisplayFor(m => slot.AssignedUser.User.Name)</a>
+
+                                                                @if (Model.Backup.Players.Any(p => p.SteamId == slot.AssignedUser.User.SteamId))
+                                                                {
+                                                                    <a class="badge badge-success" href="#backup-personnel-@slot.AssignedUser.User.SteamId">Equipement préparé</a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge badge-danger">Equipement non préparé</span>
+                                                                }
+
+                                                            }
+
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<h2>Détails des personnels sauvegardés</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Personnel, Position
+            </th>
+            <th>
+                Armes
+            </th>
+            <th>
+                Treillis, Gilet, Casque
+            </th>
+            <th>
+                Sac à dos
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Backup.Players)
+        {
+            var user = Model.Match.Users.FirstOrDefault(u => u.User.SteamId == item.SteamId);
+            <tr id="backup-personnel-@item.SteamId">
+                <td>
+                    @Html.DisplayFor(_ => user.User.Name) <br />
+                    @item.Position.X - @item.Position.Y
+                </td>
+                <td>
+                    @Html.DisplayFor(_ => item.WeaponPrimary.Name) @Html.DisplayFor(_ => item.WeaponPrimary.Mag)<br />
+                    @Html.DisplayFor(_ => item.WeaponLauncher.Name) @Html.DisplayFor(_ => item.WeaponLauncher.Mag)<br />
+                    @Html.DisplayFor(_ => item.WeaponHand.Name) @Html.DisplayFor(_ => item.WeaponHand.Mag)
+                </td>
+                <td>
+                    @Html.DisplayFor(_ => item.Uniform.Name)
+                    <ul>
+                        @foreach (var entry in item.Uniform.Items)
+                        {
+                            <li>@entry.Count @entry.Name</li>
+                        } 
+                    </ul>
+                    @Html.DisplayFor(_ => item.Vest.Name)
+                    <ul>
+                        @foreach (var entry in item.Vest.Items)
+                        {
+                            <li>@entry.Count @entry.Name</li>
+                        }
+                    </ul>
+                    @Html.DisplayFor(_ => item.Helmet)
+                </td>
+                <td>
+                    @Html.DisplayFor(_ => item.Backpack.Name)
+                    <ul>
+                        @foreach (var entry in item.Backpack.Items)
+                        {
+                            <li>@entry.Count @entry.Name</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<h2>Véhicules sauvegardés</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Type
+            </th>
+            <th>
+                Position
+            </th>
+            <th>
+                Azimuth
+            </th>
+            <th>
+                Contenu
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Backup.Vehicles)
+        {
+            <tr id="backup-vehicle-@item.VehicleId">
+                <td>
+                    @Html.DisplayFor(_ => item.Name)
+                </td>
+                <td>
+                    @item.Position.X - @item.Position.Y
+                </td>
+                <td>
+                    @item.Direction°
+                </td>
+                <td>
+                    <ul>
+                        @foreach (var entry in item.Items)
+                        {
+                            <li>@entry.Count @entry.Name</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css" />
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin="">
+    </script>
+    <script src="https://unpkg.com/milsymbol@2.0.0/dist/milsymbol.js">
+    </script>
+    <script src="https://unpkg.com/milstd@0.1.6/milstd.js">
+    </script>
+    <script src="https://unpkg.com/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <script src="https://jetelain.github.io/Arma3Map/js/mapUtils.js">
+    </script>
+    <script src="https://jetelain.github.io/Arma3Map/maps/@(Model.Match.GameMap.WebMap).js">
+    </script>
+    <script src="~/js/persistMap.js">
+    </script>
+    <script>
+        var mapInfos = Arma3Map.Maps.@(Model.Match.GameMap.WebMap);
+        mapInfos.tilePattern = 'https://jetelain.github.io/Arma3Map' + mapInfos.tilePattern;
+        var allData = @Json.Serialize(new {
+                     Players = Model.Backup.Players.Select( p => new {
+                         SteamId = p.SteamId,
+                         Name = Model.Match.Users.Select(u => u.User).FirstOrDefault(u => u.SteamId == p.SteamId)?.Name,
+                         Position = p.Position
+                     }),
+                     Vehicles = Model.Backup.Vehicles.Select(p => new
+                     {
+                         Name = p.Name,
+                         Position = p.Position,
+                         VehicleId = p.VehicleId
+                     })
+                 });
+
+
+        InitMap(mapInfos, allData);
+    </script>
+}
