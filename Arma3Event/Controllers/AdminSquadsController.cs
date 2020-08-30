@@ -169,7 +169,7 @@ namespace Arma3Event.Controllers
             {
                 Squad = roundSquad
             };
-            vm.Squad.Slots = vm.Squad.Slots.Concat(Enumerable.Range(vm.Squad.Slots.Count, Constants.BaselineSquadMembers - vm.Squad.Slots.Count).Select(num => new RoundSlot() { SlotNumber = num })).ToList();
+            vm.Squad.Slots = vm.Squad.Slots.OrderBy(s => s.SlotNumber).Concat(Enumerable.Range(vm.Squad.Slots.Count, Constants.BaselineSquadMembers - vm.Squad.Slots.Count).Select(num => new RoundSlot() { SlotNumber = num })).ToList();
             EnsurePolicy(vm.Squad);
 
             await PrepareDrowndownList(vm);

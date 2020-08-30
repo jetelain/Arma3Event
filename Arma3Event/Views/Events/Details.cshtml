@@ -206,7 +206,7 @@ else
                                                         }
                                                     }
                                                 </colgroup>
-                                                @foreach (var slot in squad.Slots)
+                                                @foreach (var slot in squad.Slots.OrderBy(s => s.SlotNumber))
                                                 {
                                                     <tr>
                                                         <td class="pl-4"><span class="badge badge-secondary @slot.Role">@Html.DisplayFor(m => slot.Role)</span></td>
