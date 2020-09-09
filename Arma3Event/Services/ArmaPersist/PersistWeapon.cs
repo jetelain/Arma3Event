@@ -4,6 +4,11 @@ namespace Arma3Event.Services.ArmaPersist
 {
     public class PersistWeapon
     {
+        public PersistWeapon()
+        {
+
+        }
+
         private PersistWeapon(List<object> list)
         {
             Name = (string)list[0];
@@ -23,7 +28,7 @@ namespace Arma3Event.Services.ArmaPersist
             return null;
         }
 
-        public string Name { get; }
-        public string Mag { get; }
+        public string Name { get; set; }
+        public string Mag { get; set; }
     }
 }

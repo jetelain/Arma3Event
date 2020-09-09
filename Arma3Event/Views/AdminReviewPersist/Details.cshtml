@@ -1,4 +1,5 @@
 ﻿@model AdminReviewPersistDetailsViewModel
+@using Arma3Event.Services.ArmaPersist 
 
 @{
     ViewData["Title"] = Model.Match.Name;
@@ -76,7 +77,7 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <h5 class="mb-0">
-                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
+                                            <button class="btn btn-link w-75 text-left" type="button" data-toggle="collapse" data-target="#squad-@squad.RoundSquadID" aria-expanded="true" aria-controls="squad-@squad.RoundSquadID">
                                                 <span class="badge badge-dark">@Html.DisplayFor(model => squad.UniqueDesignation)</span> @Html.DisplayFor(model => squad.Name)
 
                                                 @if (squadReady != squadTotal)
@@ -95,6 +96,11 @@
                                                     <span class="badge badge-success">Tous équipés</span>
                                                 }
                                             </button>
+
+                                            <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.Events" asp-action="ReviewEquipement" asp-route-id="@Model.Match.MatchID" asp-route-roundSquadID="@squad.RoundSquadID">
+                                                <i class="fas fa-search"></i> Vue du chef de groupe
+                                            </a>
+
                                         </h5>
                                     </div>
 
@@ -185,41 +191,41 @@
                     @item.Position.X - @item.Position.Y
                 </td>
                 <td>
-                    @Html.DisplayFor(_ => item.WeaponPrimary.Name) @Html.DisplayFor(_ => item.WeaponPrimary.Mag)<br />
-                    @Html.DisplayFor(_ => item.WeaponLauncher.Name) @Html.DisplayFor(_ => item.WeaponLauncher.Mag)<br />
-                    @Html.DisplayFor(_ => item.WeaponHand.Name) @Html.DisplayFor(_ => item.WeaponHand.Mag)
+                    @ItemLabelHelper.GetLabel(item.WeaponPrimary?.Name) @ItemLabelHelper.GetLabel(item.WeaponPrimary?.Mag, ", ")<br />
+                    @ItemLabelHelper.GetLabel(item.WeaponLauncher?.Name) @ItemLabelHelper.GetLabel(item.WeaponLauncher?.Mag, ", ")<br />
+                    @ItemLabelHelper.GetLabel(item.WeaponHand?.Name) @ItemLabelHelper.GetLabel(item.WeaponHand?.Mag, ", ")
                 </td>
                 <td>
                     @if (item.Uniform != null)
                     {
-                        @Html.DisplayFor(_ => item.Uniform.Name)
+                        @ItemLabelHelper.GetLabel(item.Uniform.Name)
                         <ul>
                             @foreach (var entry in item.Uniform.Items)
                             {
-                                <li>@entry.Count @entry.Name</li>
-                            } 
+                                <li>@entry.Count @ItemLabelHelper.GetLabel(entry.Name)</li>
+                            }
                         </ul>
                     }
                     @if (item.Vest != null)
                     {
-                        @Html.DisplayFor(_ => item.Vest.Name)
+                        @ItemLabelHelper.GetLabel(item.Vest.Name)
                         <ul>
                             @foreach (var entry in item.Vest.Items)
                             {
-                                <li>@entry.Count @entry.Name</li>
+                                <li>@entry.Count @ItemLabelHelper.GetLabel(entry.Name)</li>
                             }
                         </ul>
                     }
-                    @Html.DisplayFor(_ => item.Helmet)
+                    @ItemLabelHelper.GetLabel(item.Helmet)
                 </td>
                 <td>
                     @if (item.Backpack != null)
                     {
-                        @Html.DisplayFor(_ => item.Backpack.Name)
+                        @ItemLabelHelper.GetLabel(item.Backpack.Name)
                         <ul>
                             @foreach (var entry in item.Backpack.Items)
                             {
-                                <li>@entry.Count @entry.Name</li>
+                                <li>@entry.Count @ItemLabelHelper.GetLabel(entry.Name)</li>
                             }
                         </ul>
                     }

@@ -4,6 +4,11 @@ namespace Arma3Event.Services.ArmaPersist
 {
     public class PersistVehicle
     {
+        public PersistVehicle()
+        {
+
+        }
+
         public PersistVehicle(List<object> vehicleData, int id)
         {
             VehicleId = id;
@@ -14,11 +19,11 @@ namespace Arma3Event.Services.ArmaPersist
             this.Items = PersistItem.LoadFromCargo((List<object>)vehicleData[4]);
         }
 
-        public int VehicleId { get; }
-        public string Name { get; }
-        public bool IsAlive { get; }
-        public PersistPosition Position { get; }
-        public float Direction { get; }
-        public List<PersistItem> Items { get; }
+        public int VehicleId { get; set; }
+        public string Name { get; set; }
+        public bool IsAlive { get; set; }
+        public PersistPosition Position { get; set; }
+        public float Direction { get; set; }
+        public List<PersistItem> Items { get; set; }
     }
 }

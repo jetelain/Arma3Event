@@ -4,6 +4,10 @@ namespace Arma3Event.Services.ArmaPersist
 {
     public class PersistItemInventory
     {
+        public PersistItemInventory()
+        {
+        }
+
         private PersistItemInventory(List<object> list)
         {
             Name = (string)list[0];
@@ -19,7 +23,7 @@ namespace Arma3Event.Services.ArmaPersist
             return null;
         }
 
-        public string Name { get; }
-        public List<PersistItem> Items { get; }
+        public string Name { get; set; }
+        public List<PersistItem> Items { get; set; }
     }
 }

@@ -4,6 +4,11 @@ namespace Arma3Event.Services.ArmaPersist
 {
     public class PersistPlayer
     {
+        public PersistPlayer()
+        {
+
+        }
+
         public PersistPlayer(List<object> playerData)
         {
             this.SteamId = (string)playerData[0];
@@ -20,17 +25,17 @@ namespace Arma3Event.Services.ArmaPersist
             Helmet = (string)loadout[6];
         }
 
-        public string SteamId { get; }
-        public PersistPosition Position { get; }
-        public float VehicleId { get; }
+        public string SteamId { get; set; }
+        public PersistPosition Position { get; set; }
+        public float VehicleId { get; set; }
 
-        public PersistWeapon WeaponPrimary { get; }
-        public PersistWeapon WeaponLauncher { get; }
-        public PersistWeapon WeaponHand { get; }
-        public PersistItemInventory Uniform { get; }
-        public PersistItemInventory Vest { get; }
-        public PersistItemInventory Backpack { get; }
-        public string Helmet { get; }
+        public PersistWeapon WeaponPrimary { get; set; }
+        public PersistWeapon WeaponLauncher { get; set; }
+        public PersistWeapon WeaponHand { get; set; }
+        public PersistItemInventory Uniform { get; set; }
+        public PersistItemInventory Vest { get; set; }
+        public PersistItemInventory Backpack { get; set; }
+        public string Helmet { get; set; }
 
         /*
 [

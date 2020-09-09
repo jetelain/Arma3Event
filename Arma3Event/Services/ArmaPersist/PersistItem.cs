@@ -7,19 +7,37 @@ namespace Arma3Event.Services.ArmaPersist
 {
     public class PersistItem
     {
+        public PersistItem()
+        {
+        }
+
         public PersistItem(string name, float count)
         {
             Name = name;
             Count = count;
         }
+        public PersistItem(List<object> def)
+        {
+            var first = def[0] as List<object>;
+            if (first != null)
+            {
+                Name = (string)first[0];
+                Count = (float)def[1];
+            }
+            else
+            {
+                Name = (string)def[0];
+                Count = (float)def[1];
+            }
+        }
 
-        public float Count { get; }
+        public float Count { get; set; }
 
-        public string Name { get; }
+        public string Name { get; set; }
 
         internal static List<PersistItem> Load(List<object> list)
         {
-            return list.Select(item => new PersistItem((string)((List<object>)item)[0], (float)((List<object>)item)[1])).ToList();
+            return list.Select(item => new PersistItem((List<object>)item)).ToList();
         }
 
         internal static List<PersistItem> LoadFromCargo(List<object> cargo)

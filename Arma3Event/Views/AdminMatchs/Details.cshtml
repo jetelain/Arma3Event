@@ -15,6 +15,12 @@
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
 
+<p>
+    <a class="btn btn-secondary" asp-controller="AdminReviewPersist" asp-action="Match" asp-route-id="@Model.MatchID">
+        <i class="fas fa-search"></i> Passer en revue l'équipement
+    </a>
+</p>
+
 <div>
     <h3>Informations générales</h3>
     <hr />
@@ -74,46 +80,46 @@
     }
     else
     {
-<dl class="row">
-    <dt class="col-sm-2">
-        Serveur de jeu
-    </dt>
-    <dd class="col-sm-10">
-        @Model.MatchTechnicalInfos.GameServerAddress:@Model.MatchTechnicalInfos.GameServerPort
-    </dd>
-    <dt class="col-sm-2">
-        Communication vocale
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.MatchTechnicalInfos.VoipSystem)
-    </dd>
-    <dt class="col-sm-2">
-        Serveur TeamSpeak
-    </dt>
-    <dd class="col-sm-10">
-        @Model.MatchTechnicalInfos.VoipServerAddress:@Model.MatchTechnicalInfos.VoipServerPort
-    </dd>
-    <dt class="col-sm-2">
-        Mods
-    </dt>
-    <dd class="col-sm-10">
-        <a class="btn btn-secondary btn-sm" asp-action="PreviewModPack" asp-route-id="@Model.MatchID">
-            Aperçu du modpack
-            <span class="badge badge-primary">
-                @Html.DisplayFor(model => model.MatchTechnicalInfos.ModsCount)
-            </span>
-        </a>
-    </dd>
-    @if (Model.MatchTechnicalInfos.HoursBeforeRevealPasswords != null)
-    {
-    <dt class="col-sm-2">
-        Accès
-    </dt>
-    <dd class="col-sm-10">
-        Les mots de passe sont révélés aux participants <strong>@Model.MatchTechnicalInfos.HoursBeforeRevealPasswords</strong> heures avant le début
-    </dd>
-    }
-</dl>
+        <dl class="row">
+            <dt class="col-sm-2">
+                Serveur de jeu
+            </dt>
+            <dd class="col-sm-10">
+                @Model.MatchTechnicalInfos.GameServerAddress:@Model.MatchTechnicalInfos.GameServerPort
+            </dd>
+            <dt class="col-sm-2">
+                Communication vocale
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.MatchTechnicalInfos.VoipSystem)
+            </dd>
+            <dt class="col-sm-2">
+                Serveur TeamSpeak
+            </dt>
+            <dd class="col-sm-10">
+                @Model.MatchTechnicalInfos.VoipServerAddress:@Model.MatchTechnicalInfos.VoipServerPort
+            </dd>
+            <dt class="col-sm-2">
+                Mods
+            </dt>
+            <dd class="col-sm-10">
+                <a class="btn btn-secondary btn-sm" asp-action="PreviewModPack" asp-route-id="@Model.MatchID">
+                    Aperçu du modpack
+                    <span class="badge badge-primary">
+                        @Html.DisplayFor(model => model.MatchTechnicalInfos.ModsCount)
+                    </span>
+                </a>
+            </dd>
+            @if (Model.MatchTechnicalInfos.HoursBeforeRevealPasswords != null)
+            {
+                <dt class="col-sm-2">
+                    Accès
+                </dt>
+                <dd class="col-sm-10">
+                    Les mots de passe sont révélés aux participants <strong>@Model.MatchTechnicalInfos.HoursBeforeRevealPasswords</strong> heures avant le début
+                </dd>
+            }
+        </dl>
         <p>
             <a asp-controller="AdminMatchTechnicalInfos" asp-action="Edit" asp-route-id="@Model.MatchTechnicalInfos.MatchTechnicalInfosID" class="btn btn-sm btn-secondary">Modifier les informations techniques</a>
         </p>
@@ -134,7 +140,7 @@
 <div>
     @foreach (var round in Model.Rounds)
     {
-    <h3><a name="round-@round.RoundID"></a>Manche #@round.Number</h3>
+        <h3><a name="round-@round.RoundID"></a>Manche #@round.Number</h3>
         <hr />
 
         <div class="row" style="margin-bottom:2em;">
@@ -152,18 +158,18 @@
                         </div>
                         @if (side.MatchSide.SquadsPolicy != Arma3Event.Entities.SquadsPolicy.Unrestricted)
                         {
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dupliquer depuis une autre opération</button>
-                            <div class="dropdown-menu">
-                                @foreach (Arma3Event.Entities.RoundSide otherRoundSide in ViewBag.DuplicableRoundSides)
-                                {
-                                    <a class="dropdown-item" asp-action="DuplicateFromOther" 
-                                       asp-route-id="@Model.MatchID" 
-                                       asp-route-roundSideID="@side.RoundSideID"
-                                       asp-route-otherRoundSideID="@otherRoundSide.RoundSideID">@otherRoundSide.MatchSide.Match.Name - @otherRoundSide.MatchSide.Name</a>
-                                }
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dupliquer depuis une autre opération</button>
+                                <div class="dropdown-menu">
+                                    @foreach (Arma3Event.Entities.RoundSide otherRoundSide in ViewBag.DuplicableRoundSides)
+                                    {
+                                        <a class="dropdown-item" asp-action="DuplicateFromOther"
+                                           asp-route-id="@Model.MatchID"
+                                           asp-route-roundSideID="@side.RoundSideID"
+                                           asp-route-otherRoundSideID="@otherRoundSide.RoundSideID">@otherRoundSide.MatchSide.Match.Name - @otherRoundSide.MatchSide.Name</a>
+                                    }
+                                </div>
                             </div>
-                        </div>
                         }
                     </div>
                     <table class="table">
@@ -221,41 +227,41 @@
                     <tbody>
                         @foreach (var user in side.Users ?? new List<Arma3Event.Entities.MatchUser>())
                         {
-                        <tr>
-                            <td>
-                                <a asp-controller="@ControllersName.AdminMatchUsers" asp-action="Details" asp-route-id="@user.MatchUserID">
-                                    @user.User.Name
-                                </a>
-                            </td>
-                            @foreach (var round in Model.Rounds)
-                            {
-                                var slot = user.Slots.FirstOrDefault(s => s.Squad.Side.RoundID == round.RoundID);
+                            <tr>
+                                <td>
+                                    <a asp-controller="@ControllersName.AdminMatchUsers" asp-action="Details" asp-route-id="@user.MatchUserID">
+                                        @user.User.Name
+                                    </a>
+                                </td>
+                                @foreach (var round in Model.Rounds)
+                                {
+                                    var slot = user.Slots.FirstOrDefault(s => s.Squad.Side.RoundID == round.RoundID);
 
-                                if (slot == null)
-                                {
-                                    <td>(non assigné)</td>
+                                    if (slot == null)
+                                    {
+                                        <td>(non assigné)</td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            <a asp-controller="@ControllersName.AdminSquads" asp-action="Details" asp-route-id="@slot.Squad.RoundSquadID" title="@slot.Squad.Name" class="badge badge-dark">@slot.Squad.UniqueDesignation</a>
+                                            <span class="badge badge-secondary @slot.Role">@Html.DisplayFor(m => slot.Role)</span>
+                                            @slot.Label
+                                        </td>
+                                    }
                                 }
-                                else
-                                {
-                                    <td>
-                                        <a asp-controller="@ControllersName.AdminSquads" asp-action="Details" asp-route-id="@slot.Squad.RoundSquadID" title="@slot.Squad.Name" class="badge badge-dark">@slot.Squad.UniqueDesignation</a>
-                                        <span class="badge badge-secondary @slot.Role">@Html.DisplayFor(m => slot.Role)</span>
-                                        @slot.Label
-                                    </td>
-                                }
-                            }
-                        <td>
-                            <form asp-action="ApproveSlots" asp-route-id="@Model.MatchID" asp-route-matchUserID="@user.MatchUserID">
-                                <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.AdminMatchUsers" asp-action="Edit" asp-route-id="@user.MatchUserID">
-                                    Modifier
-                                </a>
-                                @if(!user.Slots.Any(s => s.IsValidated))
-                                {
-                                    <button class="btn btn-sm btn-success">Valider l'inscription</button>
-                                }
-                            </form>
-                            </td>
-                        </tr>
+                                <td>
+                                    <form asp-action="ApproveSlots" asp-route-id="@Model.MatchID" asp-route-matchUserID="@user.MatchUserID">
+                                        <a class="btn btn-sm btn-secondary" asp-controller="@ControllersName.AdminMatchUsers" asp-action="Edit" asp-route-id="@user.MatchUserID">
+                                            Modifier
+                                        </a>
+                                        @if (!user.Slots.Any(s => s.IsValidated))
+                                        {
+                                            <button class="btn btn-sm btn-success">Valider l'inscription</button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>

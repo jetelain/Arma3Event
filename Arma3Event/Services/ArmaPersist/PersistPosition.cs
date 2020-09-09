@@ -4,6 +4,11 @@ namespace Arma3Event.Services.ArmaPersist
 {
     public class PersistPosition
     {
+        public PersistPosition()
+        {
+
+        }
+
         public float X { get; set; }
 
         public float Y { get; set; }

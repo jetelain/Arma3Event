@@ -1,0 +1,148 @@
+﻿@using Arma3Event.Services.ArmaPersist
+@model ReviewEquipementViewModel
+
+@{
+    ViewData["Title"] = Model.Match.Name;
+    if (!string.IsNullOrEmpty(Model.Match.Image))
+    {
+        ViewData["TitleStyle"] = $"background-image: url({Model.Match.Image});";
+    }
+}
+
+@section NavBar  {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Opérations</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Match.MatchID">@Model.Match.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Squad.Name</li>
+        </ol>
+    </nav>
+}
+
+@section Title { <h1><span>@ViewData["Title"]</span></h1> }
+
+
+@if (Model.Backup == null)
+{
+    <p>Les données ne sont pas encore disponibles. Lorsque vous aurez préparé votre équipement sur le serveur de jeu, vous pourrez passer en revue ici l'équipement des membres de votre groupe.</p>
+}
+else
+{
+    var sideReady = Model.Squad.Slots.Where(s => s.AssignedUser != null).Count(s => Model.Backup.Players.Any(p => p.SteamId == s.AssignedUser.User.SteamId));
+    var sideTotal = Model.Squad.Slots.Where(s => s.AssignedUser != null).Count();
+    var sidePercent = sideReady * 100 / sideTotal;
+
+
+    <p>Sauvegarde du <em>@Model.Backup.LastChange</em>. Vous pouvez contacter un administrateur pour obtenir une sauvegarde plus récente.</p>
+
+    <div class="progress mb-2 mt-2" style="height: 25px;">
+        <div class="progress-bar bg-success text-white" role="progressbar" style="width: @sidePercent%;" aria-valuenow="@sidePercent" aria-valuemin="0" aria-valuemax="100">@sidePercent% équipés</div>
+    </div>
+
+    <h2>Détails des personnels</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Personnel
+                </th>
+                <th>
+                    Armes
+                </th>
+                <th>
+                    Treillis, Gilet, Casque
+                </th>
+                <th>
+                    Sac à dos
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var slot in Model.Squad.Slots.OrderBy(s => s.SlotNumber))
+            {
+                var user = slot.AssignedUser;
+
+                if (user == null)
+                {
+                    <tr>
+                        <td>
+                            @slot.Label
+                        </td>
+                        <td colspan="3">
+                            (non assigné)
+                        </td>
+                    </tr>
+                }
+                else
+                {
+
+                    var item = Model.Backup.Players.FirstOrDefault(p => user.User.SteamId == p.SteamId);
+
+                    if (item == null)
+                    {
+                        <tr>
+                            <td>
+                                @slot.Label<br />
+                                @Html.DisplayFor(_ => user.User.Name)
+                            </td>
+                            <td colspan="3">
+                                (non équipé)
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+
+                        <tr>
+                            <td>
+                                @slot.Label<br />
+                                @Html.DisplayFor(_ => user.User.Name)
+                            </td>
+                            <td>
+                                @ItemLabelHelper.GetLabel(item.WeaponPrimary?.Name) @ItemLabelHelper.GetLabel(item.WeaponPrimary?.Mag, ", ")<br />
+                                @ItemLabelHelper.GetLabel(item.WeaponLauncher?.Name) @ItemLabelHelper.GetLabel(item.WeaponLauncher?.Mag, ", ")<br />
+                                @ItemLabelHelper.GetLabel(item.WeaponHand?.Name) @ItemLabelHelper.GetLabel(item.WeaponHand?.Mag, ", ")
+                            </td>
+                            <td>
+                                @if (item.Uniform != null)
+                                {
+                                    @ItemLabelHelper.GetLabel(item.Uniform.Name)
+                                    <ul>
+                                        @foreach (var entry in item.Uniform.Items)
+                                        {
+                                            <li>@entry.Count @ItemLabelHelper.GetLabel(entry.Name)</li>
+                                        }
+                                    </ul>
+                                }
+                                @if (item.Vest != null)
+                                {
+                                    @ItemLabelHelper.GetLabel(item.Vest.Name)
+                                    <ul>
+                                        @foreach (var entry in item.Vest.Items)
+                                        {
+                                            <li>@entry.Count @ItemLabelHelper.GetLabel(entry.Name)</li>
+                                        }
+                                    </ul>
+                                }
+                                @ItemLabelHelper.GetLabel(item.Helmet)
+                            </td>
+                            <td>
+                                @if (item.Backpack != null)
+                                {
+                                    @ItemLabelHelper.GetLabel(item.Backpack.Name)
+                                    <ul>
+                                        @foreach (var entry in item.Backpack.Items)
+                                        {
+                                            <li>@entry.Count @ItemLabelHelper.GetLabel(entry.Name)</li>
+                                        }
+                                    </ul>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+}

@@ -120,6 +120,14 @@
                     </a>
                 }
             </p>
+            @if (!string.IsNullOrEmpty(Model.Match.MatchTechnicalInfos?.ModsDefinition) && Model.MatchUser.Slots.Any(s => s.Role >= Arma3Event.Entities.Role.SquadLeader))
+            {
+                <p>
+                    <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="ReviewEquipement" asp-route-id="@Model.Match.MatchID">
+                        <i class="fas fa-search"></i> Passer en revue l'équipement du groupe
+                    </a>
+                </p>
+            }
         }
     }
 </div>

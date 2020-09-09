@@ -10,6 +10,10 @@ namespace Arma3Event.Services.ArmaPersist
 {
     public class PersistBackup
     {
+        public PersistBackup()
+        {
+        }
+
         public PersistBackup (string name, DateTime dt, string server)
         {
             this.Name = name;
@@ -17,12 +21,12 @@ namespace Arma3Event.Services.ArmaPersist
             this.Server = server;
         }
 
-        public List<PersistPlayer> Players { get; } = new List<PersistPlayer>();
-        public List<PersistVehicle> Vehicles { get; } = new List<PersistVehicle>();
+        public List<PersistPlayer> Players { get; set; } = new List<PersistPlayer>();
+        public List<PersistVehicle> Vehicles { get; set; } = new List<PersistVehicle>();
 
-        public string Name { get; }
-        public DateTime LastChange { get; }
-        public string Server { get; }
+        public string Name { get; set; }
+        public DateTime LastChange { get; set; }
+        public string Server { get; set; }
 
         public static List<PersistBackup> Read(Stream stream, DateTime dt, string server)
         {

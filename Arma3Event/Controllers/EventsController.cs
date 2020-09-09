@@ -7,6 +7,7 @@ using Arma3Event.Arma3GameInfos;
 using Arma3Event.Entities;
 using Arma3Event.Hubs;
 using Arma3Event.Models;
+using Arma3Event.Services.ArmaPersist;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,17 +20,81 @@ namespace Arma3Event.Controllers
     {
         private readonly Arma3EventContext _context;
         private readonly IAuthorizationService _auth;
+        private readonly PersistService _persist;
 
-        public EventsController(Arma3EventContext context, IAuthorizationService auth)
+        public EventsController(Arma3EventContext context, IAuthorizationService auth, PersistService persist)
         {
             _context = context;
             _auth = auth;
+            _persist = persist;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Matchs.Include(m => m.Rounds).ToListAsync());
+        }
+
+        [Authorize(Policy = "LoggedUser")]
+        [HttpGet]
+        public async Task<IActionResult> ReviewEquipement(int id, int? roundSquadID)
+        {
+            var user = await GetUser();
+            if (user == null)
+            {
+                return Forbid();
+            }
+
+            var match = await _context.Matchs
+                .Include(m => m.Sides)
+                .Include(m => m.GameMap)
+                .Include(m => m.MatchTechnicalInfos)
+                .Include(m => m.Users).ThenInclude(u => u.User)
+                .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
+                .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
+                .FirstOrDefaultAsync(m => m.MatchID == id);
+            if (match == null)
+            {
+                return NotFound();
+            }
+
+            var matchUser = match.Users.FirstOrDefault(u => u.UserID == user.UserID);
+            if (matchUser == null)
+            {
+                return Forbid();
+            }
+
+            var squads = match.Rounds.SelectMany(r => r.Sides).SelectMany(s => s.Squads);
+
+            RoundSquad squad;
+            if (roundSquadID == null)
+            {
+                squad = squads.First(s => s.Slots.Any(s => s.AssignedUser == matchUser && s.Role >= Role.SquadLeader));
+                if ( squad == null )
+                {
+                    return Forbid();
+                }
+            }
+            else
+            {
+                if (!(await _auth.AuthorizeAsync(User, "Admin")).Succeeded)
+                {
+                    return Forbid();
+                }
+                squad = match.Rounds.SelectMany(r => r.Sides).SelectMany(s => s.Squads).FirstOrDefault(s => s.RoundSquadID == roundSquadID);
+                if (squad == null)
+                {
+                    return NotFound();
+                }
+            }
+
+            var backup = _persist.GetBackups().FirstOrDefault();
+
+            var vm = new ReviewEquipementViewModel();
+            vm.Match = match;
+            vm.Squad = squad;
+            vm.Backup = backup;
+            return View(vm);
         }
 
         [Authorize(Policy = "LoggedUser")]
