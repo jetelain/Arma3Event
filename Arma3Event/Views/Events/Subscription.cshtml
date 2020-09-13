@@ -20,6 +20,11 @@
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
 
+@if (Model.Match.State == Arma3Event.Entities.MatchState.Over)
+{
+    await Html.RenderPartialAsync("_OverMatch");
+}
+
 @{await Html.RenderPartialAsync("_SubscriptionStatus", new ViewDataDictionary(ViewData) { { "Page", "Subscription" } });}
 
 <dl class="row">

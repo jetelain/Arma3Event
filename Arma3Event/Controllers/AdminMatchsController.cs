@@ -561,7 +561,10 @@ gtd_map_allMetisMarkers = [];
   _x params ['_id', '_x', '_y', '_sideid', '_dashed', '_icon', '_mod1', '_mod2', '_size', '_designation'];
   private _marker = [[_x,_y], 0, true, [_sideid, _dashed], [_icon, _mod1, _mod2], [_size, false, false], [], _designation] call mts_markers_fnc_createMarker;
   gtd_map_allMetisMarkers pushBack _marker;
-} forEach _metis;";
+} forEach _metis;
+
+publicVariable 'gtd_map_allMarkers';
+publicVariable 'gtd_map_allMetisMarkers';";
             return Content(script);
         }
 

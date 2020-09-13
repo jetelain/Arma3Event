@@ -21,6 +21,11 @@
     </div>
 }
 
+@if (Model.Match.State == Arma3Event.Entities.MatchState.Over)
+{
+    await Html.RenderPartialAsync("_OverMatch");
+}
+
 @if (Model.MatchUser != null)
 {
     await Html.RenderPartialAsync("_SubscriptionStatus", new ViewDataDictionary(ViewData) { { "Page", "Event" } });

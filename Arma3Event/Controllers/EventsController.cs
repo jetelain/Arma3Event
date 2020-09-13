@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,6 +34,21 @@ namespace Arma3Event.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.Matchs.Include(m => m.Rounds).ToListAsync());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> NextMatch()
+        {
+            var maxDate = DateTime.Today;
+
+            var id = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Select(m => (int?)m.MatchID).FirstOrDefaultAsync();
+
+            if ( id == null )
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         [Authorize(Policy = "LoggedUser")]

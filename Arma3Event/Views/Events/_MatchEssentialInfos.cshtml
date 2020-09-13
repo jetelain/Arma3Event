@@ -31,7 +31,7 @@
 
 
 
-@if (Model.Match.MatchTechnicalInfos != null && Model.MatchUser != null && Model.MatchUser.Slots.Any(s => s.IsValidated))
+@if (Model.Match.MatchTechnicalInfos != null && Model.MatchUser != null && Model.MatchUser.Slots.Any(s => s.IsValidated) && Model.Match.State < Arma3Event.Entities.MatchState.Over)
 {
     var reveal = Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords == null || Model.Match.StartDate.Subtract(DateTime.Now).TotalHours < Model.Match.MatchTechnicalInfos.HoursBeforeRevealPasswords;
     
