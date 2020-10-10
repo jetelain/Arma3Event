@@ -175,7 +175,7 @@ else
                             <p><a asp-action="Map" asp-route-id="@round.MatchID" asp-route-roundId="@round.RoundID" asp-fragment="map" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
                         }
                         <div class="accordion mb-4" id="squads-@side.RoundSideID">
-                            @foreach (var squad in side.Squads)
+                            @foreach (var squad in side.Squads.OrderBy(s => s.UniqueDesignation))
                             {
                                 var hasLabels = squad.Slots.Any(s => !string.IsNullOrEmpty(s.Label));
                                 var freeSlots = squad.Slots.Count(s => s.AssignedUser == null);
@@ -241,7 +241,7 @@ else
                     else
                     {
                         <div class="accordion  mb-4" id="squads-@side.RoundSideID">
-                            @foreach (var squad in side.Squads)
+                            @foreach (var squad in side.Squads.OrderBy(s => s.UniqueDesignation))
                             {
                                 <div class="card">
                                     <div class="card-header" id="squad-name-@squad.RoundSquadID">

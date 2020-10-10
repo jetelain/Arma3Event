@@ -189,7 +189,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var squad in side.Squads)
+                            @foreach (var squad in side.Squads.OrderBy(s => s.UniqueDesignation))
                             {
                                 <tr>
                                     <td><a class="badge badge-dark" asp-controller="@ControllersName.AdminSquads" asp-action="Details" asp-route-id="@squad.RoundSquadID">@Html.DisplayFor(model => squad.UniqueDesignation)</a></td>

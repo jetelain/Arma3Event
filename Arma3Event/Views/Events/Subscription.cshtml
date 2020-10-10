@@ -114,7 +114,7 @@ else
         <div class="row mb-4 justify-content-md-center">
             <form class="col-lg-6" asp-action="SubscriptionSlot" asp-route-id="@Model.Match.MatchID">
                 <div class="accordion" id="squads-@side.RoundSideID">
-                    @foreach (var squad in side.Squads)
+                    @foreach (var squad in side.Squads.OrderBy(s => s.UniqueDesignation))
                     {
                         var hasLabels = squad.Slots.Any(s => !string.IsNullOrEmpty(s.Label));
                         var freeSlots = squad.Slots.Count(s => s.AssignedUser == null);

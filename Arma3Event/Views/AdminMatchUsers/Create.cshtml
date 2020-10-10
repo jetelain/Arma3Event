@@ -44,7 +44,7 @@
                         <option value="">(Aucun)</option>
                         @foreach (var side in round.Round.Sides)
                         {
-                            @foreach (var squad in side.Squads)
+                            @foreach (var squad in side.Squads.OrderBy(s => s.UniqueDesignation))
                             {
                                 <optgroup label="@squad.Name" data-side="@side.MatchSideID">
                                     @foreach (var slot in squad.Slots)
