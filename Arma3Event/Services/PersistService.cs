@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Arma3ServerToolbox.ArmaPersist;
 using Microsoft.Extensions.Configuration;
 using Renci.SshNet;
 
-namespace Arma3Event.Services.ArmaPersist
+namespace Arma3Event.Services
 {
     public class PersistService
     {
@@ -17,7 +18,7 @@ namespace Arma3Event.Services.ArmaPersist
             _config = config;
         }
 
-        private static readonly string filePath = "/home/arma3-wpublic/.steam/steamcmd/server/profiles/Users/server/server.vars.Arma3Profile";
+        private static readonly string filePath = "/home/arma3-w/.steam/steamcmd/server/profiles/Users/server/server.vars.Arma3Profile";
 
         public List<PersistBackup> GetBackups()
         {

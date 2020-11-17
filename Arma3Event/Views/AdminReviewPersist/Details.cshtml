@@ -1,5 +1,5 @@
 ﻿@model AdminReviewPersistDetailsViewModel
-@using Arma3Event.Services.ArmaPersist 
+@using Arma3ServerToolbox.ArmaPersist 
 
 @{
     ViewData["Title"] = Model.Match.Name;
@@ -50,7 +50,7 @@
             {
                 var sideReady = side.Squads.SelectMany(s => s.Slots).Where(s => s.AssignedUser != null).Count(s => Model.Backup.Players.Any(p => p.SteamId == s.AssignedUser.User.SteamId));
                 var sideTotal = side.Squads.SelectMany(s => s.Slots).Where(s => s.AssignedUser != null).Count();
-                var sidePercent = sideReady * 100 / sideTotal;
+                var sidePercent = sideTotal > 0 ? sideReady * 100 / sideTotal : 0;
 
                 <div class="@ViewHelper.SideColClass(round.Sides)">
 

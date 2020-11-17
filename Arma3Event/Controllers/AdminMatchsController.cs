@@ -671,15 +671,18 @@ publicVariable 'gtd_map_allMetisMarkers';";
             {
                 case "121100": return 1; // Infantry
                 case "121102": return 2; // Mechanized Infantry
+                case "121103": return 1; // Infantry with Main Gun System
                 case "121104": return 3; // Motorized Infantry
+                case "121105": return 2; // Mechanized Infantry with Main Gun System
                 case "120500": return 4; // Armor
                 case "120600": return 12; // Rotary Wing
                 case "121000": return 37; // Combined Arms
+                case "150600": return 0; // Intercept
             }
             return 0;
         }
 
-        private bool ToDashed(char i, char v)
+        private bool ToDashed(char i, char v) 
         {
             return v == '1' || i == '5' || i == '2';
         }

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Razor.Language.Intermediate;
 
-namespace Arma3Event.Services.ArmaPersist
+namespace Arma3ServerToolbox.ArmaPersist
 {
     public class PersistItem
     {

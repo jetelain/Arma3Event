@@ -28,6 +28,10 @@
     <Folder Include="wwwroot\img\roles\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Arma3ServerToolbox\Arma3ServerToolbox.csproj" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 

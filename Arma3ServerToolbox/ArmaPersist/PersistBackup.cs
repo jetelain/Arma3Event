@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using AspNet.Security.OpenId.Steam;
 using BIS.Core.Config;
 
-namespace Arma3Event.Services.ArmaPersist
+namespace Arma3ServerToolbox.ArmaPersist
 {
     public class PersistBackup
     {
@@ -70,26 +68,33 @@ namespace Arma3Event.Services.ArmaPersist
             foreach(var entry in content.Entries.OfType<ParamClass>())
             {
                 var entryData = (ParamClass)entry.Entries[0];
-                var type = ((ParamArray)((ParamClass)entryData.Entries[0]).Entries[0]).Array.Entries[0].Value as string;
-                switch(type)
+                if (entryData.Entries[0] is ParamValue)
                 {
-                    case "ARRAY":
-                        result.Add(ToArray(entryData));
-                        break;
-                    case "STRING":
-                        result.Add((string)((ParamValue)entryData.Entries[1]).Value.Value);
-                        break;
-                    case "SCALAR":
-                        result.Add((float)((ParamValue)entryData.Entries[1]).Value.Value);
-                        break;
-                    case "BOOL":
-                        result.Add(((int)((ParamValue)entryData.Entries[1]).Value.Value) != 0);
-                        break;
-                    case "NOTHING":
-                        result.Add(null);
-                        break;
-                    default:
-                        break;
+                    result.Add(null);
+                }
+                else
+                {
+                    var type = ((ParamArray)((ParamClass)entryData.Entries[0]).Entries[0]).Array.Entries[0].Value as string;
+                    switch (type)
+                    {
+                        case "ARRAY":
+                            result.Add(ToArray(entryData));
+                            break;
+                        case "STRING":
+                            result.Add((string)((ParamValue)entryData.Entries[1]).Value.Value);
+                            break;
+                        case "SCALAR":
+                            result.Add((float)((ParamValue)entryData.Entries[1]).Value.Value);
+                            break;
+                        case "BOOL":
+                            result.Add(((int)((ParamValue)entryData.Entries[1]).Value.Value) != 0);
+                            break;
+                        case "NOTHING":
+                            result.Add(null);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             return result;

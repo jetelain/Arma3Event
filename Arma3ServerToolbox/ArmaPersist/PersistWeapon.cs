@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Arma3Event.Services.ArmaPersist
+namespace Arma3ServerToolbox.ArmaPersist
 {
     public class PersistWeapon
     {

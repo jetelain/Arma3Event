@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
 using Arma3Event.Models;
-using Arma3Event.Services.ArmaPersist;
+using Arma3Event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

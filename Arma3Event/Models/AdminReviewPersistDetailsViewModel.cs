@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
-using Arma3Event.Services.ArmaPersist;
+using Arma3ServerToolbox.ArmaPersist;
 
 namespace Arma3Event.Models
 {

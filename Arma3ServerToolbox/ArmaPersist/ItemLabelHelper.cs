@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Arma3Event.Services.ArmaPersist
+namespace Arma3ServerToolbox.ArmaPersist
 {
     public static class ItemLabelHelper
     {

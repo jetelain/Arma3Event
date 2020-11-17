@@ -3,7 +3,8 @@ using System.IO;
 using System.Linq;
 using Arma3Event.Entities;
 using Arma3Event.Hubs;
-using Arma3Event.Services.ArmaPersist;
+using Arma3Event.Services;
+using Arma3ServerToolbox.ArmaPersist;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -86,7 +87,7 @@ namespace Arma3Event
             {
                 app.UseForwardedHeaders(new ForwardedHeadersOptions
                 {
-                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                    ForwardedHeaders = ForwardedHeaders.XForwardedProto
                 });
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
