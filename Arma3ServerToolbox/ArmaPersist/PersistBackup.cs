@@ -20,6 +20,7 @@ namespace Arma3ServerToolbox.ArmaPersist
         }
 
         public List<PersistPlayer> Players { get; set; } = new List<PersistPlayer>();
+        public List<PersistBox> Boxes { get; set; } = new List<PersistBox>();
         public List<PersistVehicle> Vehicles { get; set; } = new List<PersistVehicle>();
 
         public string Name { get; set; }
@@ -42,6 +43,15 @@ namespace Arma3ServerToolbox.ArmaPersist
                     backup.Players.Add(new PersistPlayer(playerData));
                 }
                 int id = 0;
+                foreach (List<object> boxData in (List<object>)backupData[1])
+                {
+                    id++;
+                    if (boxData != null)
+                    {
+                        backup.Boxes.Add(new PersistBox(boxData, id));
+                    }
+                }
+                id = 0;
                 foreach (List<object> vehicleData in (List<object>)backupData[2])
                 {
                     id++;
