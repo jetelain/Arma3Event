@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Arma3Event</AssemblyName>
     <RootNamespace>Arma3Event</RootNamespace>
+    <UserSecretsId>3e1c5d3c-63bc-43bf-9c47-e64a4dd89efb</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -64,7 +64,7 @@
             @if (Model.NextMatch.TacMap != null)
             {
             <a asp-controller="@ControllersName.Events" asp-action="Map" asp-route-id="@Model.NextMatch.MatchID" asp-route-roundID="@Model.NextMatch.Rounds.First().RoundID" asp-fragment="map">
-                <img style="width:100%; height:100%; margin:0; padding:0; border:0; min-height:300px;" src="@Model.NextMatch.TacMap.PreviewHref[512]" />
+                <img style="width:100%;" src="@Model.NextMatch.TacMap.PreviewHref[512]" />
             </a>
             }
             else
