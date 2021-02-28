@@ -27,7 +27,6 @@ namespace Arma3Event.Controllers
             var match = await _context.Matchs
                 .Include(m => m.Sides)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots)
-                .Include(m => m.GameMap)
                 .Include(m => m.Users)
                 .FirstOrDefaultAsync(m => m.MatchID == matchId);
             if (match == null)
@@ -86,7 +85,7 @@ namespace Arma3Event.Controllers
             }
 
             var matchUser = await _context.MatchUsers
-                .Include(m => m.Match).ThenInclude(r => r.GameMap)
+                .Include(m => m.Match)
                 .Include(m => m.Side)
                 .Include(m => m.User)
                 .Include(m => m.Slots).ThenInclude(s => s.Squad).ThenInclude(r => r.Side).ThenInclude(s => s.Round)
@@ -109,7 +108,7 @@ namespace Arma3Event.Controllers
             }
 
             var matchUser = await _context.MatchUsers
-                .Include(m => m.Match).ThenInclude(r => r.GameMap)
+                .Include(m => m.Match)
                 .Include(m => m.Match).ThenInclude(s => s.Rounds)
                 .Include(m => m.Match).ThenInclude(s => s.Rounds).ThenInclude(r => r.Sides).ThenInclude(r => r.Squads).ThenInclude(s => s.Slots)
                 .Include(m => m.Side)

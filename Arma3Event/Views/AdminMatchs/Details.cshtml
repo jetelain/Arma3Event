@@ -15,6 +15,11 @@
 
 @section Title { <h1><span>@ViewData["Title"]</span></h1> }
 
+@if (Model.TacMap == null && !string.IsNullOrEmpty(Model.WorldName))
+{
+    <p class="alert alert-warning" role="alert">Carte momentanément indisponible, maps.plan-ops.fr ne semble pas opérationnel.</p>
+}
+
 <div>
     <h3>Informations générales</h3>
     <hr />
@@ -38,10 +43,10 @@
             @Html.DisplayFor(model => model.StartTime)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.GameMap)
+            @Html.DisplayNameFor(model => model.WorldName)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.GameMap.Name)
+            @Html.DisplayFor(model => model.WorldName)
         </dd>
         <dt class="col-sm-12">
             @Html.DisplayNameFor(model => model.Description)
@@ -56,16 +61,10 @@
     <a class="btn btn-sm btn-secondary" asp-controller="AdminReviewPersist" asp-action="Match" asp-route-id="@Model.MatchID">
         <i class="fas fa-search"></i> Passer en revue l'équipement
     </a>
-    @if (!string.IsNullOrEmpty(Model.GameMap?.WebMap))
+    @if (Model.TacMap != null)
     {
-        <a asp-controller="@ControllersName.Events" asp-action="Map" asp-route-id="@Model.MatchID" asp-fragment="map" class="btn btn-sm btn-secondary">
-            <i class="fas fa-map"></i> Modifier la carte de situation
-        </a>
-        <a asp-action="MapExport" asp-route-id="@Model.MatchID" class="btn btn-sm btn-secondary">
-            Export données carte
-        </a>
-        <a asp-action="MapExportSqf" asp-route-id="@Model.MatchID" class="btn btn-sm btn-secondary">
-            Export script carte
+        <a href="@Model.TacMap.ReadWriteHref" class="btn btn-sm btn-secondary" target="_blank">
+            <i class="fas fa-map"></i> Modifier la carte de situation (sur maps.plan-ops.fr)
         </a>
     }
 </p>

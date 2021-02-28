@@ -32,7 +32,7 @@ namespace Arma3Event.Controllers
             }
 
             var roundSquad = await _context.RoundSquads
-                .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match).ThenInclude(r => r.GameMap)
+                .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match)
                 .Include(r => r.Side).ThenInclude(r => r.Round).ThenInclude(r => r.Match)
                 .Include(r => r.Side).ThenInclude(r => r.Faction)
                 .Include(r => r.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
@@ -75,7 +75,7 @@ namespace Arma3Event.Controllers
         private async Task PrepareViewModel(RoundSquadFormViewModel vm)
         {
             vm.Squad.Side = await _context.RoundSides
-                .Include(r => r.Round).ThenInclude(r => r.Match).ThenInclude(r => r.GameMap)
+                .Include(r => r.Round).ThenInclude(r => r.Match)
                 .Include(r => r.MatchSide).ThenInclude(r => r.Match)
                 .FirstOrDefaultAsync(r => r.RoundSideID == vm.Squad.RoundSideID);
 
@@ -157,7 +157,7 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
             var roundSquad = await _context.RoundSquads
-                .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match).ThenInclude(r => r.GameMap)
+                .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match)
                 .Include(r => r.Side).ThenInclude(r => r.Round).ThenInclude(r => r.Match)
                 .Include(r => r.Slots)
                 .FirstOrDefaultAsync(r => r.RoundSquadID == id);
@@ -347,7 +347,7 @@ namespace Arma3Event.Controllers
             }
 
             var roundSquad = await _context.RoundSquads
-                .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match).ThenInclude(r => r.GameMap)
+                .Include(r => r.Side).ThenInclude(r => r.MatchSide).ThenInclude(r => r.Match)
                 .Include(r => r.Side).ThenInclude(r => r.Round).ThenInclude(r => r.Match)
                 .Include(r => r.Side).ThenInclude(r => r.Faction)
                 .FirstOrDefaultAsync(m => m.RoundSquadID == id);

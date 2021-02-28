@@ -138,7 +138,7 @@ else
 <div>
     @foreach (var round in Model.Match.Rounds)
     {
-        <div class="title" style="@ViewHelper.Style(Model.Match.GameMap)">
+        <div class="title" style="@ViewHelper.Style(Model.Match.MapInfos)">
             <a name="round-@round.RoundID"></a>
             <p>
                 <span>
@@ -150,7 +150,7 @@ else
                 </span>
             </p>
             <h2>
-                <span>@(Model.Match.GameMap?.Name ?? "Destination inconnue")</span>
+                <span>@(Model.Match.MapInfos?.title ?? "Destination inconnue")</span>
             </h2>
         </div>
 
@@ -170,7 +170,7 @@ else
 
                     @if (Model.MatchUser?.Side == side.MatchSide || Model.Match.Sides.Count == 1)
                     {
-                        @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.MatchUser != null)
+                        @if (Model.Match.TacMapId != null && Model.MatchUser != null)
                         {
                             <p><a asp-action="Map" asp-route-id="@round.MatchID" asp-route-roundId="@round.RoundID" asp-fragment="map" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
                         }

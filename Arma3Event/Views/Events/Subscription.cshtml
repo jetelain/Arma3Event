@@ -193,17 +193,17 @@ else
         var userslot = squad.Slots.First(s => s.AssignedUser == Model.MatchUser);
         var hasLabels = squad.Slots.Any(s => !string.IsNullOrEmpty(s.Label));
 
-        <div class="title" style="@ViewHelper.Style(Model.Match.GameMap)">
+        <div class="title" style="@ViewHelper.Style(Model.Match.MapInfos)">
             @if (Model.Match.Rounds.Count > 1)
             {
                 <p><span>Manche #@side.Round.Number</span></p>
             }
-            <h2><span>@(Model.Match.GameMap?.Name ?? "Destination inconnue")</span></h2>
+            <h2><span>@(Model.Match.MapInfos?.title ?? "Destination inconnue")</span></h2>
         </div>
 
         <h4 class="text-center"><img src="@ViewHelper.Icon(side.Faction)" alt="" width="64" /><br />@Html.DisplayFor(m => @side.Faction.Name)</h4>
 
-        @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.Match.Rounds.Count > 1)
+        @if (Model.Match.TacMapId != null && Model.Match.Rounds.Count > 1)
         {
             <p><a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@side.RoundID" asp-fragment="map" class="btn btn-secondary btn-sm"><i class="fas fa-map"></i> Voir la carte partagée</a></p>
         }

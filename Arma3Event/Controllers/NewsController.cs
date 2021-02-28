@@ -23,9 +23,9 @@ namespace Arma3Event.Controllers
         {
             if (matchID != null)
             {
-                return View(await _context.News.Where(n => n.MatchID == matchID).Include(n => n.Match).ThenInclude(m => m.GameMap).OrderByDescending(n => n.Date).ToListAsync());
+                return View(await _context.News.Where(n => n.MatchID == matchID).Include(n => n.Match).OrderByDescending(n => n.Date).ToListAsync());
             }
-            return View(await _context.News.Include(n => n.Match).ThenInclude(m => m.GameMap).OrderByDescending(n => n.Date).ToListAsync());
+            return View(await _context.News.Include(n => n.Match).OrderByDescending(n => n.Date).ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -36,7 +36,7 @@ namespace Arma3Event.Controllers
             }
 
             var news = await _context.News
-                .Include(n => n.Match).ThenInclude(m => m.GameMap)
+                .Include(n => n.Match)
                 .FirstOrDefaultAsync(m => m.NewsID == id);
             if (news == null)
             {

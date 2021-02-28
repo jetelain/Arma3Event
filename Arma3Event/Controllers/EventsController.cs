@@ -6,13 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Arma3Event.Arma3GameInfos;
 using Arma3Event.Entities;
-using Arma3Event.Hubs;
 using Arma3Event.Models;
 using Arma3Event.Services;
-using Arma3ServerToolbox.ArmaPersist;
+using Arma3TacMapLibrary.Arma3;
+using Arma3TacMapLibrary.TacMaps;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -24,11 +25,18 @@ namespace Arma3Event.Controllers
         private readonly IAuthorizationService _auth;
         private readonly PersistService _persist;
 
-        public EventsController(Arma3EventContext context, IAuthorizationService auth, PersistService persist)
+        private readonly IApiTacMaps _tacMaps;
+        private readonly IMapInfosService _mapInfos;
+        private readonly IConfiguration _config;
+
+        public EventsController(Arma3EventContext context, IAuthorizationService auth, PersistService persist, IApiTacMaps tacMaps, IMapInfosService mapInfos, IConfiguration config)
         {
             _context = context;
             _auth = auth;
             _persist = persist;
+            _tacMaps = tacMaps;
+            _mapInfos = mapInfos;
+            _config = config;
         }
 
         [HttpGet]
@@ -64,7 +72,6 @@ namespace Arma3Event.Controllers
 
             var match = await _context.Matchs
                 .Include(m => m.Sides)
-                .Include(m => m.GameMap)
                 .Include(m => m.MatchTechnicalInfos)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
@@ -111,6 +118,7 @@ namespace Arma3Event.Controllers
             vm.Match = match;
             vm.Squad = squad;
             vm.Backup = backup;
+            await LoadTacMap(vm.Match);
             return View(vm);
         }
 
@@ -124,7 +132,6 @@ namespace Arma3Event.Controllers
             }
             var match = await _context.Matchs
                 .Include(m => m.Sides)
-                .Include(m => m.GameMap)
                 .Include(m => m.MatchTechnicalInfos)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
@@ -135,7 +142,7 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
             match.Documents = await _context.Documents.Where(v => v.MatchID == id).OrderBy(v => v.Date).ToListAsync();
-
+            await LoadTacMap(match);
             var user = await GetUser();
             if (user == null)
             {
@@ -485,61 +492,64 @@ namespace Arma3Event.Controllers
         [HttpGet]
         public async Task<IActionResult> Map(int id, int? roundId)
         {
+            var isAdmin = (await _auth.AuthorizeAsync(User, "Admin")).Succeeded;
             var matchUser = await GetMatchUser(id);
             var vm = new MapViewModel();
-            if (roundId == null)
+            //if (roundId == null)
+            //{
+            if (matchUser == null && !isAdmin)
             {
-                var isAdmin = (await _auth.AuthorizeAsync(User, "Admin")).Succeeded;
-
-                if (matchUser == null && !isAdmin)
-                {
-                    return RedirectToAction(nameof(Subscription), new { id });
-                }
-
-                // Carte de situation
-                vm.Match = await _context.Matchs.Include(m => m.GameMap).Include(m => m.Rounds).FirstOrDefaultAsync(m => m.MatchID == id);
-
-                if (vm.Match == null)
-                {
-                    return NotFound();
-                }
-
-                vm.CanEditMap = isAdmin;
-                vm.MapId = new MapId() { matchID = vm.Match.MatchID };
-            }
-            else
-            {
-                if (matchUser == null)
-                {
-                    return RedirectToAction(nameof(Subscription), new { id });
-                }
-
-                // Carte partagée
-                vm.Round = await _context.Rounds
-                    .Include(m => m.Match).ThenInclude(m => m.GameMap)
-                    .Include(m => m.Match).ThenInclude(m => m.Rounds)
-                    .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
-                    .FirstOrDefaultAsync(m => m.RoundID == roundId && m.MatchID == id);
-                if (vm.Round == null)
-                {
-                    return NotFound();
-                }
-                vm.Match = vm.Round.Match;
-                vm.RoundSide = vm.Round.Sides.FirstOrDefault(s => s.MatchSideID == matchUser.MatchSideID);
-                vm.MapId = new MapId()
-                {
-                    matchID = vm.Round.Match.MatchID,
-                    roundSideID = vm.RoundSide.RoundSideID
-                };
-                vm.CanEditMap = await MapHub.CanUserEdit(_context, matchUser, vm.MapId);
+                return RedirectToAction(nameof(Subscription), new { id });
             }
 
-            // Vérifie qu'il y a un fond de carte
-            if (string.IsNullOrEmpty(vm.Match.GameMap.WebMap))
+            // Carte de situation
+            vm.Match = await _context.Matchs.Include(m => m.Rounds).FirstOrDefaultAsync(m => m.MatchID == id);
+
+            if (vm.Match == null)
             {
                 return NotFound();
             }
+
+            vm.CanEditMap = isAdmin;
+            //}
+            //else
+            //{
+            //    if (matchUser == null)
+            //    {
+            //        return RedirectToAction(nameof(Subscription), new { id });
+            //    }
+            //    // Carte partagée
+            //    vm.Round = await _context.Rounds
+            //        .Include(m => m.Match)
+            //        .Include(m => m.Match).ThenInclude(m => m.Rounds)
+            //        .Include(m => m.Sides).ThenInclude(m => m.MatchSide)
+            //        .FirstOrDefaultAsync(m => m.RoundID == roundId && m.MatchID == id);
+            //    if (vm.Round == null)
+            //    {
+            //        return NotFound();
+            //    }
+            //    vm.Match = vm.Round.Match;
+            //    vm.RoundSide = vm.Round.Sides.FirstOrDefault(s => s.MatchSideID == matchUser.MatchSideID);
+            //    vm.CanEditMap = isAdmin;
+            //}
+
+            if (vm.Match.TacMapId == null)
+            {
+                return NotFound();
+            }
+            vm.Hub = _config.GetValue<string>("ApiTacMaps:Url") + "MapHub";
+            await LoadTacMap(vm.Match);
             return View(vm);
+        }
+
+        private async Task LoadTacMap(Match match)
+        {
+            match.MapInfos = await _mapInfos.GetMapsInfos(match.WorldName);
+
+            if (match.TacMapId != null)
+            {
+                match.TacMap = await _tacMaps.Get(match.TacMapId.Value);
+            }
         }
 
         private async Task<MatchUser> GetMatchUser(int id)
@@ -561,7 +571,6 @@ namespace Arma3Event.Controllers
             }
             var match = await _context.Matchs
                 .Include(m => m.Sides)
-                .Include(m => m.GameMap)
                 .Include(m => m.MatchTechnicalInfos)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)
@@ -582,6 +591,7 @@ namespace Arma3Event.Controllers
                 vm.MatchUser = await GetMatchUser(match.MatchID);
             }
             AdminMatchsController.SortModel(match);
+            await LoadTacMap(vm.Match);
             return View(vm);
         }
 
@@ -617,32 +627,6 @@ namespace Arma3Event.Controllers
             });
         }
 
-        [HttpGet("/img/markers/{color}/{marker}.png")]
-        [ResponseCache(Duration = 1440)]
-        public IActionResult Icon(GameMarkerColor color, GameMarkerType marker)
-        {
-            if (color == GameMarkerColor.ColorWhite || marker >= GameMarkerType.flag_aaf)
-            {
-                return File($"/img/markers/{marker}.png", "image/png");
-            }
-            var targetColor = color.ToColor();
-            using (var img = Image.Load<Rgba32>($"wwwroot/img/markers/{marker}.png"))
-            {
-                for(int x = 0; x < img.Width; ++x)
-                {
-                    for (int y = 0; y < img.Height; ++y)
-                    {
-                        var pixel = img[x, y];
-                        img[x, y] = new Rgba32((byte)(pixel.R * targetColor[0]), (byte)(pixel.G * targetColor[1]), (byte)(pixel.B * targetColor[2]), pixel.A);
-                    }
-                }
-                using (var stream = new MemoryStream())
-                {
-                    img.SaveAsPng(stream);
-                    return File(stream.ToArray(), "image/png");
-                }
-            }
-        }
         public async Task<IActionResult> CancelSubscription(int id)
         {
             var user = await GetUser();

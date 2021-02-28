@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Arma3TacMapLibrary.Arma3;
+using Arma3TacMapLibrary.TacMaps;
 
 namespace Arma3Event.Entities
 {
@@ -61,10 +63,16 @@ namespace Arma3Event.Entities
         public List<Video> Videos { get; set; }
 
         [Display(Name = "Carte")]
+        [Obsolete]
         public int? GameMapID { get; set; }
 
         [Display(Name = "Carte")]
+        [Obsolete]
         public GameMap GameMap { get; set; }
+
+        [Display(Name = "Carte")]
+        public string WorldName { get; set; }
+
 
         [Display(Name = "Lien Discord")]
         public string DiscordLink { get; set; }
@@ -82,5 +90,12 @@ namespace Arma3Event.Entities
 
         public List<Document> Documents { get; set; }
 
+        public int? TacMapId { get; set; }
+
+        [NotMapped]
+        public ApiTacMap TacMap { get; set; }
+
+        [NotMapped]
+        public MapInfos MapInfos { get; set; }
     }
 }

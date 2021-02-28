@@ -57,7 +57,7 @@
                     <a class="btn btn-secondary" asp-controller="@ControllersName.Events" asp-action="Details" asp-route-id="@Model.Match.MatchID">Voir l'opération</a>
                 }
 
-                @if (!string.IsNullOrEmpty(Model.Match.GameMap?.WebMap) && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
+                @if (Model.Match.TacMapId != null && Model.Match.Rounds.Count == 1 && Model.MatchUser?.Side != null)
                 {
                     <a asp-action="Map" asp-route-id="@Model.Match.MatchID" asp-route-roundId="@Model.Match.Rounds[0].RoundID" asp-fragment="map" class="btn btn-secondary"><i class="fas fa-map"></i> Voir la carte partagée</a>
                 }

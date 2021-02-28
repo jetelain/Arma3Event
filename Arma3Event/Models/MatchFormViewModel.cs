@@ -7,7 +7,7 @@ namespace Arma3Event.Models
     public class MatchFormViewModel
     {
         public Match Match { get; set; }
-        public List<SelectListItem> MapsDropdownList { get; internal set; }
+        public List<SelectListItem> WorldNameDropdownList { get; internal set; }
         public List<SelectListItem> FactionsDropdownList { get; internal set; }
         public List<Faction> FactionsData { get; internal set; }
     }

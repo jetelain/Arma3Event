@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Arma3Event.Entities;
-using Arma3Event.Hubs;
 using Arma3Event.Models;
+using Arma3TacMapLibrary.Arma3;
+using Arma3TacMapLibrary.TacMaps;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace Arma3Event.Controllers
 {
@@ -19,10 +19,23 @@ namespace Arma3Event.Controllers
     public class AdminMatchsController : Controller
     {
         private readonly Arma3EventContext _context;
+        private readonly IApiTacMaps _tacMaps;
+        private readonly IMapInfosService _mapInfos;
 
-        public AdminMatchsController(Arma3EventContext context)
+        public AdminMatchsController(Arma3EventContext context, IApiTacMaps tacMaps, IMapInfosService mapInfos)
         {
             _context = context;
+            _tacMaps = tacMaps;
+            _mapInfos = mapInfos;
+        }
+        private async Task LoadTacMap(Match match)
+        {
+            match.MapInfos = await _mapInfos.GetMapsInfos(match.WorldName);
+
+            if (match.TacMapId != null)
+            {
+                match.TacMap = await _tacMaps.Get(match.TacMapId.Value);
+            }
         }
 
         // GET: Matches
@@ -39,7 +52,6 @@ namespace Arma3Event.Controllers
                 return NotFound();
             }
             var match = await _context.Matchs
-                .Include(r => r.GameMap)
                 .Include(m => m.Sides)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Faction)
@@ -58,6 +70,8 @@ namespace Arma3Event.Controllers
                 .Where(s => s.MatchSide.SquadsPolicy != SquadsPolicy.Unrestricted && s.MatchSide.MatchID != id)
                 .OrderBy(s => s.MatchSide.Match.StartDate)
                 .ToListAsync();
+
+            await LoadTacMap(match);
 
             return View(match);
         }
@@ -179,8 +193,8 @@ namespace Arma3Event.Controllers
 
         private async Task PrepareDrowdownLists(MatchFormViewModel vm)
         {
-            vm.MapsDropdownList = (await _context.Maps.OrderBy(m => m.Name).ToListAsync())
-                .Select(m => new SelectListItem(m.Name, m.GameMapID.ToString())).ToList();
+            vm.WorldNameDropdownList = (await _mapInfos.GetMapsInfos()).OrderBy(s => s.title)
+                .Select(m => new SelectListItem(m.title, m.worldName)).ToList();
             vm.FactionsDropdownList = (await _context.Factions.OrderBy(m => m.Name).ToListAsync())
                 .Select(m => new SelectListItem(m.Name, m.FactionID.ToString())).ToList();
             vm.FactionsData = await _context.Factions.ToListAsync(); 
@@ -240,12 +254,31 @@ namespace Arma3Event.Controllers
                     _context.Add(roundSide);
                 }
                 await _context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(vm.Match.WorldName))
+                {
+                    await CreateTacMap(vm);
+                    _context.Update(vm.Match);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             await PrepareDrowdownLists(vm);
 
             return View(vm);
         }
+
+        private async Task CreateTacMap(MatchFormViewModel vm)
+        {
+            vm.Match.TacMapId = (await _tacMaps.Create(new ApiTacMapCreate()
+            {
+                WorldName = vm.Match.WorldName,
+                Label = vm.Match.Name,
+                EventHref = new Uri(Url.Action(nameof(EventsController.Details), ControllersName.Events, new { id = vm.Match.MatchID }, Request.Scheme)),
+            })).Id;
+        }
+
         private void ApplyTemplate(MatchFormViewModel vm)
         {
             int wantedRounds;
@@ -395,6 +428,19 @@ namespace Arma3Event.Controllers
 
                 try
                 {
+                    await LoadTacMap(vm.Match);
+                    if (!string.IsNullOrEmpty(vm.Match.WorldName))
+                    {
+                        if (vm.Match.TacMapId == null || vm.Match.TacMap.WorldName != vm.Match.WorldName)
+                        {
+                            await CreateTacMap(vm);
+                        }
+                        else if (vm.Match.TacMap.Label != vm.Match.Name)
+                        {
+                            await _tacMaps.Update(vm.Match.TacMap.Id, new ApiTacMapPatch() { Label = vm.Match.Name });
+                        }
+                    }
+
                     _context.Update(vm.Match);
                     foreach (var side in vm.Match.Sides)
                     {
@@ -507,215 +553,5 @@ namespace Arma3Event.Controllers
             return File(Encoding.UTF8.GetBytes(match.MatchTechnicalInfos.ModsDefinition), "text/html; charset=utf-8");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> MapExport(int id)
-        {
-            return Content(await MapExportJson(id));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> MapExportSqf(int id)
-        {
-            var script = @"private _data = " + await MapExportJson(id) + @";
-
-_data params ['_icons', '_rects', '_metis'];
-
-if (!isNil 'gtd_map_allMarkers') then {
-  {
-    deleteMarker _x;
-  } forEach gtd_map_allMarkers;
-};
-
-if (!isNil 'gtd_map_allMetisMarkers') then {
-  {
-    [_x] call mts_markers_fnc_deleteMarker
-  } forEach gtd_map_allMetisMarkers;
-};
-
-gtd_map_allMarkers = [];
-gtd_map_allMetisMarkers = [];
-
-{
-  _x params ['_id', '_x', '_y', '_w', '_h', '_color', '_rotate'];
-  private _marker = createMarker [ format ['_USER_DEFINED #0/planops%1/0', _id], [_x, _y]];
-  _marker setMarkerShape 'RECTANGLE';
-  _marker setMarkerBrush 'SolidBorder';
-  _marker setMarkerDir _rotate;
-  _marker setMarkerColor _color; 
-  _marker setMarkerSize [_w,2];
-  gtd_map_allMarkers pushBack _marker;
-} forEach _rects;
-
-{
-  _x params ['_id', '_x', '_y', '_icon', '_color', '_text', '_rotate'];
-  private _marker = createMarker [ format ['_USER_DEFINED #0/planops%1/0', _id], [_x, _y]];
-  _marker setMarkerShape 'ICON';
-  _marker setMarkerDir _rotate;
-  _marker setMarkerColor _color; 
-  _marker setMarkerText _text;
-  _marker setMarkerType _icon;
-  gtd_map_allMarkers pushBack _marker;
-} forEach _icons;
-
-{
-  _x params ['_id', '_x', '_y', '_sideid', '_dashed', '_icon', '_mod1', '_mod2', '_size', '_designation'];
-  private _marker = [[_x,_y], 0, true, [_sideid, _dashed], [_icon, _mod1, _mod2], [_size, false, false], [], _designation] call mts_markers_fnc_createMarker;
-  gtd_map_allMetisMarkers pushBack _marker;
-} forEach _metis;
-
-publicVariable 'gtd_map_allMarkers';
-publicVariable 'gtd_map_allMetisMarkers';";
-            return Content(script);
-        }
-
-        private async Task<string> MapExportJson(int id)
-        {
-            var markers = await _context.MapMarkers.Where(m => m.MatchID == id).ToListAsync();
-            var iconMarkers = new List<List<object>>();
-            var rectMarkers = new List<List<object>>();
-            var metisMarkers = new List<List<object>>();
-            foreach (var marker in markers)
-            {
-                var data = JsonConvert.DeserializeObject<MarkerData>(marker.MarkerData);
-                if (data.type == "basic")
-                {
-                    var dir = Get(data.config, "dir", "");
-
-                    iconMarkers.Add(new List<object>() {
-                        marker.MapMarkerID,
-                        data.pos[1],
-                        data.pos[0],
-                        data.symbol,
-                        Get(data.config, "color", "ColorBlack"),
-                        Get(data.config, "label", ""),
-                        !string.IsNullOrEmpty(dir) ? (double.Parse(dir) * 360d / 6400d) : 0d });
-                }
-                else if (data.type == "line")
-                {
-                    for (int i = 2; i < data.pos.Length; i += 2)
-                    {
-                        var y1 = data.pos[i - 2];
-                        var x1 = data.pos[i - 1];
-                        var y2 = data.pos[i];
-                        var x2 = data.pos[i + 1];
-
-                        var length = Math.Sqrt(Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2));
-
-                        rectMarkers.Add(new List<object>() {
-                            marker.MapMarkerID,
-                            x1 + ((x2 - x1) / 2d),
-                            y1 + ((y2 - y1) / 2d),
-                            length / 2d,
-                            2,
-                            Get(data.config, "color", "ColorBlack"),
-                            GetAngle((x2 - x1),(y2 - y1)) * -1 });
-                    }
-                }
-                else if (data.type == "mil")
-                {
-                    metisMarkers.Add(new List<object>()
-                    {
-                        marker.MapMarkerID,
-                        data.pos[1],
-                        data.pos[0],
-                        ToIdentify(data.symbol[3]),
-                        ToDashed(data.symbol[3], data.symbol[6]),
-                        ToIcon(data.symbol.Substring(10, 6)),
-                        ToMod1(data.symbol.Substring(16, 2)),
-                        ToMod2(data.symbol.Substring(18, 2)),
-                        ToSize(data.symbol.Substring(8, 2)),
-                        Get(data.config, "uniqueDesignation", null) ?? Get(data.config, "higherFormation", null) ?? ""
-                    });
-                }
-            }
-            return JsonConvert.SerializeObject(new[] { iconMarkers, rectMarkers, metisMarkers });
-        }
-
-        private int ToSize(string v)
-        {
-            switch(v)
-            {
-                case "11": return 1;
-                case "12": return 2;
-                case "13": return 3;
-                case "14": return 4;
-                case "15": return 5;
-                case "16": return 6;
-                case "17": return 7;
-                case "18": return 8;
-                case "21": return 9;
-                case "22": return 10;
-                case "23": return 11;
-                case "24": return 12;
-            }
-            return 0;
-        }
-
-        private int ToMod2(string v)
-        {
-            return 0;
-        }
-
-        private int ToMod1(string v)
-        {
-            switch(v)
-            {
-                case "98": return 7;
-            }
-            return 0;
-        }
-
-        private int ToIcon(string v)
-        {
-            switch(v)
-            {
-                case "121100": return 1; // Infantry
-                case "121102": return 2; // Mechanized Infantry
-                case "121103": return 1; // Infantry with Main Gun System
-                case "121104": return 3; // Motorized Infantry
-                case "121105": return 2; // Mechanized Infantry with Main Gun System
-                case "120500": return 4; // Armor
-                case "120600": return 12; // Rotary Wing
-                case "121000": return 37; // Combined Arms
-                case "150600": return 0; // Intercept
-            }
-            return 0;
-        }
-
-        private bool ToDashed(char i, char v) 
-        {
-            return v == '1' || i == '5' || i == '2';
-        }
-
-        private string ToIdentify(char v)
-        {
-            switch(v)
-            {
-                case '2':
-                case '3':
-                    return "blu";
-                case '4':
-                    return "neu";
-                case '5':
-                case '6':
-                    return "red";
-            }
-            return "unk";
-        }
-
-        private double GetAngle(double dx, double dy)
-        {
-            return Math.Atan2(dy, dx) * 180d / Math.PI;
-        }
-
-        private string Get(Dictionary<string, string> config, string key, string defaultValue)
-        {
-            string value;
-            if (config.TryGetValue(key, out value))
-            {
-                return value;
-            }
-            return defaultValue;
-        }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Arma3Event.Entities;
 using Arma3Event.Models;
+using Arma3TacMapLibrary.TacMaps;
 
 namespace Arma3Event.Controllers
 {
@@ -15,11 +16,13 @@ namespace Arma3Event.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly Arma3EventContext _context;
+        private readonly IApiTacMaps _tacMaps;
 
-        public HomeController(ILogger<HomeController> logger, Arma3EventContext context)
+        public HomeController(ILogger<HomeController> logger, Arma3EventContext context, IApiTacMaps tacMaps)
         {
             _logger = logger;
             _context = context;
+            _tacMaps = tacMaps;
         }
         private async Task<User> GetUser()
         {
@@ -33,14 +36,21 @@ namespace Arma3Event.Controllers
             var maxDate = DateTime.Today;
             if (vm.User != null)
             {
-                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.MatchTechnicalInfos).Include(m => m.Rounds).Include(m => m.GameMap).Include(m => m.Users).ToListAsync();
+                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.MatchTechnicalInfos).Include(m => m.Rounds).Include(m => m.Users).ToListAsync();
             }
             else
             {
-                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).Include(m => m.GameMap).ToListAsync();
+                vm.Matchs = await _context.Matchs.Where(m => m.StartDate >= maxDate).OrderBy(m => m.StartDate).Include(m => m.Rounds).ToListAsync();
             }
             vm.News = await _context.News.OrderByDescending(n => n.Date).FirstOrDefaultAsync();
             vm.Videos = await _context.Videos.OrderByDescending(n => n.Date).Take(3).ToListAsync();
+
+
+            vm.NextMatch = vm.Matchs.FirstOrDefault();
+            if (vm.NextMatch != null && vm.NextMatch.TacMapId != null)
+            {
+                vm.NextMatch.TacMap = await _tacMaps.Get(vm.NextMatch.TacMapId.Value);
+            }
             return View(vm);
         }
 

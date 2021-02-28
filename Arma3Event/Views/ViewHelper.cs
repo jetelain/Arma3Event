@@ -1,7 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using Arma3Event.Entities;
-using Microsoft.EntityFrameworkCore.Query;
+using Arma3TacMapLibrary.Arma3;
 
 namespace Arma3Event
 {
@@ -40,11 +39,11 @@ namespace Arma3Event
             return "/img/factions/none.png";
         }
 
-        public static string Style(GameMap map)
+        public static string Style(MapInfos map)
         {
-            if (map != null && !string.IsNullOrEmpty(map.Image))
+            if (map != null && !string.IsNullOrEmpty(map.preview))
             {
-                return $"background-image: url({map.Image});";
+                return $"background-image: url({map.preview});";
             }
             return "";
         }

@@ -64,7 +64,7 @@ namespace Arma3Event.Entities
             modelBuilder.Entity<Document>().ToTable("Document");
         }
 
-        internal void InitBaseData()
+        internal void InitBaseData(Arma3TacMapLibrary.TacMaps.IApiTacMaps apiTacMaps, Arma3TacMapLibrary.Arma3.IMapInfosService mapInfosService)
         {
             if (!Factions.Any())
             {
@@ -75,16 +75,6 @@ namespace Arma3Event.Entities
                 Factions.Add(new Faction() { Name = "UK", UsualSide = GameSide.BLUFOR, Flag = "/img/flags/uk.png", GameMarker = GameMarkerType.flag_uk });
                 Factions.Add(new Faction() { Name = "FIA", UsualSide = GameSide.Independant, Flag = "/img/flags/fia.png", GameMarker = GameMarkerType.flag_fia });
                 Factions.Add(new Faction() { Name = "France", UsualSide = GameSide.BLUFOR, Flag = "/img/flags/fr.png", GameMarker = GameMarkerType.flag_france });
-                SaveChanges();
-            }
-            if (!Maps.Any())
-            {
-                Maps.Add(new GameMap() { Name = "Altis", Image = "/img/maps/altis.jpg" });
-                Maps.Add(new GameMap() { Name = "Stratis", Image = "/img/maps/stratis.jpg" });
-                Maps.Add(new GameMap() { Name = "Tanoa", Image = "/img/maps/tanoa.jpg", WebMap = "tanoa" });
-                Maps.Add(new GameMap() { Name = "Linovia", Image = "/img/maps/linovia.jpg" });
-                Maps.Add(new GameMap() { Name = "Taunus", Image = "/img/maps/x-cam-taunus.jpg", WebMap = "taunus", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=836147398" });
-                Maps.Add(new GameMap() { Name = "Lythium", Image = "/img/maps/lythium.jpg", WorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=909547724" });
                 SaveChanges();
             }
             var oldMissionBrief = Matchs.Where(m => !string.IsNullOrEmpty(m.MissionBriefLink)).ToList();
@@ -98,6 +88,34 @@ namespace Arma3Event.Entities
                 }
                 SaveChanges();
             }
+            var oldMaps = Matchs.Where(m => m.GameMapID != null && m.TacMapId == null).Include(m => m.GameMap).ToList();
+            if (oldMaps.Any())
+            {
+                var worlds = mapInfosService.GetMapsInfos().Result;
+                foreach (var match in oldMaps)
+                {
+                    var world = worlds.FirstOrDefault(w => string.Equals(w.worldName, match.GameMap.WebMap, StringComparison.OrdinalIgnoreCase)) ??
+                        worlds.FirstOrDefault(w => w.worldName.EndsWith(match.GameMap.WebMap, StringComparison.OrdinalIgnoreCase)) ??
+                        worlds.FirstOrDefault(w => w.worldName.StartsWith(match.GameMap.WebMap, StringComparison.OrdinalIgnoreCase));
+                    if ( world != null)
+                    {
+                        match.WorldName = world.worldName;
+                        match.TacMapId = apiTacMaps.Create(new Arma3TacMapLibrary.TacMaps.ApiTacMapCreate()
+                        {
+                            WorldName = world.worldName,
+                            Label = match.Name,
+                            EventHref = new Uri("https://plan-ops.fr/Events/Details/" + match.MatchID),
+                            Markers = MapMarkers.Where(m => m.MatchID == match.MatchID && m.RoundSideID == null && m.RoundSquadID == null).Select(m => new Arma3TacMapLibrary.Maps.StoredMarker()
+                            {
+                                MarkerData = m.MarkerData
+                            }).ToList()
+                        }).Result.Id;
+                        Update(match);
+                    }
+                }
+                SaveChanges();
+            }
+
         }
 
         public DbSet<Arma3Event.Entities.News> News { get; set; }

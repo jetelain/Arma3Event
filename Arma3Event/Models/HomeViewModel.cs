@@ -13,5 +13,6 @@ namespace Arma3Event.Models
         public News News { get; internal set; }
 
         public List<Video> Videos { get; internal set; }
-}
+        public Match NextMatch { get; internal set; }
+    }
 }

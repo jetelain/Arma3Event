@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Arma3Event.Entities
 {
+    [Obsolete]
     public class GameMap
     {
         public int GameMapID { get; set; }

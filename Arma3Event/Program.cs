@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Arma3Event.Entities;
 using Microsoft.EntityFrameworkCore;
+using Arma3TacMapLibrary.TacMaps;
+using Arma3TacMapLibrary.Arma3;
 
 namespace Arma3Event
 {
@@ -34,7 +36,7 @@ namespace Arma3Event
                     var context = services.GetRequiredService<Arma3EventContext>();
                     context.Database.Migrate();
                     //context.Database.EnsureCreated();
-                    context.InitBaseData();
+                    context.InitBaseData(services.GetRequiredService<IApiTacMaps>(), services.GetRequiredService<IMapInfosService>());
                 }
                 catch (Exception ex)
                 {

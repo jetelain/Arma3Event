@@ -32,7 +32,7 @@
     {
         @if (Model.Match.Rounds.Count > 1)
         {
-            <div class="title" style="@ViewHelper.Style(Model.Match.GameMap)">
+            <div class="title" style="@ViewHelper.Style(Model.Match.MapInfos)">
                 <a name="round-@round.RoundID"></a>
                 <p>
                     <span>
@@ -40,7 +40,7 @@
                     </span>
                 </p>
                 <h2>
-                    <span>@(Model.Match.GameMap?.Name ?? "Destination inconnue")</span>
+                    <span>@(Model.Match.MapInfos?.title ?? "Destination inconnue")</span>
                 </h2>
             </div>
         }
@@ -294,12 +294,12 @@
     <script src="https://unpkg.com/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
     <script src="https://jetelain.github.io/Arma3Map/js/mapUtils.js">
     </script>
-    <script src="https://jetelain.github.io/Arma3Map/maps/@(Model.Match.GameMap.WebMap).js">
+    <script src="https://jetelain.github.io/Arma3Map/maps/all.js">
     </script>
     <script src="~/js/persistMap.js">
     </script>
     <script>
-        var mapInfos = Arma3Map.Maps.@(Model.Match.GameMap.WebMap);
+        var mapInfos = Arma3Map.Maps.@(Model.Match.WorldName);
         mapInfos.tilePattern = 'https://jetelain.github.io/Arma3Map' + mapInfos.tilePattern;
         var allData = @Json.Serialize(new {
                      Players = Model.Backup.Players.Select( p => new {

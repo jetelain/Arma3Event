@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AngleSharp.Attributes;
 
 namespace Arma3Event.Entities
 {
+    [Obsolete]
     public class MapMarker
     {
         public int MapMarkerID { get; set; }

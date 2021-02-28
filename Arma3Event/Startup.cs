@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using Arma3Event.Entities;
-using Arma3Event.Hubs;
 using Arma3Event.Services;
-using Arma3ServerToolbox.ArmaPersist;
+using Arma3TacMapLibrary;
+using Arma3TacMapLibrary.Arma3;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -34,7 +34,8 @@ namespace Arma3Event
             services.AddSingleton<PersistService>();
 
             services.AddHttpClient();
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddViewLocalization();
             services.AddSignalR();
 
             services.AddDbContext<Arma3EventContext>(options =>
@@ -74,6 +75,10 @@ namespace Arma3Event
                     .PersistKeysToFileSystem(new DirectoryInfo(Configuration.GetValue<string>("UnixKeysDirectory")))
                     .SetApplicationName("Arma3Event");
             }
+
+            services.AddSingleton<IMapInfosService,MapInfosService>();
+
+            services.AddArma3TacMapApi(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -103,6 +108,8 @@ namespace Arma3Event
 
             app.UseRequestLocalization("fr-FR");
 
+            app.UseArma3TacMapStaticFiles();
+
             app.UseCookiePolicy(new CookiePolicyOptions()
             {
                 HttpOnly = HttpOnlyPolicy.Always,
@@ -115,8 +122,6 @@ namespace Arma3Event
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-                endpoints.MapHub<MapHub>("/MapHub");
             });
         }
     }

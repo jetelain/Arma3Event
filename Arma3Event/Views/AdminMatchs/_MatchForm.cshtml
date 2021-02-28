@@ -1,6 +1,7 @@
 ﻿@model Arma3Event.Models.MatchFormViewModel
 <h4>Informations générales</h4>
 <hr />
+<input asp-for="Match.TacMapId" type="hidden" />
 <div class="row">
     <div class="col-md-8">
         <div class="form-group">
@@ -31,11 +32,11 @@
             <span asp-validation-for="Match.Image" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="Match.GameMapID" class="control-label"></label>
-            <select asp-for="Match.GameMapID" asp-items="Model.MapsDropdownList" class="form-control">
+            <label asp-for="Match.WorldName" class="control-label"></label>
+            <select asp-for="Match.WorldName" asp-items="Model.WorldNameDropdownList" class="form-control">
                 <option value="">(Autre)</option>
             </select>
-            <span asp-validation-for="Match.GameMapID" class="text-danger"></span>
+            <span asp-validation-for="Match.WorldName" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Match.Template" class="control-label"></label>
@@ -122,25 +123,25 @@
             {
                 <input type="hidden" asp-for="Match.Rounds[r].Sides[s].RoundSideID" />
             }
-    <div class="form-row">
-        @for (int s = 0; s < Model.Match.Sides.Count; ++s)
-        {
+            <div class="form-row">
+                @for (int s = 0; s < Model.Match.Sides.Count; ++s)
+                {
 
-        <div class="form-group col-md-4">
-            <label asp-for="Match.Rounds[r].Sides[s].FactionID" class="control-label">Manche @(r + 1) - Camp Equipe @ViewHelper.SideName(s)</label>
-            <div class="input-group">
-                <div class="input-group-prepend"><img class="factionflag" /></div>
-                <select asp-for="Match.Rounds[r].Sides[s].GameSide" asp-items="Html.GetEnumSelectList<ArmaEvent.Arma3GameInfos.GameSide>()" class="form-control">
-                </select>
-                <select asp-for="Match.Rounds[r].Sides[s].FactionID" asp-items="Model.FactionsDropdownList" class="form-control faction">
-                    <option value="">(Non précisé)</option>
-                </select>
+                    <div class="form-group col-md-4">
+                        <label asp-for="Match.Rounds[r].Sides[s].FactionID" class="control-label">Manche @(r + 1) - Camp Equipe @ViewHelper.SideName(s)</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><img class="factionflag" /></div>
+                            <select asp-for="Match.Rounds[r].Sides[s].GameSide" asp-items="Html.GetEnumSelectList<ArmaEvent.Arma3GameInfos.GameSide>()" class="form-control">
+                            </select>
+                            <select asp-for="Match.Rounds[r].Sides[s].FactionID" asp-items="Model.FactionsDropdownList" class="form-control faction">
+                                <option value="">(Non précisé)</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="Match.Rounds[r].Sides[s].FactionID" class="text-danger"></span>
+                    </div>
+
+                }
             </div>
-            <span asp-validation-for="Match.Rounds[r].Sides[s].FactionID" class="text-danger"></span>
-        </div>
-
-        }
-    </div>
         }
     </div>
 </div>

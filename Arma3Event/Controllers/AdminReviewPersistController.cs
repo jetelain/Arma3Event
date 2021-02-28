@@ -73,7 +73,6 @@ namespace Arma3Event.Controllers
         {
             return await _context.Matchs
                 .Include(m => m.Sides)
-                .Include(m => m.GameMap)
                 .Include(m => m.MatchTechnicalInfos)
                 .Include(m => m.Users).ThenInclude(u => u.User)
                 .Include(m => m.Rounds).ThenInclude(r => r.Sides).ThenInclude(s => s.Squads).ThenInclude(s => s.Slots).ThenInclude(s => s.AssignedUser).ThenInclude(u => u.User)

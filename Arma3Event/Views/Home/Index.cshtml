@@ -3,7 +3,6 @@
 
 @{
     ViewData["Title"] = "PLANOPS";
-    var nextMatch = Model.Matchs.FirstOrDefault();
 }
 
 @section Title {
@@ -12,24 +11,24 @@
             <span class="header">Heure Zulu</span>
             <span class="clock" id="clock"></span>
         </div>
-        @if (nextMatch != null)
+        @if (Model.NextMatch != null)
         {
 
             <div class="countdownindicator">
                 <span class="header">Prochaine opération</span>
                 <span class="clock" id="countdown">
-                    @if (nextMatch.StartDate < DateTime.Now)
+                    @if (Model.NextMatch.StartDate < DateTime.Now)
                     {
                     @:00:00:00
                     }
                 </span>
             </div>
             
-            @if (nextMatch.State != MatchState.Over)
+            @if (Model.NextMatch.State != MatchState.Over)
             {
             <div class="matchindicator row">
-                <div class="desc desc-@((int)nextMatch.State) col-10">@Html.DisplayFor(_ => nextMatch.State)</div>
-                <div class="num num-@((int)nextMatch.State) col-2"><span>Phase</span>@((int)nextMatch.State)</div>
+                <div class="desc desc-@((int)Model.NextMatch.State) col-10">@Html.DisplayFor(_ => Model.NextMatch.State)</div>
+                <div class="num num-@((int)Model.NextMatch.State) col-2"><span>Phase</span>@((int)Model.NextMatch.State)</div>
             </div>
             }
         }
@@ -46,7 +45,7 @@
     </div>
 }
 
-@if (nextMatch != null)
+@if (Model.NextMatch != null)
 {
     <div class="row">
         <div class="col">
@@ -58,13 +57,20 @@
     </div>
     <div class="row">
         <div class="col-md-6">
-            @{await Html.RenderPartialAsync("_MatchCard", new HomeCardViewModel() { User = Model.User, Match = nextMatch });}
+            @{await Html.RenderPartialAsync("_MatchCard", new HomeCardViewModel() { User = Model.User, Match = Model.NextMatch });}
         </div>
         <div class="col-md-6">
             <h3 class="d-md-none mt-3">Situation tactique de reference</h3>
-            <div class="mainmap map" id="map" style="width:100%; height:100%; margin:0; padding:0; border:0; min-height:300px;">
-            </div>
-            <a asp-controller="@ControllersName.Events" asp-action="Map" asp-route-id="@nextMatch.MatchID" asp-route-roundID="@nextMatch.Rounds.First().RoundID" asp-fragment="map" id="maplink" class="btn btn-sm btn-secondary"><i class="fas fa-map"></i> Voir la carte</a>
+            @if (Model.NextMatch.TacMap != null)
+            {
+            <a asp-controller="@ControllersName.Events" asp-action="Map" asp-route-id="@Model.NextMatch.MatchID" asp-route-roundID="@Model.NextMatch.Rounds.First().RoundID" asp-fragment="map">
+                <img style="width:100%; height:100%; margin:0; padding:0; border:0; min-height:300px;" src="@Model.NextMatch.TacMap.PreviewHref[512]" />
+            </a>
+            }
+            else
+            {
+                <p class="alert alert-warning" role="alert">Carte momentanément indisponible.</p>
+            }
         </div>
     </div>
 }
@@ -111,48 +117,19 @@
 }
 
 @section Styles {
-    @if (!string.IsNullOrEmpty(nextMatch?.GameMap?.WebMap))
-    {
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
-    }
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&amp;display=swap" rel="stylesheet">
 }
 
 @section Scripts {
     <script src="~/js/home.js" asp-append-version="true">
     </script>
-    @if (!string.IsNullOrEmpty(nextMatch?.GameMap?.WebMap))
-    {
-    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin="">
-    </script>
-    <script src="https://jetelain.github.io/Arma3Map/js/mapUtils.js">
-    </script>
-    <script src="https://unpkg.com/milsymbol@2.0.0/dist/milsymbol.js">
-    </script>
-    <script src="https://unpkg.com/@@microsoft/signalr@3.1.4/dist/browser/signalr.min.js">
-    </script>
-    <script src="~/js/mapPreview.js" asp-append-version="true">
-    </script>
-    <script src="~/js/mapHome.js" asp-append-version="true">
-    </script>
-    <script src="https://jetelain.github.io/Arma3Map/maps/@(nextMatch.GameMap.WebMap).js">
-    </script>
-    <script>
-            var mapHubInfos = @Json.Serialize(new {
-                    mapId = new Arma3Event.Hubs.MapId(){matchID = nextMatch.MatchID},
-                    canEdit = false
-                });
-            var mapInfos = Arma3Map.Maps.@(nextMatch.GameMap.WebMap);
-            mapInfos.tilePattern = 'https://jetelain.github.io/Arma3Map' + mapInfos.tilePattern;
-        InitMap(mapInfos);
-    </script>
 
-    @if(nextMatch != null && nextMatch.StartDate >= DateTime.Now)
+    @if (Model.NextMatch != null && Model.NextMatch.StartDate >= DateTime.Now)
     {
-        var dt = nextMatch.StartDate.ToUniversalTime();
+        var dt = Model.NextMatch.StartDate.ToUniversalTime();
 <script>
     countDownTo = new Date(Date.UTC(@dt.Year,@(dt.Month-1),@dt.Day,@dt.Hour,@dt.Minute, 0));
 </script>
-            }
-        }
+    }
+        
 }
