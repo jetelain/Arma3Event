@@ -5,6 +5,8 @@ using Arma3Event.Entities;
 using Arma3Event.Services;
 using Arma3TacMapLibrary;
 using Arma3TacMapLibrary.Arma3;
+using Arma3TacMapWebApp.Security;
+using AspNetCore.Authentication.ApiKey;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -51,7 +53,12 @@ namespace Arma3Event
                 options.LogoutPath = "/Authentication/SignOut";
                 options.AccessDeniedPath = "/Authentication/Denied";
             })
-            .AddSteam(s => s.ApplicationKey = Configuration.GetValue<string>("Steam:Key"));
+            .AddSteam(s => s.ApplicationKey = Configuration.GetValue<string>("Steam:Key"))
+            .AddApiKeyInAuthorizationHeader<ApiKeyProvider>("API", options =>
+            {
+                options.SuppressWWWAuthenticateHeader = true;
+                options.KeyName = "ApiKey";
+            });
 
             services.AddAuthorization(options =>
             {
@@ -67,6 +74,7 @@ namespace Arma3Event
                     admins.Concat(videoSpecialists).ToArray()
                     ));
                 options.AddPolicy("LoggedUser", policy => policy.RequireClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
+                options.AddPolicy("ApiClient", policy => { policy.RequireAuthenticatedUser(); policy.AddAuthenticationSchemes("API"); });
             }); 
             
             if (Environment.OSVersion.Platform == PlatformID.Unix)
