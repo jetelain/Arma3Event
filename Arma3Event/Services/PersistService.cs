@@ -18,7 +18,7 @@ namespace Arma3Event.Services
             _config = config;
         }
 
-        private static readonly string filePath = "/home/arma3-w/.steam/steamcmd/server/profiles/Users/server/server.vars.Arma3Profile";
+        private static readonly string filePath = "/home/arma3/.steam/steamcmd/server/profiles/Users/server/server.vars.Arma3Profile";
 
         public List<PersistBackup> GetBackups()
         {
@@ -28,7 +28,7 @@ namespace Arma3Event.Services
             {
                 var hostName = entry.Key;
                 var password = entry.Value;
-                using (var client = new SftpClient(hostName, "arma3-public", password))
+                using (var client = new SftpClient(hostName, "gamemanager", password))
                 {
                     client.Connect();
                     if (client.Exists(filePath))

@@ -25,7 +25,14 @@ namespace Arma3ServerToolbox.ArmaPersist
             else
             {
                 Name = (string)def[0];
-                Count = (float)def[1];
+                if (def[1] is bool)
+                {
+                    Count = (bool)def[1] ? 1 : 0;
+                }
+                else
+                {
+                    Count = (float)def[1];
+                }
             }
         }
 
