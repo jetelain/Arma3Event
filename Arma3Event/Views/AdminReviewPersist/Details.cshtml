@@ -292,15 +292,15 @@
     <script src="https://unpkg.com/milstd@0.1.6/milstd.js">
     </script>
     <script src="https://unpkg.com/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-    <script src="https://jetelain.github.io/Arma3Map/js/mapUtils.js">
+    <script src="https://mapsdata.plan-ops.fr/js/mapUtils.js">
     </script>
-    <script src="https://jetelain.github.io/Arma3Map/maps/all.js">
+    <script src="https://mapsdata.plan-ops.fr/maps/all.js">
     </script>
     <script src="~/js/persistMap.js">
     </script>
     <script>
         var mapInfos = Arma3Map.Maps.@(Model.Match.WorldName);
-        mapInfos.tilePattern = 'https://jetelain.github.io/Arma3Map' + mapInfos.tilePattern;
+        mapInfos.tilePattern = 'https://mapsdata.plan-ops.fr' + mapInfos.tilePattern;
         var allData = @Json.Serialize(new {
                      Players = Model.Backup.Players.Select( p => new {
                          SteamId = p.SteamId,

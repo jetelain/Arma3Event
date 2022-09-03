@@ -35,29 +35,38 @@ namespace Arma3ServerToolbox.ArmaPersist
             var backups = new List<PersistBackup>();
             foreach (var backupEntry in backupEntries)
             {
-                var backupData = ToArray(backupEntry.Entries.OfType<ParamClass>().FirstOrDefault(e => e.Name == "data"));
+                var backupData = (List<object>)DeserializeContent(backupEntry.Entries.OfType<ParamClass>().FirstOrDefault(e => e.Name == "data"));
                 var backupName = (string)backupEntry.Entries.OfType<ParamValue>().FirstOrDefault(e => e.Name == "name").Value.Value;
                 var backup = new PersistBackup(backupName.Substring(16), dt, server);
-                foreach (List<object> playerData in (List<object>)backupData[0])
+                if (backupData[0] != null)
                 {
-                    backup.Players.Add(new PersistPlayer(playerData));
+                    foreach (List<object> playerData in (List<object>)backupData[0])
+                    {
+                        backup.Players.Add(new PersistPlayer(playerData));
+                    }
                 }
                 int id = 0;
-                foreach (List<object> boxData in (List<object>)backupData[1])
+                if (backupData[1] != null)
                 {
-                    id++;
-                    if (boxData != null)
+                    foreach (List<object> boxData in (List<object>)backupData[1])
                     {
-                        backup.Boxes.Add(new PersistBox(boxData, id));
+                        id++;
+                        if (boxData != null)
+                        {
+                            backup.Boxes.Add(new PersistBox(boxData, id));
+                        }
                     }
                 }
                 id = 0;
-                foreach (List<object> vehicleData in (List<object>)backupData[2])
+                if (backupData[2] != null)
                 {
-                    id++;
-                    if (vehicleData != null)
+                    foreach (List<object> vehicleData in (List<object>)backupData[2])
                     {
-                        backup.Vehicles.Add(new PersistVehicle(vehicleData, id));
+                        id++;
+                        if (vehicleData != null)
+                        {
+                            backup.Vehicles.Add(new PersistVehicle(vehicleData, id));
+                        }
                     }
                 }
                 backups.Add(backup);
@@ -65,49 +74,76 @@ namespace Arma3ServerToolbox.ArmaPersist
             return backups;
         }
 
-        private static List<object> ToArray(ParamClass paramClass)
-        {
-            var result = new List<object>();
 
-            if (paramClass.Entries.Count == 1)
+        private static object DeserializeContent(ParamClass data)
+        {
+            if (data.Name != "data")
             {
-                return result;
+                throw new InvalidOperationException($"Expected 'data' but is '{data.Name}'");
             }
 
-            var content = (ParamClass)paramClass.Entries[1];
-            foreach(var entry in content.Entries.OfType<ParamClass>())
+            var type = (ParamValue)data.Entries[0];
+            if (type.Name == "nil")
             {
-                var entryData = (ParamClass)entry.Entries[0];
-                if (entryData.Entries[0] is ParamValue)
+                return null;
+            }
+            if (type.Name != "singleType")
+            {
+                throw new InvalidOperationException($"Expected 'singleType' but is '{type.Name}'");
+            }
+
+            if (data.Entries.Count == 1)
+            {
+                switch (type.Value.Value as string)
                 {
-                    result.Add(null);
+                    case "ARRAY":
+                        return new List<object>();
+                    case "NOTHING":
+                    default:
+                        return null;
                 }
-                else
+            }
+
+            var value = data.Entries[1];
+            if (value.Name != "value")
+            {
+                throw new InvalidOperationException($"Expected 'value' but is '{value.Name}'");
+            }
+
+            switch (type.Value.Value as string)
+            {
+                case "ARRAY":
+                    return DeserializeArray((ParamClass)value);
+                case "STRING":
+                    return  (string)((ParamValue)value).Value.Value;
+                case "SCALAR":
+                    return (float)((ParamValue)value).Value.Value;
+                case "BOOL":
+                    return (int)((ParamValue)value).Value.Value == 0 ? false : true;
+                case "NOTHING":
+                default:
+                    return null;
+            }
+        }
+
+        private static List<object> DeserializeArray(ParamClass value)
+        {
+            if (value.Name != "value")
+            {
+                throw new InvalidOperationException($"Expected 'value' but is '{value.Name}'");
+            }
+            var result = new List<object>();
+            foreach (var entry in value.Entries.OfType<ParamClass>())
+            {
+                var itemName = "Item" + result.Count;
+                if (entry.Name != itemName)
                 {
-                    var type = ((ParamArray)((ParamClass)entryData.Entries[0]).Entries[0]).Array.Entries[0].Value as string;
-                    switch (type)
-                    {
-                        case "ARRAY":
-                            result.Add(ToArray(entryData));
-                            break;
-                        case "STRING":
-                            result.Add((string)((ParamValue)entryData.Entries[1]).Value.Value);
-                            break;
-                        case "SCALAR":
-                            result.Add((float)((ParamValue)entryData.Entries[1]).Value.Value);
-                            break;
-                        case "BOOL":
-                            result.Add(((int)((ParamValue)entryData.Entries[1]).Value.Value) != 0);
-                            break;
-                        case "NOTHING":
-                            result.Add(null);
-                            break;
-                        default:
-                            break;
-                    }
+                    throw new InvalidOperationException($"Expected '{itemName}' but is '{entry.Name}'");
                 }
+                result.Add(DeserializeContent((ParamClass)entry.Entries[0]));
             }
             return result;
         }
+
     }
 }

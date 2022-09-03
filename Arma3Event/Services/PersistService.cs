@@ -18,7 +18,7 @@ namespace Arma3Event.Services
             _config = config;
         }
 
-        private static readonly string filePath = "/home/arma3/.steam/steamcmd/server/profiles/Users/server/server.vars.Arma3Profile";
+        private static readonly string filePath = "/home/arma3-public/arma3/profiles/Users/server/server.vars.Arma3Profile";
 
         public List<PersistBackup> GetBackups()
         {

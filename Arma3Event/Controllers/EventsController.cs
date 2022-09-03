@@ -112,7 +112,7 @@ namespace Arma3Event.Controllers
                 }
             }
 
-            var backup = _persist.GetBackups().FirstOrDefault();
+            var backup = _persist.GetBackups().Where(b => b.Name == "barkhane3").FirstOrDefault();
 
             var vm = new ReviewEquipementViewModel();
             vm.Match = match;

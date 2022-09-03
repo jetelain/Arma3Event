@@ -40,7 +40,7 @@ namespace Arma3Event.Controllers
             {
                 return NotFound();
             }
-            var backup = _persist.GetBackups().FirstOrDefault();
+            var backup = _persist.GetBackups().Where(b => b.Name == "barkhane3").FirstOrDefault();
             if (backup == null)
             {
                 return NotFound();
