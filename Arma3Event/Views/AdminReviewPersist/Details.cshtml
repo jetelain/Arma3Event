@@ -278,6 +278,38 @@
     </tbody>
 </table>
 
+<h2>Caisses sauvegardés</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Type
+            </th>
+            <th>
+                Contenu
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Backup.Boxes)
+        {
+            <tr id="backup-vehicle-@item.BoxId">
+                <td>
+                    @Html.DisplayFor(_ => item.Name)
+                </td>
+                <td>
+                    <ul>
+                        @foreach (var entry in item.Items)
+                        {
+                            <li>@entry.Count @entry.Name</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
 
 @section Styles {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
